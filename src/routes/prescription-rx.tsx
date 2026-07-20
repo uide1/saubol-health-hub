@@ -69,7 +69,7 @@ function PrescriptionRx() {
 
           <Card title="Visual Daily Schedule" subtitle="Timezone Asia/Almaty · adherence 92% this week">
             <div className="relative">
-              <div className="grid grid-cols-24 gap-px text-[9px] text-muted-foreground">
+              <div className="grid gap-px text-[9px] text-muted-foreground" style={{ gridTemplateColumns: "repeat(24, minmax(0, 1fr))" }}>
                 {Array.from({ length: 24 }).map((_, h) => (
                   <div key={h} className="border-l border-border pl-1 pb-1">{h.toString().padStart(2, "0")}</div>
                 ))}
