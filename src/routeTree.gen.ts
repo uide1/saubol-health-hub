@@ -9,8 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TriageVoiceRouteImport } from './routes/triage-voice'
+import { Route as PrescriptionRxRouteImport } from './routes/prescription-rx'
+import { Route as NutritionScanRouteImport } from './routes/nutrition-scan'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TriageVoiceRoute = TriageVoiceRouteImport.update({
+  id: '/triage-voice',
+  path: '/triage-voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrescriptionRxRoute = PrescriptionRxRouteImport.update({
+  id: '/prescription-rx',
+  path: '/prescription-rx',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NutritionScanRoute = NutritionScanRouteImport.update({
+  id: '/nutrition-scan',
+  path: '/nutrition-scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -19,28 +37,66 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/nutrition-scan': typeof NutritionScanRoute
+  '/prescription-rx': typeof PrescriptionRxRoute
+  '/triage-voice': typeof TriageVoiceRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/nutrition-scan': typeof NutritionScanRoute
+  '/prescription-rx': typeof PrescriptionRxRoute
+  '/triage-voice': typeof TriageVoiceRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/nutrition-scan': typeof NutritionScanRoute
+  '/prescription-rx': typeof PrescriptionRxRoute
+  '/triage-voice': typeof TriageVoiceRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/nutrition-scan' | '/prescription-rx' | '/triage-voice'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/nutrition-scan' | '/prescription-rx' | '/triage-voice'
+  id:
+    | '__root__'
+    | '/'
+    | '/nutrition-scan'
+    | '/prescription-rx'
+    | '/triage-voice'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  NutritionScanRoute: typeof NutritionScanRoute
+  PrescriptionRxRoute: typeof PrescriptionRxRoute
+  TriageVoiceRoute: typeof TriageVoiceRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/triage-voice': {
+      id: '/triage-voice'
+      path: '/triage-voice'
+      fullPath: '/triage-voice'
+      preLoaderRoute: typeof TriageVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prescription-rx': {
+      id: '/prescription-rx'
+      path: '/prescription-rx'
+      fullPath: '/prescription-rx'
+      preLoaderRoute: typeof PrescriptionRxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/nutrition-scan': {
+      id: '/nutrition-scan'
+      path: '/nutrition-scan'
+      fullPath: '/nutrition-scan'
+      preLoaderRoute: typeof NutritionScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -53,17 +109,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  NutritionScanRoute: NutritionScanRoute,
+  PrescriptionRxRoute: PrescriptionRxRoute,
+  TriageVoiceRoute: TriageVoiceRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
