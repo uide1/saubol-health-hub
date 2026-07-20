@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { LanguageProvider, LangSwitcher, useT } from "../lib/i18n";
 
 function NotFoundComponent() {
   return (
@@ -83,25 +84,26 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 const NAV = [
-  { to: "/", label: "Анализдер", sub: "BioSign AI" },
-  { to: "/nutrition-scan", label: "Тамақ & Калория", sub: "SmartNutri" },
-  { to: "/triage-voice", label: "Аудио Сұхбат", sub: "Triage Voice" },
-  { to: "/prescription-rx", label: "Дәрілер", sub: "RxClarify" },
+  { to: "/", key: "nav.labs", subKey: "nav.labs.sub" },
+  { to: "/nutrition-scan", key: "nav.nutri", subKey: "nav.nutri.sub" },
+  { to: "/triage-voice", key: "nav.voice", subKey: "nav.voice.sub" },
+  { to: "/prescription-rx", key: "nav.rx", subKey: "nav.rx.sub" },
 ] as const;
 
 function TopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const t = useT();
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-6">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
           <div className="grid h-7 w-7 place-items-center rounded-md bg-foreground text-background text-[11px] font-bold tracking-tight">S</div>
           <div className="flex items-baseline gap-1.5">
             <span className="text-sm font-semibold tracking-tight text-foreground">SauBol</span>
             <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">AI</span>
           </div>
         </Link>
-        <nav className="flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1">
           {NAV.map((n) => {
             const active = pathname === n.to;
             return (
@@ -112,19 +114,17 @@ function TopNav() {
                   active ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                 }`}
               >
-                <span className="font-medium">{n.label}</span>
-                <span className="text-[10px] uppercase tracking-[0.12em] opacity-60">{n.sub}</span>
+                <span className="font-medium">{t(n.key)}</span>
+                <span className="text-[10px] uppercase tracking-[0.12em] opacity-60">{t(n.subKey)}</span>
               </Link>
             );
           })}
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 md:flex">
+          <LangSwitcher />
+          <div className="hidden lg:flex items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1">
             <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--success)]" />
-            <span className="text-[11px] text-muted-foreground">All systems nominal</span>
-          </div>
-          <div className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
-            <span>Taldykorgan · KZ</span>
+            <span className="text-[11px] text-muted-foreground">{t("nav.status")}</span>
           </div>
           <div className="h-7 w-7 rounded-full border border-border bg-secondary text-[11px] font-medium text-foreground grid place-items-center">АН</div>
         </div>
@@ -137,12 +137,14 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-foreground">
-        <TopNav />
-        <main className="mx-auto max-w-[1400px] px-6 py-6">
-          <Outlet />
-        </main>
-      </div>
+      <LanguageProvider>
+        <div className="min-h-screen bg-background text-foreground">
+          <TopNav />
+          <main className="mx-auto max-w-[1400px] px-6 py-8">
+            <Outlet />
+          </main>
+        </div>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }
