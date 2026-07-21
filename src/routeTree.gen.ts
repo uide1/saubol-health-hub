@@ -9,15 +9,29 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as TriageVoiceRouteImport } from './routes/triage-voice'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrescriptionRxRouteImport } from './routes/prescription-rx'
 import { Route as NutritionScanRouteImport } from './routes/nutrition-scan'
 import { Route as LabsRouteImport } from './routes/labs'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
 
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TriageVoiceRoute = TriageVoiceRouteImport.update({
   id: '/triage-voice',
   path: '/triage-voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrescriptionRxRoute = PrescriptionRxRouteImport.update({
@@ -35,6 +49,16 @@ const LabsRoute = LabsRouteImport.update({
   path: '/labs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiChatRoute = ApiChatRouteImport.update({
   id: '/api/chat',
   path: '/api/chat',
@@ -42,66 +66,108 @@ const ApiChatRoute = ApiChatRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/labs': typeof LabsRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
+  '/profile': typeof ProfileRoute
   '/triage-voice': typeof TriageVoiceRoute
+  '/welcome': typeof WelcomeRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/labs': typeof LabsRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
+  '/profile': typeof ProfileRoute
   '/triage-voice': typeof TriageVoiceRoute
+  '/welcome': typeof WelcomeRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/chat': typeof ChatRoute
   '/labs': typeof LabsRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
+  '/profile': typeof ProfileRoute
   '/triage-voice': typeof TriageVoiceRoute
+  '/welcome': typeof WelcomeRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/'
+    | '/chat'
     | '/labs'
     | '/nutrition-scan'
     | '/prescription-rx'
+    | '/profile'
     | '/triage-voice'
+    | '/welcome'
     | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/'
+    | '/chat'
     | '/labs'
     | '/nutrition-scan'
     | '/prescription-rx'
+    | '/profile'
     | '/triage-voice'
+    | '/welcome'
     | '/api/chat'
   id:
     | '__root__'
+    | '/'
+    | '/chat'
     | '/labs'
     | '/nutrition-scan'
     | '/prescription-rx'
+    | '/profile'
     | '/triage-voice'
+    | '/welcome'
     | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  ChatRoute: typeof ChatRoute
   LabsRoute: typeof LabsRoute
   NutritionScanRoute: typeof NutritionScanRoute
   PrescriptionRxRoute: typeof PrescriptionRxRoute
+  ProfileRoute: typeof ProfileRoute
   TriageVoiceRoute: typeof TriageVoiceRoute
+  WelcomeRoute: typeof WelcomeRoute
   ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/triage-voice': {
       id: '/triage-voice'
       path: '/triage-voice'
       fullPath: '/triage-voice'
       preLoaderRoute: typeof TriageVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/prescription-rx': {
@@ -125,6 +191,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LabsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/chat': {
       id: '/api/chat'
       path: '/api/chat'
@@ -136,10 +216,14 @@ declare module '@tanstack/react-router' {
 }
 
 const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  ChatRoute: ChatRoute,
   LabsRoute: LabsRoute,
   NutritionScanRoute: NutritionScanRoute,
   PrescriptionRxRoute: PrescriptionRxRoute,
+  ProfileRoute: ProfileRoute,
   TriageVoiceRoute: TriageVoiceRoute,
+  WelcomeRoute: WelcomeRoute,
   ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
