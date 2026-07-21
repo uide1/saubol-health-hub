@@ -17,10 +17,10 @@ function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-semibold text-foreground">404</h1>
-        <p className="mt-4 text-sm text-muted-foreground">This page doesn't exist.</p>
-        <Link to="/" className="mt-6 inline-flex rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
-          Go home
+        <div className="font-serif text-8xl text-foreground">404</div>
+        <p className="mt-4 text-sm text-muted-foreground">Бұл бет табылмады.</p>
+        <Link to="/" className="mt-6 inline-flex rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
+          Басты бетке
         </Link>
       </div>
     </div>
@@ -35,12 +35,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold text-foreground">Something went wrong</h1>
+        <h1 className="font-serif text-2xl text-foreground">Бірдеңе дұрыс болмады</h1>
         <button
           onClick={() => { router.invalidate(); reset(); }}
-          className="mt-6 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          className="mt-6 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background"
         >
-          Try again
+          Қайталау
         </button>
       </div>
     </div>
@@ -52,10 +52,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "SauBol AI — Medical Intelligence Ecosystem" },
-      { name: "description", content: "SauBol AI: Lab diagnostics, nutrition scanning, emergency voice triage, and prescription safety — one clinical-grade AI ecosystem." },
-      { property: "og:title", content: "SauBol AI — Medical Intelligence Ecosystem" },
-      { property: "og:description", content: "Clinical-grade AI for labs, nutrition, emergency triage, and prescriptions." },
+      { title: "SauBol AI — Медициналық Интеллект" },
+      { name: "description", content: "SauBol AI — қандық талдаулар, тамақ сканері, дауыстық триаж және дәрі-дәрмек қауіпсіздігі. Қазақстанға арналған AI денсаулық экожүйесі." },
+      { property: "og:title", content: "SauBol AI — Медициналық Интеллект" },
+      { property: "og:description", content: "AI-мен күшейтілген денсаулық көмекшісі: анализдер, тамақ, аудио триаж, дәрі-дәрмек." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -63,7 +63,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
@@ -75,7 +75,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="kk">
       <head><HeadContent /></head>
       <body>{children}<Scripts /></body>
     </html>
@@ -83,50 +83,50 @@ function RootShell({ children }: { children: ReactNode }) {
 }
 
 const NAV = [
-  { to: "/", label: "Анализдер", sub: "BioSign AI" },
-  { to: "/nutrition-scan", label: "Тамақ & Калория", sub: "SmartNutri" },
-  { to: "/triage-voice", label: "Аудио Сұхбат", sub: "Triage Voice" },
-  { to: "/prescription-rx", label: "Дәрілер", sub: "RxClarify" },
+  { to: "/", label: "Басты" },
+  { to: "/chat", label: "AI Дәрігер" },
+  { to: "/labs", label: "Анализдер" },
+  { to: "/nutrition-scan", label: "Тамақ" },
+  { to: "/triage-voice", label: "Дауыс" },
+  { to: "/prescription-rx", label: "Дәрілер" },
+  { to: "/profile", label: "Профиль" },
 ] as const;
 
 function TopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="mx-auto flex h-14 max-w-[1400px] items-center gap-6 px-6">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-7 w-7 place-items-center rounded-md bg-foreground text-background text-[11px] font-bold tracking-tight">S</div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-sm font-semibold tracking-tight text-foreground">SauBol</span>
-            <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">AI</span>
+    <header className="sticky top-4 z-40 mx-auto max-w-[1400px] px-6">
+      <div className="flex items-center gap-4 rounded-full border border-border bg-background/70 px-4 py-2 backdrop-blur-xl">
+        <Link to="/" className="flex items-center gap-2 pl-1 pr-2">
+          <div className="grid h-7 w-7 place-items-center rounded-full bg-[color:var(--mint)] text-[10px] font-bold text-background">S</div>
+          <div className="flex items-baseline gap-1">
+            <span className="font-serif text-lg leading-none tracking-tight text-foreground">SauBol</span>
+            <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">AI</span>
           </div>
         </Link>
-        <nav className="flex items-center gap-1">
+        <div className="h-4 w-px bg-border" />
+        <nav className="flex items-center gap-0.5 overflow-x-auto">
           {NAV.map((n) => {
             const active = pathname === n.to;
             return (
               <Link
                 key={n.to}
                 to={n.to}
-                className={`group flex flex-col rounded-md px-3 py-1.5 text-[12px] leading-tight transition ${
-                  active ? "bg-secondary text-foreground" : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-[12px] transition ${
+                  active ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <span className="font-medium">{n.label}</span>
-                <span className="text-[10px] uppercase tracking-[0.12em] opacity-60">{n.sub}</span>
+                {n.label}
               </Link>
             );
           })}
         </nav>
-        <div className="ml-auto flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-md border border-border bg-surface px-2.5 py-1 md:flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--success)]" />
-            <span className="text-[11px] text-muted-foreground">All systems nominal</span>
+        <div className="ml-auto flex items-center gap-2">
+          <div className="hidden items-center gap-2 rounded-full border border-border bg-surface px-2.5 py-1 md:flex">
+            <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--mint)]" />
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Live</span>
           </div>
-          <div className="flex items-center gap-2 rounded-md border border-border px-2.5 py-1 text-[11px] text-muted-foreground">
-            <span>Taldykorgan · KZ</span>
-          </div>
-          <div className="h-7 w-7 rounded-full border border-border bg-secondary text-[11px] font-medium text-foreground grid place-items-center">АН</div>
+          <Link to="/profile" className="grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-[11px] font-medium text-foreground">АН</Link>
         </div>
       </div>
     </header>
@@ -137,11 +137,17 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background text-foreground">
+      <div className="min-h-screen bg-background pt-4 text-foreground">
         <TopNav />
-        <main className="mx-auto max-w-[1400px] px-6 py-6">
+        <main className="mx-auto max-w-[1400px] px-6 py-8">
           <Outlet />
         </main>
+        <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="font-serif italic">SauBol AI · Медициналық ақпараттандыру құралы, диагноз емес.</span>
+            <span className="font-mono">© 2026 · v1.4.2 · Almaty</span>
+          </div>
+        </footer>
       </div>
     </QueryClientProvider>
   );

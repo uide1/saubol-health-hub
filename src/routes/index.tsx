@@ -1,200 +1,192 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { Card, Badge, Stat, Bar, PageHeader } from "@/components/ui-kit";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Bento, Badge, Gauge, Chip, SectionEyebrow, Bar } from "@/components/ui-kit";
+import { LineChart, Line, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Анализдер — BioSign AI · SauBol" },
-      { name: "description", content: "AI-driven blood panel analysis with micro-element and disease diagnostics." },
+      { title: "SauBol AI — Сіздің денсаулық көмекшіңіз" },
+      { name: "description", content: "SauBol AI дашборды: денсаулық индексі, апталық тренд, соңғы сканерлер, дәрі-дәрмек кестесі, AI дәрігермен жылдам сұхбат." },
+      { property: "og:title", content: "SauBol AI — Денсаулық Дашборды" },
+      { property: "og:description", content: "AI-мен күшейтілген жеке денсаулық басқару орталығы." },
     ],
   }),
-  component: LabAnalysis,
+  component: Dashboard,
 });
 
-const BIOMARKERS = [
-  { name: "Hemoglobin", value: "105", unit: "g/L", ref: "120–160", status: "low", tone: "danger" as const, pct: 60 },
-  { name: "Ferritin", value: "12", unit: "µg/L", ref: "30–200", status: "critical", tone: "danger" as const, pct: 15 },
-  { name: "Vitamin B12", value: "198", unit: "pg/mL", ref: "200–900", status: "low", tone: "warning" as const, pct: 40 },
-  { name: "Vitamin D", value: "18", unit: "ng/mL", ref: "30–100", status: "low", tone: "warning" as const, pct: 32 },
-  { name: "Glucose (fasting)", value: "4.8", unit: "mmol/L", ref: "3.9–5.6", status: "normal", tone: "success" as const, pct: 78 },
-  { name: "TSH", value: "2.4", unit: "mIU/L", ref: "0.4–4.0", status: "normal", tone: "success" as const, pct: 72 },
-  { name: "MCV", value: "76", unit: "fL", ref: "80–100", status: "low", tone: "warning" as const, pct: 55 },
-  { name: "Iron (serum)", value: "5.2", unit: "µmol/L", ref: "11–30", status: "critical", tone: "danger" as const, pct: 20 },
-  { name: "Creatinine", value: "72", unit: "µmol/L", ref: "62–106", status: "normal", tone: "success" as const, pct: 65 },
-  { name: "ALT", value: "22", unit: "U/L", ref: "7–56", status: "normal", tone: "success" as const, pct: 55 },
+const TREND = [
+  { d: "Дс", score: 68 }, { d: "Сс", score: 71 }, { d: "Ср", score: 69 },
+  { d: "Бс", score: 74 }, { d: "Жм", score: 76 }, { d: "Сб", score: 72 }, { d: "Жс", score: 78 },
 ];
 
-function LabAnalysis() {
-  return (
-    <div>
-      <PageHeader
-        eyebrow="BioSign AI · Панель № LP-24817"
-        title="Blood Panel Analysis"
-        description="Оқылған: 20 шілде 2026 · Лаборатория Invivo Taldykorgan · Пациент: Айнұр Н., 32 ж."
-        actions={
-          <>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Export PDF</button>
-            <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Re-analyze</button>
-          </>
-        }
-      />
+const RECENT = [
+  { icon: "🩸", title: "Қан анализі", note: "Ferritin төмен · 3 маркер", to: "/labs" as const, tone: "warning" as const, time: "2 сағ" },
+  { icon: "🍔", title: "Fried chicken burger", note: "168% қант шегі", to: "/nutrition-scan" as const, tone: "danger" as const, time: "5 сағ" },
+  { icon: "🎙", title: "Дауыстық консультация", note: "Аппендицит күдігі · 103", to: "/triage-voice" as const, tone: "danger" as const, time: "Кеше" },
+];
 
-      {/* Upload zone */}
-      <div className="mb-5 grid grid-cols-1 gap-4 md:grid-cols-[1fr_320px]">
-        <div className="grid-bg flex items-center justify-between rounded-xl border border-dashed border-border bg-surface/40 p-5">
-          <div className="flex items-center gap-4">
-            <div className="grid h-11 w-11 place-items-center rounded-lg border border-border bg-surface text-muted-foreground">↑</div>
-            <div>
-              <div className="text-sm font-medium text-foreground">Drop lab report — PDF, JPG, PNG</div>
-              <div className="text-xs text-muted-foreground">Supports Invivo, Olymp, Helix, KDL formats · OCR + LOINC mapping</div>
-            </div>
+const MEDS_TODAY = [
+  { t: "08:00", n: "Paracetamol 500 mg", ok: true },
+  { t: "09:00", n: "Ferrous bisglycinate", ok: true },
+  { t: "13:00", n: "Amoxicillin 500 mg", ok: false },
+  { t: "15:00", n: "Omeprazole 20 mg", ok: false },
+];
+
+function Dashboard() {
+  return (
+    <div className="space-y-6">
+      {/* HERO */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
+        <Bento className="noise relative overflow-hidden p-8">
+          <SectionEyebrow>20 шілде · Дүйсенбі · Талдықорған</SectionEyebrow>
+          <h1 className="font-serif text-5xl leading-[1.02] tracking-tight text-foreground md:text-6xl">
+            Қайырлы таң, <span className="italic text-[color:var(--mint)]">Айнұр</span>.
+            <br />
+            Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.
+          </h1>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <Link to="/chat" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
+              AI дәрігермен сөйлесу →
+            </Link>
+            <Link to="/labs" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
+              Анализды қарау
+            </Link>
+            <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
+              Онбординг
+            </Link>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge tone="success">HIPAA</Badge>
-            <Badge tone="muted">On-device OCR</Badge>
-            <button className="rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground">Browse</button>
+          <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[color:var(--mint)]/20 blur-3xl" />
+        </Bento>
+
+        <Bento className="flex flex-col items-center justify-center text-center">
+          <SectionEyebrow>Денсаулық индексі</SectionEyebrow>
+          <Gauge value={72} label="/ 100" size={180} />
+          <div className="mt-3 flex items-center gap-2">
+            <Badge tone="mint">+4 апта сайын</Badge>
+            <Badge tone="warning">1 назар</Badge>
           </div>
+          <p className="mt-3 max-w-[240px] text-[11px] text-muted-foreground">
+            Гемоглобин мен ферритинді қалпына келтірсе — индекс 85+ болады.
+          </p>
+        </Bento>
+      </div>
+
+      {/* MODULE GRID */}
+      <div>
+        <div className="mb-3 flex items-baseline justify-between">
+          <h2 className="font-serif text-2xl tracking-tight text-foreground">Модульдер</h2>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">4 белсенді</span>
         </div>
-        <div className="rounded-xl border border-border bg-surface p-4">
-          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Recent uploads</div>
-          <ul className="mt-2 space-y-1.5 text-xs text-foreground">
-            <li className="flex justify-between"><span>CBC-jul-20.pdf</span><span className="text-muted-foreground">2m</span></li>
-            <li className="flex justify-between"><span>Ferritin-panel.jpg</span><span className="text-muted-foreground">3d</span></li>
-            <li className="flex justify-between"><span>Lipids-2026.pdf</span><span className="text-muted-foreground">2w</span></li>
-          </ul>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            { to: "/labs" as const, e: "🩸", t: "Анализдер", s: "BioSign AI", d: "Қан панелі, 42 биомаркер, AI диагноз" },
+            { to: "/nutrition-scan" as const, e: "🥗", t: "Тамақ & Калория", s: "SmartNutri", d: "Фото/штрих-код, контр-индикация" },
+            { to: "/triage-voice" as const, e: "🎙", t: "Дауыстық Триаж", s: "Voice AI", d: "KZ/RU/EN дауыс, 103 диспетчер" },
+            { to: "/prescription-rx" as const, e: "💊", t: "Дәрі-дәрмек", s: "RxClarify", d: "OCR рецепт, өзара әрекеттесу" },
+          ].map((m) => (
+            <Link key={m.to} to={m.to} className="group">
+              <Bento className="h-full transition group-hover:-translate-y-0.5">
+                <div className="mb-4 text-3xl">{m.e}</div>
+                <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">{m.s}</div>
+                <div className="mt-1 font-serif text-xl text-foreground">{m.t}</div>
+                <p className="mt-1 text-[12px] text-muted-foreground">{m.d}</p>
+                <div className="mt-4 flex items-center gap-1 text-[11px] text-[color:var(--mint)]">
+                  Ашу
+                  <span className="transition group-hover:translate-x-0.5">→</span>
+                </div>
+              </Bento>
+            </Link>
+          ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_1fr]">
-        {/* LEFT — biomarker table */}
-        <Card
-          title="Analyzed Blood Profile"
-          subtitle="42 biomarkers · 8 out of range · confidence 98.4%"
-          right={
-            <div className="flex items-center gap-1">
-              <Badge tone="danger">3 critical</Badge>
-              <Badge tone="warning">5 low</Badge>
-              <Badge tone="success">34 normal</Badge>
+      {/* BENTO GRID: trend + recent + meds */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Bento className="lg:col-span-2">
+          <div className="mb-2 flex items-baseline justify-between">
+            <div>
+              <SectionEyebrow>Апталық тренд</SectionEyebrow>
+              <div className="font-serif text-2xl text-foreground">Денсаулық индексі <span className="italic text-[color:var(--mint)]">жоғарылап</span> келеді</div>
             </div>
-          }
-        >
-          <div className="grid grid-cols-4 gap-3">
-            <Stat label="Overall Score" value="62 / 100" hint="Mild deficiency pattern" tone="warning" />
-            <Stat label="Anemia Risk" value="High" hint="Iron / microcytic" tone="danger" />
-            <Stat label="Metabolic" value="Stable" hint="Glucose · lipids OK" tone="success" />
-            <Stat label="Inflammation" value="Low" hint="CRP 1.2 mg/L" tone="success" />
+            <div className="flex gap-1">
+              <Chip active>7 күн</Chip>
+              <Chip>30 күн</Chip>
+              <Chip>90 күн</Chip>
+            </div>
           </div>
-
-          <div className="mt-4 overflow-hidden rounded-lg border border-border">
-            <table className="w-full text-left text-[12px]">
-              <thead className="bg-surface text-[10px] uppercase tracking-wider text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2">Marker</th>
-                  <th className="px-3 py-2">Value</th>
-                  <th className="px-3 py-2">Reference</th>
-                  <th className="px-3 py-2 w-[28%]">Distribution</th>
-                  <th className="px-3 py-2">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {BIOMARKERS.map((b) => (
-                  <tr key={b.name} className="border-t border-border">
-                    <td className="px-3 py-2 font-medium text-foreground">{b.name}</td>
-                    <td className="px-3 py-2 tabular-nums text-foreground">{b.value} <span className="text-muted-foreground">{b.unit}</span></td>
-                    <td className="px-3 py-2 tabular-nums text-muted-foreground">{b.ref}</td>
-                    <td className="px-3 py-2"><Bar value={b.pct} tone={b.tone} /></td>
-                    <td className="px-3 py-2">
-                      <Badge tone={b.tone}>{b.status}</Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={TREND} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <XAxis dataKey="d" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip
+                  contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                  labelStyle={{ color: "var(--muted-foreground)" }}
+                />
+                <Line type="monotone" dataKey="score" stroke="var(--mint)" strokeWidth={2.5} dot={{ r: 3, fill: "var(--mint)" }} activeDot={{ r: 5 }} />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-        </Card>
+          <div className="mt-2 grid grid-cols-3 gap-3 border-t border-border pt-3">
+            <div><div className="text-[10px] uppercase text-muted-foreground">Орташа</div><div className="font-mono text-sm text-foreground">72.6</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">Ең жоғары</div><div className="font-mono text-sm text-[color:var(--mint)]">78</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">Динамика</div><div className="font-mono text-sm text-[color:var(--mint)]">+14.7%</div></div>
+          </div>
+        </Bento>
 
-        {/* RIGHT — diagnostics */}
-        <div className="space-y-4">
-          <Card title="Primary AI Diagnosis" subtitle="Cross-referenced with 14.2M panels">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Severity</div>
-                <div className="mt-1 text-xl font-semibold tracking-tight text-foreground">High Anemia Risk</div>
-                <div className="text-xs text-muted-foreground">Iron-deficiency, microcytic hypochromic pattern</div>
-              </div>
-              <Badge tone="danger">Priority 1</Badge>
-            </div>
-            <div className="mt-4">
-              <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>Risk gauge</span><span className="tabular-nums">78 / 100</span>
-              </div>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-secondary">
-                <div className="h-full bg-gradient-to-r from-amber-500 to-red-500" style={{ width: "78%" }} />
-              </div>
-              <div className="mt-1 flex justify-between text-[10px] text-muted-foreground">
-                <span>Normal</span><span>Watch</span><span>High</span><span>Critical</span>
-              </div>
-            </div>
-            <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-md border border-border bg-surface p-2">
-                <div className="text-[10px] uppercase text-muted-foreground">ICD-10</div>
-                <div className="text-xs font-medium text-foreground">D50.9</div>
-              </div>
-              <div className="rounded-md border border-border bg-surface p-2">
-                <div className="text-[10px] uppercase text-muted-foreground">Confidence</div>
-                <div className="text-xs font-medium text-foreground">94.1%</div>
-              </div>
-              <div className="rounded-md border border-border bg-surface p-2">
-                <div className="text-[10px] uppercase text-muted-foreground">Follow-up</div>
-                <div className="text-xs font-medium text-foreground">2 weeks</div>
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Root Cause Breakdown">
-            <ul className="space-y-3 text-[12px]">
-              {[
-                { t: "Depleted iron stores", d: "Ferritin 12 µg/L — below therapeutic floor.", tone: "danger" as const },
-                { t: "Reduced oxygen carriage", d: "Hemoglobin 105 g/L → mild functional hypoxia risk.", tone: "warning" as const },
-                { t: "B12 co-deficiency", d: "Slows erythropoiesis; supplement alongside iron.", tone: "warning" as const },
-              ].map((x) => (
-                <li key={x.t} className="flex gap-3">
-                  <span className={`mt-1 h-1.5 w-1.5 shrink-0 rounded-full ${x.tone === "danger" ? "bg-red-500" : "bg-amber-500"}`} />
-                  <div>
-                    <div className="font-medium text-foreground">{x.t}</div>
-                    <div className="text-muted-foreground">{x.d}</div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card title="Recommended Protocol" subtitle="Non-prescriptive · confirm with physician">
-            <div className="space-y-2 text-[12px]">
-              {[
-                ["Ferrous bisglycinate", "25 mg elemental Fe · 2×/day · with vitamin C"],
-                ["Methylcobalamin B12", "1000 µg sublingual · daily · 8 weeks"],
-                ["Cholecalciferol D3", "4000 IU · daily with fat meal"],
-              ].map(([a, b]) => (
-                <div key={a} className="flex items-center justify-between rounded-md border border-border bg-surface px-3 py-2">
-                  <div>
-                    <div className="font-medium text-foreground">{a}</div>
-                    <div className="text-[11px] text-muted-foreground">{b}</div>
-                  </div>
-                  <Badge tone="success">Safe</Badge>
+        <Bento>
+          <SectionEyebrow>Соңғы сканерлер</SectionEyebrow>
+          <div className="mt-2 space-y-2">
+            {RECENT.map((r) => (
+              <Link key={r.title} to={r.to} className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5 transition hover:border-white/15">
+                <div className="text-xl">{r.icon}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[12px] font-medium text-foreground">{r.title}</div>
+                  <div className="truncate text-[11px] text-muted-foreground">{r.note}</div>
                 </div>
-              ))}
-            </div>
-          </Card>
+                <Badge tone={r.tone}>{r.time}</Badge>
+              </Link>
+            ))}
+          </div>
+        </Bento>
+      </div>
 
-          <Card title="Questions for your doctor">
-            <ol className="list-decimal space-y-1.5 pl-5 text-[12px] text-muted-foreground">
-              <li>Should we screen for GI blood loss given ferritin depletion?</li>
-              <li>Is IV iron indicated if oral therapy fails after 4 weeks?</li>
-              <li>Do I need a celiac panel to rule out malabsorption?</li>
-            </ol>
-          </Card>
-        </div>
+      {/* Meds today + Insight */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]">
+        <Bento>
+          <div className="flex items-baseline justify-between">
+            <div>
+              <SectionEyebrow>Бүгінгі дәрі-дәрмек</SectionEyebrow>
+              <div className="font-serif text-2xl text-foreground">4 <span className="text-muted-foreground">/ 7 қабылданды</span></div>
+            </div>
+            <Link to="/prescription-rx" className="text-[11px] text-[color:var(--mint)]">Толық →</Link>
+          </div>
+          <div className="mt-3">
+            <Bar value={57} tone="mint" />
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {MEDS_TODAY.map((m) => (
+              <div key={m.t} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2">
+                <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
+                <div className="min-w-0 flex-1">
+                  <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
+                  <div className="truncate text-[12px] text-foreground">{m.n}</div>
+                </div>
+                {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="muted">Күтуде</Badge>}
+              </div>
+            ))}
+          </div>
+        </Bento>
+
+        <Bento accent className="relative">
+          <SectionEyebrow>SauBol Ақыл-кеңесі · күнделікті</SectionEyebrow>
+          <blockquote className="font-serif text-2xl leading-tight text-foreground">
+            «Темір препараттарын <em className="italic text-[color:var(--mint)]">С витаминімен</em> бірге ішіңіз — сіңірілу 3 есе артады. Кофе мен қара шайдан кейін 2 сағат күтіңіз.»
+          </blockquote>
+          <div className="mt-4 flex items-center gap-2">
+            <div className="grid h-8 w-8 place-items-center rounded-full bg-foreground text-[10px] font-bold text-background">S</div>
+            <div className="text-[11px] text-muted-foreground">SauBol AI · сіздің профиліңізге лайықталған</div>
+          </div>
+        </Bento>
       </div>
     </div>
   );
