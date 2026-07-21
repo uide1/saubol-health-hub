@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Card, Badge, Stat, Bar, PageHeader } from "@/components/ui-kit";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/labs")({
   head: () => ({
     meta: [
       { title: "Анализдер — BioSign AI · SauBol" },
