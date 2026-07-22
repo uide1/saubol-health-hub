@@ -259,3 +259,44 @@
   transform-origin: bottom;
   animation: bar-rise 0.9s ease-out both;
 }
+
+/* Voice orb pulse rings */
+@keyframes orb-pulse {
+  0%   { transform: scale(0.75); opacity: 0.7; }
+  100% { transform: scale(1.6);  opacity: 0; }
+}
+@utility orb-pulse {
+  animation: orb-pulse 2.6s ease-out infinite;
+}
+
+/* Halo ring around mic when dictating */
+@keyframes halo-ring {
+  0%   { box-shadow: 0 0 0 0 color-mix(in oklab, var(--mint) 55%, transparent),
+                     0 0 0 0 color-mix(in oklab, var(--mint) 30%, transparent); }
+  70%  { box-shadow: 0 0 0 10px transparent,
+                     0 0 0 20px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent, 0 0 0 0 transparent; }
+}
+@utility halo-ring {
+  animation: halo-ring 1.6s ease-out infinite;
+}
+
+/* Shimmer thinking bar */
+@keyframes shimmer-slide {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+@utility shimmer-bar {
+  position: relative;
+  overflow: hidden;
+  background: color-mix(in oklab, var(--mint) 8%, transparent);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--mint) 45%, transparent), transparent);
+    animation: shimmer-slide 1.4s ease-in-out infinite;
+  }
+}
+
