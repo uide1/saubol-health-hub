@@ -148,7 +148,7 @@ function TriageVoice() {
                 </div>
               </div>
 
-              <button className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
+              <button onClick={() => toast.error("📞 103 диспетчерімен байланысу...", { description: "Almira K. · Unit A-14 · ETA 6 min" })} className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
                 Speak to dispatcher now
               </button>
             </div>
