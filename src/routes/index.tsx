@@ -176,23 +176,23 @@ function Dashboard() {
           <div className="flex items-baseline justify-between">
             <div>
               <SectionEyebrow>Бүгінгі дәрі-дәрмек</SectionEyebrow>
-              <div className="font-serif text-2xl text-foreground">4 <span className="text-muted-foreground">/ 7 қабылданды</span></div>
+              <div className="font-serif text-2xl text-foreground">{takenCount} <span className="text-muted-foreground">/ {meds.length} қабылданды</span></div>
             </div>
             <Link to="/prescription-rx" className="text-[11px] text-[color:var(--mint)]">Толық →</Link>
           </div>
           <div className="mt-3">
-            <Bar value={57} tone="mint" />
+            <Bar value={(takenCount / meds.length) * 100} tone="mint" />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {MEDS_TODAY.map((m) => (
-              <div key={m.t} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2">
+            {meds.map((m) => (
+              <button key={m.t} onClick={() => { toggleMed(m.t); toast(m.ok ? `${m.n} қайта белгіленді` : `✓ ${m.n} қабылданды`); }} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left transition hover:border-white/15">
                 <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
                 <div className="min-w-0 flex-1">
                   <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
                   <div className="truncate text-[12px] text-foreground">{m.n}</div>
                 </div>
                 {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="muted">Күтуде</Badge>}
-              </div>
+              </button>
             ))}
           </div>
         </Bento>
