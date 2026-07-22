@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { toast } from "sonner";
 import { Card, Badge, PageHeader } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
+import { triageChat } from "@/lib/triage-ai.functions";
 
 
 export const Route = createFileRoute("/triage-voice")({
@@ -44,6 +45,7 @@ function TriageVoice() {
   const [input, setInput] = useState("");
   const [lang, setLang] = useState(0);
   const [dictating, setDictating] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
   const recogRef = useRef<any>(null);
   const L1 = useL();
@@ -51,17 +53,45 @@ function TriageVoice() {
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
-  }, [turns]);
+  }, [turns, thinking]);
 
-  const send = (text: string, meta?: string) => {
-    if (!text.trim()) return;
+  const send = async (text: string, meta?: string) => {
+    if (!text.trim() || thinking) return;
     const patient: Turn = { who: "patient", time: nowStamp(), text: text.trim(), meta };
-    setTurns((s) => [...s, patient]);
+    const nextTurns = [...turns, patient];
+    setTurns(nextTurns);
     setInput("");
-    setTimeout(() => {
-      setTurns((s) => [...s, { who: "ai", time: nowStamp(), text: aiReply(text) }]);
-    }, 700);
+    setThinking(true);
+    try {
+      const langCode = (["kk", "ru", "en"] as const)[lang];
+      const messages = nextTurns.map((t) => ({
+        role: (t.who === "ai" ? "assistant" : "user") as "assistant" | "user",
+        content: t.text,
+      }));
+      const { text: reply } = await triageChat({ data: { messages, lang: langCode } });
+      setTurns((s) => [...s, { who: "ai", time: nowStamp(), text: reply }]);
+    } catch (e: any) {
+      const msg = String(e?.message ?? e ?? "");
+      const is402 = msg.includes("402");
+      const is429 = msg.includes("429");
+      toast.error(
+        is402
+          ? L1({ kk: "AI лимиті таусылды", ru: "Кредиты AI исчерпаны", en: "AI credits exhausted" })
+          : is429
+            ? L1({ kk: "Тым көп сұрау", ru: "Слишком много запросов", en: "Too many requests" })
+            : L1({ kk: "AI қатесі", ru: "Ошибка AI", en: "AI error" }),
+      );
+      setTurns((s) => [
+        ...s,
+        { who: "ai", time: nowStamp(), text: L1({ kk: "Кешіріңіз, қазір жауап бере алмаймын. Қайталап көріңіз.", ru: "Извините, сейчас не могу ответить. Попробуйте ещё раз.", en: "Sorry, I can't respond right now. Please try again." }) },
+      ]);
+    } finally {
+      setThinking(false);
+    }
   };
+
+  // ignore reference below
+  void aiReply;
 
   const toggleDictation = () => {
     if (dictating) {
@@ -162,6 +192,19 @@ function TriageVoice() {
                 </div>
               </div>
             ))}
+            {thinking && (
+              <div className="flex gap-3">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border bg-foreground text-xs text-background">S</div>
+                <div className="rounded-lg border border-border bg-surface px-3 py-2">
+                  <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">SauBol AI · {L1({ kk: "ойлануда", ru: "думает", en: "thinking" })}</div>
+                  <div className="flex gap-1">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input bar */}
@@ -186,10 +229,10 @@ function TriageVoice() {
               />
               <button
                 type="submit"
-                disabled={!input.trim()}
+                disabled={!input.trim() || thinking}
                 className="rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background disabled:opacity-40"
               >
-                <L kk="Жіберу" ru="Отправить" en="Send" />
+                {thinking ? <L kk="..." ru="..." en="..." /> : <L kk="Жіберу" ru="Отправить" en="Send" />}
               </button>
             </form>
             <div className="mt-2 flex flex-wrap gap-1.5 px-1">
