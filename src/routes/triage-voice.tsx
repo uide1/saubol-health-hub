@@ -155,7 +155,7 @@ function TriageVoice() {
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Симптомды жазыңыз немесе микрофонды басыңыз..."
+                placeholder={L1({ kk: "Симптомды жазыңыз немесе микрофонды басыңыз...", ru: "Опишите симптом или нажмите на микрофон...", en: "Type a symptom or tap the mic..." })}
                 className="flex-1 bg-transparent px-2 py-1.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
               />
               <button
@@ -163,14 +163,20 @@ function TriageVoice() {
                 disabled={!input.trim()}
                 className="rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background disabled:opacity-40"
               >
-                Жіберу
+                <L kk="Жіберу" ru="Отправить" en="Send" />
               </button>
             </form>
             <div className="mt-2 flex flex-wrap gap-1.5 px-1">
-              {["Голова болит", "Температура", "Тошнит", "Боль в груди"].map((q) => (
+              {[
+                L1({ kk: "Басым ауырады", ru: "Голова болит", en: "Headache" }),
+                L1({ kk: "Температура", ru: "Температура", en: "Fever" }),
+                L1({ kk: "Жүрегім айниды", ru: "Тошнит", en: "Nausea" }),
+                L1({ kk: "Кеудеде ауырсыну", ru: "Боль в груди", en: "Chest pain" }),
+              ].map((q) => (
                 <button key={q} onClick={() => send(q)} className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] text-muted-foreground hover:text-foreground">{q}</button>
               ))}
             </div>
+
           </div>
         </div>
 
