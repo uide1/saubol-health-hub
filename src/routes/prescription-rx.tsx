@@ -178,53 +178,26 @@ function PrescriptionRx() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_1fr]">
-        <Card title="Deciphered Prescription" subtitle="Dr. Nurlan T. · Polyclinic №3 · handwriting confidence 96.2%">
-          <div className="grid grid-cols-[140px_1fr] gap-4">
-            <div className="grid-bg grid h-40 place-items-center rounded-md border border-border bg-surface text-xs text-muted-foreground">
-              Rx image
+      <Card title={L1({ kk: "Танылған рецепт", ru: "Расшифрованный рецепт", en: "Deciphered Prescription" })} subtitle="Dr. Nurlan T. · Polyclinic №3 · 96.2%">
+        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+          {[
+            ["Paracetamol", "500 mg · 3× · after meals · 5 days"],
+            ["Amoxicillin", "500 mg · 2× · with food · 7 days"],
+            ["Omeprazole", "20 mg · 1× · morning · 14 days"],
+            ["Ferrous bisglycinate", "25 mg · 2× · with vit C · 8 wk"],
+            ["Vitamin D3", "4000 IU · 1× · with fats"],
+            ["Melatonin", "3 mg · at bedtime · prn"],
+          ].map(([n, d]) => (
+            <div key={n} className="flex items-center justify-between rounded-md border border-border bg-surface px-3 py-2 text-[12px]">
+              <div>
+                <div className="font-medium text-foreground">{n}</div>
+                <div className="text-[11px] text-muted-foreground">{d}</div>
+              </div>
+              <Badge tone="success">✓</Badge>
             </div>
-            <div className="space-y-2">
-              {[
-                ["Paracetamol", "500 mg · 1 tab · 3× daily · after meals · 5 days"],
-                ["Amoxicillin", "500 mg · 1 cap · 2× daily · with food · 7 days"],
-                ["Omeprazole", "20 mg · 1 cap · once daily · morning · 14 days"],
-                ["Ferrous bisglycinate", "25 mg · 2× daily · with vit C · 8 weeks"],
-                ["Vitamin D3", "4000 IU · 1× daily · with fats"],
-                ["Melatonin", "3 mg · at bedtime · as needed"],
-              ].map(([n, d]) => (
-                <div key={n} className="flex items-center justify-between rounded-md border border-border bg-surface px-3 py-2 text-[12px]">
-                  <div>
-                    <div className="font-medium text-foreground">{n}</div>
-                    <div className="text-[11px] text-muted-foreground">{d}</div>
-                  </div>
-                  <Badge tone="success">Verified</Badge>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        <Card title="Refill & Cost" subtitle="Nearest pharmacy · Europharma Taldykorgan">
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-md border border-border bg-surface p-3">
-              <div className="text-[10px] uppercase text-muted-foreground">Refill in</div>
-              <div className="mt-1 text-sm font-semibold text-foreground">4 days</div>
-            </div>
-            <div className="rounded-md border border-border bg-surface p-3">
-              <div className="text-[10px] uppercase text-muted-foreground">Est. cost</div>
-              <div className="mt-1 text-sm font-semibold text-foreground">₸ 8,420</div>
-            </div>
-            <div className="rounded-md border border-border bg-surface p-3">
-              <div className="text-[10px] uppercase text-muted-foreground">Coverage</div>
-              <div className="mt-1 text-sm font-semibold text-emerald-400">72%</div>
-            </div>
-          </div>
-          <button onClick={() => toast.success("📦 Дәріхана тапсырысы жіберілді", { description: "Europharma · ETA 45 min" })} className="mt-4 w-full rounded-md bg-foreground py-2 text-xs font-medium text-background">
-            Order refill →
-          </button>
-        </Card>
-      </div>
+          ))}
+        </div>
+      </Card>
     </div>
   );
 }
