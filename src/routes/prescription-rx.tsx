@@ -32,6 +32,8 @@ function PrescriptionRx() {
   const [synced, setSynced] = useState(false);
   const [remindersOn, setRemindersOn] = useState(false);
   const remindedRef = useRef<Set<string>>(new Set());
+  const L1 = useL();
+
 
   // Reminder engine — checks every 30s whether any dose is due within 5 min
   useEffect(() => {
