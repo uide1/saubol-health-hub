@@ -77,7 +77,7 @@ function PrescriptionRx() {
     if (!time || !/^\d{2}:\d{2}$/.test(time)) { toast.error("Уақыт форматы дұрыс емес"); return; }
     const note = window.prompt("Ескерту (мысалы: After meal)", "After meal") ?? "";
     const id = Math.random().toString(36).slice(2, 8);
-    setSchedule((s) => [...s, { id, time, drug: drug.trim(), note: note.trim(), tone: "muted", taken: false }].sort((a, b) => a.time.localeCompare(b.time)));
+    setSchedule((s) => [...s, { id, time, drug: drug.trim(), note: note.trim(), tone: "muted" as const, taken: false }].sort((a, b) => a.time.localeCompare(b.time)));
     toast.success(`+ ${drug} кестеге қосылды`, { description: `${time} · ескертпе орнатылды` });
   };
 
