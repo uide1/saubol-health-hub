@@ -192,6 +192,19 @@ function TriageVoice() {
                 </div>
               </div>
             ))}
+            {thinking && (
+              <div className="flex gap-3">
+                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border bg-foreground text-xs text-background">S</div>
+                <div className="rounded-lg border border-border bg-surface px-3 py-2">
+                  <div className="mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">SauBol AI · {L1({ kk: "ойлануда", ru: "думает", en: "thinking" })}</div>
+                  <div className="flex gap-1">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground" />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input bar */}
