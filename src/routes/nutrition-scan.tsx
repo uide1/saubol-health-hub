@@ -36,12 +36,14 @@ const CONTRA = [
   { c: "Pediatric (<12y)", r: "Preservatives E211 above pediatric guidance", tone: "warning" as const },
 ];
 
-const SUBS = [
-  { n: "Grilled chicken wrap", k: "420 kcal", e: "🌯" },
-  { n: "Quinoa bowl", k: "380 kcal", e: "🥗" },
-  { n: "Lentil soup + bread", k: "310 kcal", e: "🍲" },
-  { n: "Baked salmon + veg", k: "460 kcal", e: "🐟" },
+const MACROS = [
+  { l: "Protein", v: "28 g", pct: 40, note: "16% kcal" },
+  { l: "Carbohydrates", v: "72 g", pct: 82, note: "42% kcal" },
+  { l: "of which sugars", v: "42 g", pct: 95, tone: "danger" as const, note: "168% daily limit" },
+  { l: "Fats", v: "34 g", pct: 68, note: "45% kcal" },
+  { l: "of which saturated", v: "11 g", pct: 55, tone: "warning" as const, note: "55% limit" },
 ];
+
 
 const ALLERGENS = [
   { n: "Wheat gluten", s: "High", tone: "danger" as const },
