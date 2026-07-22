@@ -14,7 +14,6 @@ import { Route as TriageVoiceRouteImport } from './routes/triage-voice'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrescriptionRxRouteImport } from './routes/prescription-rx'
 import { Route as NutritionScanRouteImport } from './routes/nutrition-scan'
-import { Route as FeedRouteImport } from './routes/feed'
 import { Route as FamilyRouteImport } from './routes/family'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -43,11 +42,6 @@ const NutritionScanRoute = NutritionScanRouteImport.update({
   path: '/nutrition-scan',
   getParentRoute: () => rootRouteImport,
 } as any)
-const FeedRoute = FeedRouteImport.update({
-  id: '/feed',
-  path: '/feed',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const FamilyRoute = FamilyRouteImport.update({
   id: '/family',
   path: '/family',
@@ -62,7 +56,6 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/family': typeof FamilyRoute
-  '/feed': typeof FeedRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
   '/profile': typeof ProfileRoute
@@ -72,7 +65,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/family': typeof FamilyRoute
-  '/feed': typeof FeedRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
   '/profile': typeof ProfileRoute
@@ -83,7 +75,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/family': typeof FamilyRoute
-  '/feed': typeof FeedRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
   '/profile': typeof ProfileRoute
@@ -95,7 +86,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/family'
-    | '/feed'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
@@ -105,7 +95,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/family'
-    | '/feed'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
@@ -115,7 +104,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/family'
-    | '/feed'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
@@ -126,7 +114,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   FamilyRoute: typeof FamilyRoute
-  FeedRoute: typeof FeedRoute
   NutritionScanRoute: typeof NutritionScanRoute
   PrescriptionRxRoute: typeof PrescriptionRxRoute
   ProfileRoute: typeof ProfileRoute
@@ -171,13 +158,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NutritionScanRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/feed': {
-      id: '/feed'
-      path: '/feed'
-      fullPath: '/feed'
-      preLoaderRoute: typeof FeedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/family': {
       id: '/family'
       path: '/family'
@@ -198,7 +178,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   FamilyRoute: FamilyRoute,
-  FeedRoute: FeedRoute,
   NutritionScanRoute: NutritionScanRoute,
   PrescriptionRxRoute: PrescriptionRxRoute,
   ProfileRoute: ProfileRoute,
@@ -208,13 +187,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
