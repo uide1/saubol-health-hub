@@ -280,25 +280,6 @@ function NutritionScan() {
         </SquareBlock>
 
         <SquareBlock
-          title="Healthier subs"
-          icon="🥗"
-          badge="4 options"
-          summary="Under 500 kcal"
-          expanded={open === "sub"}
-          onToggle={() => toggle("sub")}
-        >
-          <div className="grid grid-cols-2 gap-2">
-            {SUBS.map((s) => (
-              <button key={s.n} onClick={() => { toast.success(`✓ ${s.n} таңдалды`, { description: `${s.k} · ұсыныс сақталды` }); setOpen(null); }} className="rounded-lg border border-border bg-surface p-3 text-left transition hover:border-[color:var(--mint)]/40">
-                <div className="text-2xl">{s.e}</div>
-                <div className="mt-1 text-[13px] font-medium text-foreground">{s.n}</div>
-                <div className="text-[11px] text-muted-foreground">{s.k}</div>
-              </button>
-            ))}
-          </div>
-        </SquareBlock>
-
-        <SquareBlock
           title="Allergens"
           icon="🌾"
           badge="2 high"
@@ -315,21 +296,19 @@ function NutritionScan() {
             ))}
           </ul>
         </SquareBlock>
-      </div>
 
-      {/* Macro breakdown card underneath */}
-      <div className="mt-6">
-        <Card title="Calorie & Macro Breakdown" subtitle="USDA + KZ Nutrient DB · portion 340 g" right={<Badge tone="warning">Above target</Badge>}>
+        <SquareBlock
+          title="Macro breakdown"
+          icon="📊"
+          badge="Above target"
+          summary="Protein · Carbs · Fats"
+          expanded={open === "macro"}
+          onToggle={() => toggle("macro")}
+        >
           <div className="flex gap-4">
             <div className="grid-bg grid h-40 w-40 shrink-0 place-items-center rounded-lg border border-border bg-surface text-4xl">🍔</div>
             <div className="flex-1 space-y-3">
-              {[
-                { l: "Protein", v: "28 g", pct: 40, note: "16% kcal" },
-                { l: "Carbohydrates", v: "72 g", pct: 82, note: "42% kcal" },
-                { l: "of which sugars", v: "42 g", pct: 95, tone: "danger" as const, note: "168% daily limit" },
-                { l: "Fats", v: "34 g", pct: 68, note: "45% kcal" },
-                { l: "of which saturated", v: "11 g", pct: 55, tone: "warning" as const, note: "55% limit" },
-              ].map((r) => (
+              {MACROS.map((r) => (
                 <div key={r.l}>
                   <div className="mb-1 flex items-center justify-between text-[11px]">
                     <span className="text-foreground">{r.l}</span>
@@ -340,8 +319,10 @@ function NutritionScan() {
               ))}
             </div>
           </div>
-        </Card>
+          <div className="mt-3 text-[11px] text-muted-foreground">USDA + KZ Nutrient DB · portion 340 g</div>
+        </SquareBlock>
       </div>
+
     </div>
   );
 }
