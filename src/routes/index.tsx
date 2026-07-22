@@ -17,10 +17,9 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const TREND = [
-  { d: "Дс", score: 68 }, { d: "Сс", score: 71 }, { d: "Ср", score: 69 },
-  { d: "Бс", score: 74 }, { d: "Жм", score: 76 }, { d: "Сб", score: 72 }, { d: "Жс", score: 78 },
-];
+const TREND_30 = Array.from({ length: 30 }, (_, i) => ({ d: `${i + 1}`, score: 60 + Math.round(Math.sin(i / 3) * 8 + i * 0.4) }));
+const TREND_90 = Array.from({ length: 12 }, (_, i) => ({ d: `W${i + 1}`, score: 55 + Math.round(Math.cos(i / 2) * 6 + i * 1.6) }));
+
 
 const RECENT = [
   { icon: "🍔", title: "Fried chicken burger", note: "168% қант шегі", to: "/nutrition-scan" as const, tone: "danger" as const, time: "5 сағ" },
