@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "SauBol AI — Сіздің денсаулық көмекшіңіз" },
-      { name: "description", content: "SauBol AI дашборды: денсаулық индексі, апталық тренд, соңғы сканерлер, дәрі-дәрмек кестесі, AI дәрігермен жылдам сұхбат." },
+      { name: "description", content: "SauBol AI дашборды: денсаулық индексі, апталық тренд, дәрі-дәрмек кестесі." },
       { property: "og:title", content: "SauBol AI — Денсаулық Дашборды" },
       { property: "og:description", content: "AI-мен күшейтілген жеке денсаулық басқару орталығы." },
     ],
@@ -25,14 +25,6 @@ const TREND_30 = Array.from({ length: 30 }, (_, i) => ({ d: `${i + 1}`, score: 6
 const TREND_90 = Array.from({ length: 12 }, (_, i) => ({ d: `W${i + 1}`, score: 55 + Math.round(Math.cos(i / 2) * 6 + i * 1.6) }));
 const TRENDS = { "7": TREND_7, "30": TREND_30, "90": TREND_90 } as const;
 type Range = keyof typeof TRENDS;
-
-
-const RECENT = [
-  { icon: "🍔", title: "Fried chicken burger", note: "168% қант шегі", to: "/nutrition-scan" as const, tone: "danger" as const, time: "5 сағ" },
-  { icon: "🎙", title: "Дауыстық консультация", note: "Аппендицит күдігі · 103", to: "/triage-voice" as const, tone: "danger" as const, time: "Кеше" },
-  { icon: "💊", title: "Рецепт декодталды", note: "3 дәрі · 1 өзара әрекет", to: "/prescription-rx" as const, tone: "warning" as const, time: "2 күн" },
-];
-
 
 const MEDS_TODAY = [
   { t: "08:00", n: "Paracetamol 500 mg", ok: true },
@@ -68,7 +60,6 @@ function Dashboard() {
               Онбординг
             </Link>
           </div>
-
           <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[color:var(--mint)]/20 blur-3xl" />
         </Bento>
 
@@ -87,40 +78,9 @@ function Dashboard() {
         </Bento>
       </div>
 
-      {/* MODULE GRID */}
-      <div>
-        <div className="mb-3 flex items-baseline justify-between">
-          <h2 className="font-serif text-2xl tracking-tight text-foreground">Модульдер</h2>
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">5 белсенді</span>
-        </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-5">
-          {[
-            { to: "/nutrition-scan" as const, e: "🥗", t: "Тамақ", s: "SmartNutri", d: "Фото/штрих-код" },
-            { to: "/triage-voice" as const, e: "🎙", t: "Дауыс", s: "Voice AI", d: "KZ/RU/EN, 103" },
-            { to: "/prescription-rx" as const, e: "💊", t: "Дәрілер", s: "RxClarify", d: "OCR, әрекеттесу" },
-            { to: "/family" as const, e: "👨‍👩‍👧", t: "Family", s: "Balalar", d: "Ата-ана бақылауы" },
-            { to: "/feed" as const, e: "📰", t: "Feed", s: "KZ Health", d: "Тексерілген жаңалық" },
-
-          ].map((m) => (
-            <Link key={m.to} to={m.to} className="group">
-              <Bento className="h-full transition group-hover:-translate-y-0.5">
-                <div className="mb-4 text-3xl">{m.e}</div>
-                <div className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">{m.s}</div>
-                <div className="mt-1 font-serif text-xl text-foreground">{m.t}</div>
-                <p className="mt-1 text-[12px] text-muted-foreground">{m.d}</p>
-                <div className="mt-4 flex items-center gap-1 text-[11px] text-[color:var(--mint)]">
-                  Ашу
-                  <span className="transition group-hover:translate-x-0.5">→</span>
-                </div>
-              </Bento>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* BENTO GRID: trend + recent + meds */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Bento className="lg:col-span-2">
+      {/* Trend + Meds */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+        <Bento>
           <div className="mb-2 flex items-baseline justify-between">
             <div>
               <SectionEyebrow>Апталық тренд</SectionEyebrow>
@@ -134,7 +94,7 @@ function Dashboard() {
               ))}
             </div>
           </div>
-          <div className="h-56">
+          <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={TRENDS[range]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <XAxis dataKey="d" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
@@ -154,25 +114,6 @@ function Dashboard() {
         </Bento>
 
         <Bento>
-          <SectionEyebrow>Соңғы сканерлер</SectionEyebrow>
-          <div className="mt-2 space-y-2">
-            {RECENT.map((r) => (
-              <Link key={r.title} to={r.to} className="flex items-center gap-3 rounded-xl border border-border bg-surface px-3 py-2.5 transition hover:border-white/15">
-                <div className="text-xl">{r.icon}</div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-[12px] font-medium text-foreground">{r.title}</div>
-                  <div className="truncate text-[11px] text-muted-foreground">{r.note}</div>
-                </div>
-                <Badge tone={r.tone}>{r.time}</Badge>
-              </Link>
-            ))}
-          </div>
-        </Bento>
-      </div>
-
-      {/* Meds today + Insight */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.2fr_1fr]">
-        <Bento>
           <div className="flex items-baseline justify-between">
             <div>
               <SectionEyebrow>Бүгінгі дәрі-дәрмек</SectionEyebrow>
@@ -183,9 +124,9 @@ function Dashboard() {
           <div className="mt-3">
             <Bar value={(takenCount / meds.length) * 100} tone="mint" />
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="mt-4 space-y-2">
             {meds.map((m) => (
-              <button key={m.t} onClick={() => { toggleMed(m.t); toast(m.ok ? `${m.n} қайта белгіленді` : `✓ ${m.n} қабылданды`); }} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left transition hover:border-white/15">
+              <button key={m.t} onClick={() => { toggleMed(m.t); toast(m.ok ? `${m.n} қайта белгіленді` : `✓ ${m.n} қабылданды`); }} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left transition hover:border-white/15">
                 <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
                 <div className="min-w-0 flex-1">
                   <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
@@ -194,17 +135,6 @@ function Dashboard() {
                 {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="muted">Күтуде</Badge>}
               </button>
             ))}
-          </div>
-        </Bento>
-
-        <Bento accent className="relative">
-          <SectionEyebrow>SauBol Ақыл-кеңесі · күнделікті</SectionEyebrow>
-          <blockquote className="font-serif text-2xl leading-tight text-foreground">
-            «Темір препараттарын <em className="italic text-[color:var(--mint)]">С витаминімен</em> бірге ішіңіз — сіңірілу 3 есе артады. Кофе мен қара шайдан кейін 2 сағат күтіңіз.»
-          </blockquote>
-          <div className="mt-4 flex items-center gap-2">
-            <div className="grid h-8 w-8 place-items-center rounded-full bg-foreground text-[10px] font-bold text-background">S</div>
-            <div className="text-[11px] text-muted-foreground">SauBol AI · сіздің профиліңізге лайықталған</div>
           </div>
         </Bento>
       </div>
