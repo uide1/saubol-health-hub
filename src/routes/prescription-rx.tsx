@@ -96,16 +96,18 @@ function PrescriptionRx() {
   return (
     <div>
       <PageHeader
-        eyebrow="RxClarify · Rx № 2026-0472"
-        title="Prescription Decoder & Safety"
-        description="Handwriting decoded · pharmacist-verified schedule · smart reminders"
+        eyebrow={<L kk="RxClarify · Рецепт № 2026-0472" ru="RxClarify · Рецепт № 2026-0472" en="RxClarify · Rx № 2026-0472" />}
+        title={<L kk="Рецепт декодері және қауіпсіздік" ru="Декодер рецептов и безопасность" en="Prescription Decoder & Safety" />}
+        description={<L kk="Қолжазба танылды · фармацевт-расталған кесте · ақылды ескертпелер" ru="Почерк распознан · график, проверенный фармацевтом · умные напоминания" en="Handwriting decoded · pharmacist-verified schedule · smart reminders" />}
         actions={
           <>
-            <button onClick={() => toast.info("📸 Рецепт суретін жүктеңіз", { description: "OCR модельі жазуды тануға дайын" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Upload photo</button>
-            <button onClick={remindersOn ? () => { setRemindersOn(false); toast("🔕 Ескертпелер өшірілді"); } : enableReminders} className={`rounded-md px-3 py-1.5 text-xs font-medium ${remindersOn ? "bg-[color:var(--mint)] text-background" : "border border-border bg-surface text-foreground"}`}>
-              {remindersOn ? "🔔 Reminders ON" : "🔕 Enable reminders"}
+            <button onClick={() => toast.info(L1({ kk: "📸 Рецепт суретін жүктеңіз", ru: "📸 Загрузите фото рецепта", en: "📸 Upload prescription photo" }), { description: L1({ kk: "OCR модельі жазуды тануға дайын", ru: "OCR готов распознать текст", en: "OCR model ready to decode" }) })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <L kk="Фото жүктеу" ru="Загрузить фото" en="Upload photo" />
             </button>
-            <button onClick={() => { setSynced(true); toast.success(synced ? "Apple Health-пен қайта синхрондалды" : "✓ Apple Health-ке синхрондалды", { description: `${schedule.length} дәрі-дәрмек кестесі экспортталды` }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{synced ? "Synced ✓" : "Sync to Apple Health"}</button>
+            <button onClick={remindersOn ? () => { setRemindersOn(false); toast(L1({ kk: "🔕 Ескертпелер өшірілді", ru: "🔕 Напоминания выключены", en: "🔕 Reminders off" })); } : enableReminders} className={`rounded-md px-3 py-1.5 text-xs font-medium ${remindersOn ? "bg-[color:var(--mint)] text-background" : "border border-border bg-surface text-foreground"}`}>
+              {remindersOn ? <>🔔 <L kk="Ескертпелер қосулы" ru="Напоминания вкл" en="Reminders ON" /></> : <>🔕 <L kk="Ескертпелерді қосу" ru="Включить напоминания" en="Enable reminders" /></>}
+            </button>
+            <button onClick={() => { setSynced(true); toast.success(synced ? L1({ kk: "Apple Health-пен қайта синхрондалды", ru: "Пересинхронизировано с Apple Health", en: "Re-synced with Apple Health" }) : L1({ kk: "✓ Apple Health-ке синхрондалды", ru: "✓ Синхронизировано с Apple Health", en: "✓ Synced to Apple Health" }), { description: `${schedule.length} ${L1({ kk: "дәрі-дәрмек экспортталды", ru: "препаратов экспортировано", en: "meds exported" })}` }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{synced ? <>Synced ✓</> : <L kk="Apple Health-ке синхрондау" ru="Синхронизировать с Apple Health" en="Sync to Apple Health" />}</button>
           </>
         }
       />
@@ -114,16 +116,17 @@ function PrescriptionRx() {
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <SectionEyebrow>Күнделікті кесте · Asia/Almaty</SectionEyebrow>
+            <SectionEyebrow><L kk="Күнделікті кесте · Asia/Almaty" ru="Дневное расписание · Asia/Almaty" en="Daily schedule · Asia/Almaty" /></SectionEyebrow>
             <div className="font-serif text-3xl text-foreground">
-              {takenCount} <span className="text-muted-foreground">/ {schedule.length} қабылданды</span>
+              {takenCount} <span className="text-muted-foreground">/ {schedule.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-[11px] text-muted-foreground">Adherence 92% · апта</div>
-            <button onClick={addSlot} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">+ Дәрі қосу</button>
+            <div className="text-[11px] text-muted-foreground"><L kk="Ұстанымдылық 92% · апта" ru="Приверженность 92% · неделя" en="Adherence 92% · week" /></div>
+            <button onClick={addSlot} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">+ <L kk="Дәрі қосу" ru="Добавить препарат" en="Add drug" /></button>
           </div>
         </div>
+
 
         {/* 24-hour timeline */}
         <div className="relative mb-6">
