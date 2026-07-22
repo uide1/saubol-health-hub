@@ -13,7 +13,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedTriageVoiceRouteImport } from './routes/_authenticated/triage-voice'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPrescriptionRxRouteImport } from './routes/_authenticated/prescription-rx'
+import { Route as AuthenticatedNutritionScanRouteImport } from './routes/_authenticated/nutrition-scan'
+import { Route as AuthenticatedFamilyRouteImport } from './routes/_authenticated/family'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const AuthRoute = AuthRouteImport.update({
@@ -35,12 +39,34 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTriageVoiceRoute =
+  AuthenticatedTriageVoiceRouteImport.update({
+    id: '/triage-voice',
+    path: '/triage-voice',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPrescriptionRxRoute =
   AuthenticatedPrescriptionRxRouteImport.update({
     id: '/prescription-rx',
     path: '/prescription-rx',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedNutritionScanRoute =
+  AuthenticatedNutritionScanRouteImport.update({
+    id: '/nutrition-scan',
+    path: '/nutrition-scan',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFamilyRoute = AuthenticatedFamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -51,14 +77,22 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/family': typeof AuthenticatedFamilyRoute
+  '/nutrition-scan': typeof AuthenticatedNutritionScanRoute
   '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/triage-voice': typeof AuthenticatedTriageVoiceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/family': typeof AuthenticatedFamilyRoute
+  '/nutrition-scan': typeof AuthenticatedNutritionScanRoute
   '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/triage-voice': typeof AuthenticatedTriageVoiceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
@@ -67,21 +101,47 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/family': typeof AuthenticatedFamilyRoute
+  '/_authenticated/nutrition-scan': typeof AuthenticatedNutritionScanRoute
   '/_authenticated/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/triage-voice': typeof AuthenticatedTriageVoiceRoute
   '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/dashboard' | '/prescription-rx' | '/api/chat'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/family'
+    | '/nutrition-scan'
+    | '/prescription-rx'
+    | '/profile'
+    | '/triage-voice'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/dashboard' | '/prescription-rx' | '/api/chat'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/family'
+    | '/nutrition-scan'
+    | '/prescription-rx'
+    | '/profile'
+    | '/triage-voice'
+    | '/api/chat'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/dashboard'
+    | '/_authenticated/family'
+    | '/_authenticated/nutrition-scan'
     | '/_authenticated/prescription-rx'
+    | '/_authenticated/profile'
+    | '/_authenticated/triage-voice'
     | '/api/chat'
   fileRoutesById: FileRoutesById
 }
@@ -122,11 +182,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/triage-voice': {
+      id: '/_authenticated/triage-voice'
+      path: '/triage-voice'
+      fullPath: '/triage-voice'
+      preLoaderRoute: typeof AuthenticatedTriageVoiceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/prescription-rx': {
       id: '/_authenticated/prescription-rx'
       path: '/prescription-rx'
       fullPath: '/prescription-rx'
       preLoaderRoute: typeof AuthenticatedPrescriptionRxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/nutrition-scan': {
+      id: '/_authenticated/nutrition-scan'
+      path: '/nutrition-scan'
+      fullPath: '/nutrition-scan'
+      preLoaderRoute: typeof AuthenticatedNutritionScanRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/family': {
+      id: '/_authenticated/family'
+      path: '/family'
+      fullPath: '/family'
+      preLoaderRoute: typeof AuthenticatedFamilyRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard': {
@@ -141,12 +229,20 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFamilyRoute: typeof AuthenticatedFamilyRoute
+  AuthenticatedNutritionScanRoute: typeof AuthenticatedNutritionScanRoute
   AuthenticatedPrescriptionRxRoute: typeof AuthenticatedPrescriptionRxRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedTriageVoiceRoute: typeof AuthenticatedTriageVoiceRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFamilyRoute: AuthenticatedFamilyRoute,
+  AuthenticatedNutritionScanRoute: AuthenticatedNutritionScanRoute,
   AuthenticatedPrescriptionRxRoute: AuthenticatedPrescriptionRxRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedTriageVoiceRoute: AuthenticatedTriageVoiceRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
