@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
-import { useState } from "react";
-import { Card, Badge, Stat, Bar, PageHeader } from "@/components/ui-kit";
+import { useState, type ReactNode } from "react";
+import { Card, Badge, PageHeader, SectionEyebrow, Bar } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/nutrition-scan")({
   head: () => ({
@@ -24,8 +24,131 @@ const INGREDIENTS = [
   { name: "Wheat gluten", tag: "Allergen", tone: "warning" as const },
 ];
 
+const CONTRA = [
+  { c: "Type 2 Diabetes (E11)", r: "Glycemic index 78 — post-prandial spike expected", tone: "danger" as const },
+  { c: "Hypertension (I10)", r: "Sodium 1,240 mg — exceeds per-meal ceiling of 600 mg", tone: "danger" as const },
+  { c: "CKD stage 2", r: "Potassium 320 mg · phosphates elevated", tone: "warning" as const },
+  { c: "Gluten sensitivity", r: "Contains wheat gluten", tone: "warning" as const },
+  { c: "GERD", r: "Fried preparation may trigger reflux", tone: "warning" as const },
+  { c: "Pediatric (<12y)", r: "Preservatives E211 above pediatric guidance", tone: "warning" as const },
+];
+
+const SUBS = [
+  { n: "Grilled chicken wrap", k: "420 kcal", e: "🌯" },
+  { n: "Quinoa bowl", k: "380 kcal", e: "🥗" },
+  { n: "Lentil soup + bread", k: "310 kcal", e: "🍲" },
+  { n: "Baked salmon + veg", k: "460 kcal", e: "🐟" },
+];
+
+const ALLERGENS = [
+  { n: "Wheat gluten", s: "High", tone: "danger" as const },
+  { n: "Soy lecithin", s: "Trace", tone: "warning" as const },
+  { n: "Sesame", s: "Present", tone: "warning" as const },
+  { n: "Milk protein", s: "Trace", tone: "muted" as const },
+  { n: "Egg (bun glaze)", s: "Trace", tone: "muted" as const },
+];
+
+// Semicircle calorie ring, matching uploaded reference
+function CalorieRing({ eaten, remaining, burned, goal }: { eaten: number; remaining: number; burned: number; goal: number }) {
+  const pct = Math.min(100, Math.max(0, (eaten / goal) * 100));
+  const r = 80;
+  const c = Math.PI * r; // half-circle circumference
+  const offset = c - (pct / 100) * c;
+  return (
+    <div className="relative mx-auto" style={{ width: 240, height: 150 }}>
+      <svg width={240} height={150} viewBox="0 0 200 120">
+        <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="var(--secondary)" strokeWidth="10" strokeLinecap="round" />
+        <path
+          d="M 20 110 A 80 80 0 0 1 180 110"
+          fill="none"
+          stroke="var(--mint)"
+          strokeWidth="10"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={offset}
+        />
+        <circle cx={20 + (160 * pct) / 100} cy={110 - Math.sin((pct / 100) * Math.PI) * 78} r="6" fill="var(--mint)" />
+      </svg>
+      <div className="absolute inset-x-0 top-6 flex items-end justify-between px-2 text-center">
+        <div>
+          <div className="font-serif text-2xl text-foreground tabular-nums">{eaten}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Съедено</div>
+        </div>
+        <div>
+          <div className="font-serif text-4xl text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Осталось</div>
+        </div>
+        <div>
+          <div className="font-serif text-2xl text-foreground tabular-nums">{burned}</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Сожжено</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Macro({ label, value, goal }: { label: string; value: number; goal: number }) {
+  const pct = Math.min(100, (value / goal) * 100);
+  return (
+    <div className="rounded-xl border border-border bg-surface p-4">
+      <div className="text-center text-[11px] uppercase tracking-widest text-muted-foreground">{label}</div>
+      <div className="mt-3">
+        <Bar value={pct} tone="mint" />
+      </div>
+      <div className="mt-2 text-center font-mono text-[12px] text-foreground">{value} / {goal} г</div>
+    </div>
+  );
+}
+
+// Expandable square block: small tile → click → modal-like expansion
+function SquareBlock({ title, badge, icon, expanded, onToggle, children, summary }: { title: string; badge?: string; icon: string; expanded: boolean; onToggle: () => void; children: ReactNode; summary: string }) {
+  return (
+    <>
+      <button
+        onClick={onToggle}
+        className="group relative flex aspect-square flex-col justify-between rounded-2xl border border-border bg-card p-4 text-left transition hover:border-[color:var(--mint)]/40 hover:-translate-y-0.5"
+      >
+        <div className="flex items-start justify-between">
+          <div className="text-3xl">{icon}</div>
+          {badge && <Badge tone="warning">{badge}</Badge>}
+        </div>
+        <div>
+          <div className="font-serif text-lg leading-tight text-foreground">{title}</div>
+          <div className="mt-1 text-[11px] text-muted-foreground">{summary}</div>
+          <div className="mt-3 text-[11px] text-[color:var(--mint)] opacity-0 transition group-hover:opacity-100">Ашу →</div>
+        </div>
+      </button>
+      {expanded && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onToggle}>
+          <div onClick={(e) => e.stopPropagation()} className="max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-2xl">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="text-3xl">{icon}</div>
+                <div>
+                  <h3 className="font-serif text-2xl text-foreground">{title}</h3>
+                  <div className="text-[11px] text-muted-foreground">{summary}</div>
+                </div>
+              </div>
+              <button onClick={onToggle} className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted-foreground hover:text-foreground">Жабу ✕</button>
+            </div>
+            {children}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
 function NutritionScan() {
   const [logged, setLogged] = useState(false);
+  const [open, setOpen] = useState<string | null>(null);
+  const toggle = (k: string) => setOpen((s) => (s === k ? null : k));
+
+  const eaten = 680;
+  const burned = 162;
+  const goal = 2000;
+  const remaining = Math.max(0, goal - eaten + burned);
+
   return (
     <div>
       <PageHeader
@@ -41,15 +164,129 @@ function NutritionScan() {
         }
       />
 
-
-      <div className="mb-4 grid grid-cols-4 gap-3">
-        <Stat label="Total Kcal" value="680 kcal" hint="34% of 2000 goal" tone="warning" />
-        <Stat label="Sugars" value="42 g" hint="Limit 25 g/day" tone="danger" />
-        <Stat label="Sodium" value="1,240 mg" hint="Limit 2,000 mg" tone="danger" />
-        <Stat label="Fiber" value="2.1 g" hint="Target 30 g" tone="warning" />
+      {/* Calorie summary widget (from reference screenshot) */}
+      <div className="mb-6 rounded-2xl border border-border bg-card p-6">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="font-serif text-3xl text-foreground">Сводка</h2>
+          <button className="text-sm font-medium text-[color:var(--mint)]">Подробности →</button>
+        </div>
+        <CalorieRing eaten={eaten} remaining={remaining} burned={burned} goal={goal} />
+        <div className="mt-4 grid grid-cols-3 gap-3">
+          <Macro label="Углеводы" value={72} goal={268} />
+          <Macro label="Белки" value={28} goal={107} />
+          <Macro label="Жиры" value={34} goal={71} />
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_1fr]">
+      {/* Alert */}
+      <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
+        <div className="flex items-start gap-3">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400">⚠</div>
+          <div className="flex-1">
+            <div className="text-sm font-semibold text-amber-300">Excessive Sugar & Sodium — Medical Restriction Triggered</div>
+            <p className="mt-1 text-xs text-amber-200/80">
+              Added sugar 168% of daily ceiling and sodium 62% RDI in a single meal. Flagged in your medical timeline.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge tone="danger">Sugar +168%</Badge>
+              <Badge tone="danger">Sodium 1,240 mg</Badge>
+              <Badge tone="warning">Sat. fat +55%</Badge>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 4-square expandable grid */}
+      <SectionEyebrow>Terең талдау · басып ашыңыз</SectionEyebrow>
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <SquareBlock
+          title="Ingredients"
+          icon="🧪"
+          badge="4 flagged"
+          summary="12 detected · 1 hidden"
+          expanded={open === "ing"}
+          onToggle={() => toggle("ing")}
+        >
+          <ul className="divide-y divide-border">
+            {INGREDIENTS.map((i) => (
+              <li key={i.name} className="flex items-center justify-between py-2.5 text-[13px]">
+                <span className="text-foreground">{i.name}</span>
+                <Badge tone={i.tone}>{i.tag}</Badge>
+              </li>
+            ))}
+          </ul>
+        </SquareBlock>
+
+        <SquareBlock
+          title="Contraindications"
+          icon="⚕️"
+          badge="6 conditions"
+          summary="Cross-checked profile"
+          expanded={open === "contra"}
+          onToggle={() => toggle("contra")}
+        >
+          <div className="mb-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-semibold text-rose-300">STRICTLY FORBIDDEN</span>
+              <Badge tone="danger">Triggered</Badge>
+            </div>
+            <p className="mt-1 text-[12px] text-rose-200/80">
+              For patients with Type 2 Diabetes, Hypertension, and CKD combined.
+            </p>
+          </div>
+          <div className="space-y-2">
+            {CONTRA.map((r) => (
+              <div key={r.c} className="flex items-start justify-between rounded-md border border-border bg-surface px-3 py-2">
+                <div>
+                  <div className="text-[13px] font-medium text-foreground">{r.c}</div>
+                  <div className="text-[11px] text-muted-foreground">{r.r}</div>
+                </div>
+                <Badge tone={r.tone}>Avoid</Badge>
+              </div>
+            ))}
+          </div>
+        </SquareBlock>
+
+        <SquareBlock
+          title="Healthier subs"
+          icon="🥗"
+          badge="4 options"
+          summary="Under 500 kcal"
+          expanded={open === "sub"}
+          onToggle={() => toggle("sub")}
+        >
+          <div className="grid grid-cols-2 gap-2">
+            {SUBS.map((s) => (
+              <button key={s.n} onClick={() => { toast.success(`✓ ${s.n} таңдалды`, { description: `${s.k} · ұсыныс сақталды` }); setOpen(null); }} className="rounded-lg border border-border bg-surface p-3 text-left transition hover:border-[color:var(--mint)]/40">
+                <div className="text-2xl">{s.e}</div>
+                <div className="mt-1 text-[13px] font-medium text-foreground">{s.n}</div>
+                <div className="text-[11px] text-muted-foreground">{s.k}</div>
+              </button>
+            ))}
+          </div>
+        </SquareBlock>
+
+        <SquareBlock
+          title="Allergens"
+          icon="🌾"
+          badge="2 high"
+          summary="Personal profile scan"
+          expanded={open === "all"}
+          onToggle={() => toggle("all")}
+        >
+          <ul className="divide-y divide-border">
+            {ALLERGENS.map((a) => (
+              <li key={a.n} className="flex items-center justify-between py-2.5 text-[13px]">
+                <span className="text-foreground">{a.n}</span>
+                <Badge tone={a.tone}>{a.s}</Badge>
+              </li>
+            ))}
+          </ul>
+        </SquareBlock>
+      </div>
+
+      {/* Macro breakdown card underneath */}
+      <div className="mt-6">
         <Card title="Calorie & Macro Breakdown" subtitle="USDA + KZ Nutrient DB · portion 340 g" right={<Badge tone="warning">Above target</Badge>}>
           <div className="flex gap-4">
             <div className="grid-bg grid h-40 w-40 shrink-0 place-items-center rounded-lg border border-border bg-surface text-4xl">🍔</div>
@@ -71,83 +308,7 @@ function NutritionScan() {
               ))}
             </div>
           </div>
-
-          <div className="mt-5 rounded-lg border border-amber-900/60 bg-amber-950/30 p-4">
-            <div className="flex items-start gap-3">
-              <div className="grid h-8 w-8 place-items-center rounded-md border border-amber-900/60 bg-amber-950/50 text-amber-400">⚠</div>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-amber-300">Excessive Sugar & Sodium — Medical Restriction Triggered</div>
-                <p className="mt-1 text-xs text-amber-200/80">
-                  Both added sugar (168% of daily ceiling) and sodium (62% RDI in a single meal) exceed clinical intake thresholds. SauBol has flagged this meal in your medical timeline.
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Badge tone="danger">Sugar +168%</Badge>
-                  <Badge tone="danger">Sodium 1,240 mg</Badge>
-                  <Badge tone="warning">Sat. fat +55%</Badge>
-                </div>
-              </div>
-            </div>
-          </div>
         </Card>
-
-        <div className="space-y-4">
-          <Card title="Ingredient Analysis" subtitle="12 detected · 4 flagged · 1 hidden">
-            <ul className="divide-y divide-border">
-              {INGREDIENTS.map((i) => (
-                <li key={i.name} className="flex items-center justify-between py-2 text-[12px]">
-                  <span className="text-foreground">{i.name}</span>
-                  <Badge tone={i.tone}>{i.tag}</Badge>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card title="Contraindication Matrix" subtitle="Cross-checked with 6 patient conditions">
-            <div className="space-y-2">
-              <div className="rounded-md border border-red-900/60 bg-red-950/30 p-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-semibold text-red-300">STRICTLY FORBIDDEN</span>
-                  <Badge tone="danger">Triggered</Badge>
-                </div>
-                <p className="mt-1 text-[11px] text-red-200/80">
-                  For patients with Type 2 Diabetes, Hypertension, and Chronic Kidney Disease. Sodium and refined-carb load exceed safe thresholds for all three conditions simultaneously.
-                </p>
-              </div>
-              {[
-                { c: "Type 2 Diabetes (E11)", r: "Glycemic index 78 — post-prandial spike expected", tone: "danger" as const },
-                { c: "Hypertension (I10)", r: "Sodium 1,240 mg — exceeds per-meal ceiling of 600 mg", tone: "danger" as const },
-                { c: "CKD stage 2", r: "Potassium 320 mg · phosphates elevated", tone: "warning" as const },
-                { c: "Gluten sensitivity", r: "Contains wheat gluten", tone: "warning" as const },
-                { c: "GERD", r: "Fried preparation may trigger reflux", tone: "warning" as const },
-                { c: "Pediatric (<12y)", r: "Preservatives E211 above pediatric guidance", tone: "warning" as const },
-              ].map((r) => (
-                <div key={r.c} className="flex items-start justify-between rounded-md border border-border bg-surface px-3 py-2">
-                  <div>
-                    <div className="text-[12px] font-medium text-foreground">{r.c}</div>
-                    <div className="text-[11px] text-muted-foreground">{r.r}</div>
-                  </div>
-                  <Badge tone={r.tone}>Avoid</Badge>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card title="Healthier substitutes">
-            <div className="grid grid-cols-3 gap-2 text-center text-[11px]">
-              {[
-                { n: "Grilled chicken wrap", k: "420 kcal" },
-                { n: "Quinoa bowl", k: "380 kcal" },
-                { n: "Lentil soup + bread", k: "310 kcal" },
-              ].map((s) => (
-                <button key={s.n} onClick={() => toast.success(`✓ ${s.n} таңдалды`, { description: `${s.k} · ұсыныс сақталды` })} className="rounded-md border border-border bg-surface p-3 text-left transition hover:border-white/20">
-                  <div className="text-2xl">🥗</div>
-                  <div className="mt-1 font-medium text-foreground">{s.n}</div>
-                  <div className="text-muted-foreground">{s.k}</div>
-                </button>
-              ))}
-            </div>
-          </Card>
-        </div>
       </div>
     </div>
   );

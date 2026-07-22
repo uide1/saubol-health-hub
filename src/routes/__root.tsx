@@ -91,9 +91,9 @@ const NAV = [
   { to: "/nutrition-scan", label: "Тамақ" },
   { to: "/triage-voice", label: "Дауыс" },
   { to: "/prescription-rx", label: "Дәрілер" },
-  { to: "/feed", label: "Feed" },
   { to: "/profile", label: "Профиль" },
 ] as const;
+
 
 
 function TopNav() {
