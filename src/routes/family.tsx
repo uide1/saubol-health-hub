@@ -207,11 +207,12 @@ function FamilyPage() {
               </div>
             )}
           </div>
-          <button onClick={() => { if (window.confirm(`103-ке ${kid.name} үшін хабарласу?`)) toast.error("🚨 103 шақырылды", { description: `${kid.name} · GPS жіберілді · ETA 8 min` }); }} className="mt-4 w-full rounded-full border border-rose-500/40 bg-rose-500/10 py-2 text-[12px] font-medium uppercase tracking-wider text-rose-300 hover:bg-rose-500/15">
-            🚨 SOS · 103 шақыру
-          </button>
+          <div className="mt-3 rounded-xl border border-dashed border-border bg-surface/50 px-3 py-2 text-[11px] text-muted-foreground">
+            <L kk="Ескертулер автоматты · SauBol AI бақылайды" ru="Уведомления автоматические · SauBol AI следит" en="Alerts are automatic · monitored by SauBol AI" />
+          </div>
         </Bento>
       </div>
+
 
       {/* Meds */}
       <Bento>
