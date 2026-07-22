@@ -148,7 +148,60 @@ function FamilyPage() {
 
         {/* Selected kid detail column */}
         <div className="space-y-4">
-          {/* Daily stats */}
+          {/* Three circular summary rings — above daily metrics */}
+          {(() => {
+            const alertsPct = Math.min(100, kid.alerts.length * 20);
+            const alertsTone = kid.alerts.some(a => a.tone === "danger") ? "#ff6b6b" : kid.alerts.some(a => a.tone === "warning") ? "#f5b64c" : "#A8FF60";
+            const medsTaken = kid.meds.filter(m => isMedOk(m.t, m.n, m.ok)).length;
+            const medsPct = kid.meds.length ? Math.round((medsTaken / kid.meds.length) * 100) : 100;
+            const sleepHours = kid.id === "aidos" ? 9.2 : kid.id === "aruzhan" ? 8.5 : 7.4;
+            const sleepPct = Math.min(100, Math.round((sleepHours / 10) * 100));
+
+            const rings: { label: React.ReactNode; center: React.ReactNode; sub: React.ReactNode; pct: number; color: string }[] = [
+              {
+                label: <L kk="Ескертулер" ru="Уведомления" en="Alerts" />,
+                center: <span className="font-serif text-3xl text-foreground">{kid.alerts.length}</span>,
+                sub: <L kk="белсенді" ru="активных" en="active" />,
+                pct: alertsPct, color: alertsTone,
+              },
+              {
+                label: <L kk="Дәрі-дәрмек" ru="Лекарства" en="Meds" />,
+                center: <span className="font-serif text-3xl text-foreground">{medsTaken}<span className="text-muted-foreground text-lg">/{kid.meds.length || 0}</span></span>,
+                sub: <>{medsPct}% <L kk="орындалды" ru="выполнено" en="done" /></>,
+                pct: medsPct, color: "#A8FF60",
+              },
+              {
+                label: <L kk="Ұйқы" ru="Сон" en="Sleep" />,
+                center: <span className="font-serif text-3xl text-foreground">{sleepHours}<span className="text-muted-foreground text-lg">сағ</span></span>,
+                sub: <L kk="соңғы түн" ru="прошлая ночь" en="last night" />,
+                pct: sleepPct, color: "#7cb8ff",
+              },
+            ];
+            const R = 46, C = 2 * Math.PI * R;
+            return (
+              <div className="grid grid-cols-3 gap-4">
+                {rings.map((r, i) => (
+                  <Bento key={i}>
+                    <div className="flex flex-col items-center gap-2 py-2">
+                      <SectionEyebrow>{r.label}</SectionEyebrow>
+                      <div className="relative h-[120px] w-[120px]">
+                        <svg viewBox="0 0 108 108" className="h-full w-full -rotate-90">
+                          <circle cx="54" cy="54" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />
+                          <circle cx="54" cy="54" r={R} fill="none" stroke={r.color} strokeWidth="8" strokeLinecap="round"
+                            strokeDasharray={C} strokeDashoffset={C - (C * r.pct) / 100}
+                            style={{ transition: "stroke-dashoffset 600ms ease" }} />
+                        </svg>
+                        <div className="absolute inset-0 grid place-items-center">{r.center}</div>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground">{r.sub}</div>
+                    </div>
+                  </Bento>
+                ))}
+              </div>
+            );
+          })()}
+
+          {/* Daily stats — image-style */}
           <Bento>
             <div className="flex items-baseline justify-between">
               <div>
@@ -161,55 +214,45 @@ function FamilyPage() {
                 {kid.status === "ok" ? L1({ kk: "Аман", ru: "В норме", en: "OK" }) : kid.status === "watch" ? L1({ kk: "Бақылауда", ru: "Наблюдение", en: "Watch" }) : L1({ kk: "Назар", ru: "Внимание", en: "Alert" })}
               </Badge>
             </div>
-            <p className="mt-2 text-[12px] text-muted-foreground">{kid.note}</p>
-            <div className="mt-4 grid grid-cols-3 gap-3">
-              <Stat label={L1({ kk: "Калория", ru: "Калории", en: "Calories" })} value={`${kid.today.calories}`} hint="/ 1600" tone="mint" />
-              <Stat label={L1({ kk: "Қант", ru: "Сахар", en: "Sugar" })} value={`${kid.today.sugar} г`} hint={L1({ kk: "шек 25 г", ru: "лимит 25 г", en: "limit 25 g" })} tone={kid.today.sugar > 25 ? "danger" : "success"} />
-              <Stat label={L1({ kk: "Су", ru: "Вода", en: "Water" })} value={`${kid.today.water} ст`} hint="/ 6" />
-            </div>
+
+            {(() => {
+              const calPct = Math.min(100, Math.round((kid.today.calories / 1600) * 100));
+              const sugarPct = Math.min(100, Math.round((kid.today.sugar / 25) * 100));
+              const waterPct = Math.min(100, Math.round((kid.today.water / 6) * 100));
+              const cards = [
+                { k: L1({ kk: "КАЛОРИЯ", ru: "КАЛОРИИ", en: "CALORIES" }), v: `${kid.today.calories}`, sub: `/ ${L1({ kk: "мақсат", ru: "цель", en: "goal" })} 1600`, color: "text-[color:var(--mint)]", bar: "bg-[color:var(--mint)]", pct: calPct },
+                { k: L1({ kk: "ҚАНТ", ru: "САХАР", en: "SUGAR" }), v: `${kid.today.sugar} г`, sub: `${L1({ kk: "шек", ru: "лимит", en: "limit" })} 25 г`, color: kid.today.sugar > 25 ? "text-rose-400" : "text-foreground", bar: kid.today.sugar > 25 ? "bg-rose-400" : "bg-foreground", pct: sugarPct },
+                { k: L1({ kk: "СУ", ru: "ВОДА", en: "WATER" }), v: `${kid.today.water} ст`, sub: `/ 6 ${L1({ kk: "стакан", ru: "стаканов", en: "cups" })}`, color: "text-foreground", bar: "bg-white/80", pct: waterPct },
+              ];
+              return (
+                <>
+                  <div className="mt-4 grid grid-cols-3 gap-3">
+                    {cards.map((c) => (
+                      <div key={c.k} className="rounded-xl border border-border bg-surface px-4 py-3">
+                        <div className="text-[10px] tracking-[0.14em] text-muted-foreground">{c.k}</div>
+                        <div className={`mt-1 font-serif text-3xl ${c.color}`}>{c.v}</div>
+                        <div className="text-[11px] text-muted-foreground">{c.sub}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-5 space-y-3">
+                    {cards.map((c) => (
+                      <div key={c.k}>
+                        <div className="flex justify-between text-[11px] text-muted-foreground">
+                          <span>{c.k.charAt(0) + c.k.slice(1).toLowerCase()}</span>
+                          <span>{c.pct}%</span>
+                        </div>
+                        <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
+                          <div className={`h-full ${c.bar} rounded-full`} style={{ width: `${c.pct}%`, transition: "width 600ms ease" }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              );
+            })()}
+            <p className="mt-4 text-[12px] text-muted-foreground">{kid.note}</p>
           </Bento>
-
-          {/* Alerts + Meds side by side */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <Bento>
-              <SectionEyebrow><L kk="Ескертулер" ru="Уведомления" en="Alerts" /></SectionEyebrow>
-              <div className="mt-2 space-y-2">
-                {kid.alerts.map((a, i) => (
-                  <div key={i} className="flex items-start gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
-                    <div className="text-xl">{a.icon}</div>
-                    <div className="flex-1 text-[12px] text-foreground">{a.t}</div>
-                    <Badge tone={a.tone}>·</Badge>
-                  </div>
-                ))}
-                {kid.alerts.length === 0 && (
-                  <div className="rounded-xl border border-dashed border-border bg-surface px-3 py-6 text-center text-[12px] text-muted-foreground">
-                    <L kk="Ескертулер жоқ ✓" ru="Уведомлений нет ✓" en="No alerts ✓" />
-                  </div>
-                )}
-              </div>
-            </Bento>
-
-            <Bento>
-              <div className="flex items-baseline justify-between">
-                <SectionEyebrow><L kk="Дәрі-дәрмек" ru="Лекарства" en="Meds" /></SectionEyebrow>
-                <span className="text-[11px] text-muted-foreground">{kid.meds.filter(m=>m.ok).length}/{kid.meds.length}</span>
-              </div>
-              <div className="mt-3 space-y-2">
-                {kid.meds.length === 0 && <div className="text-[12px] text-muted-foreground"><L kk="Тағайындалған дәрі жоқ." ru="Назначений нет." en="No prescriptions." /></div>}
-                {kid.meds.map((m) => {
-                  const ok = isMedOk(m.t, m.n, m.ok);
-                  return (
-                    <button key={m.t + m.n} onClick={() => toggleMed(m.t, m.n, m.ok)} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition hover:border-white/15">
-                      <div className={`h-2 w-2 rounded-full ${ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
-                      <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
-                      <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
-                      {ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">…</Badge>}
-                    </button>
-                  );
-                })}
-              </div>
-            </Bento>
-          </div>
         </div>
       </div>
     </div>
