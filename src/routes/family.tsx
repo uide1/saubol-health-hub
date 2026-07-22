@@ -71,7 +71,19 @@ const FAMILY_FEED = [
 
 function FamilyPage() {
   const [active, setActive] = useState(KIDS[0].id);
+  const [medsState, setMedsState] = useState<Record<string, boolean>>({});
   const kid = KIDS.find((k) => k.id === active)!;
+  const medKey = (t: string, n: string) => `${active}-${t}-${n}`;
+  const toggleMed = (t: string, n: string, current: boolean) => {
+    const k = medKey(t, n);
+    const next = k in medsState ? !medsState[k] : !current;
+    setMedsState(s => ({ ...s, [k]: next }));
+    toast(next ? `✓ ${n} қабылданды` : `${n} қайта белгіленді`);
+  };
+  const isMedOk = (t: string, n: string, current: boolean) => {
+    const k = medKey(t, n);
+    return k in medsState ? medsState[k] : current;
+  };
 
   return (
     <div className="space-y-6">
