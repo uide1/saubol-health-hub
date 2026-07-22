@@ -97,7 +97,7 @@ function FeedPage() {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {rest.map((n, i) => (
-          <article key={i} className="group flex flex-col rounded-2xl border border-border bg-card p-5 transition hover:border-white/15">
+          <article key={i} onClick={() => toast.info(n.title, { description: `${n.body} · Дерек көзі: ${n.src}` })} className="group flex cursor-pointer flex-col rounded-2xl border border-border bg-card p-5 transition hover:border-white/15 hover:-translate-y-0.5">
             <div className="flex items-center justify-between">
               <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-xl">{n.icon}</div>
               <Badge tone={n.tone}>{n.tag}</Badge>
