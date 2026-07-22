@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { Bento, Badge, Chip, SectionEyebrow, Bar } from "@/components/ui-kit";
 import { HealthOrb } from "@/components/health-orb";
 import { LineChart, Line, ResponsiveContainer, XAxis, Tooltip } from "recharts";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -15,10 +17,15 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
-const TREND = [
+const TREND_7 = [
   { d: "Дс", score: 68 }, { d: "Сс", score: 71 }, { d: "Ср", score: 69 },
   { d: "Бс", score: 74 }, { d: "Жм", score: 76 }, { d: "Сб", score: 72 }, { d: "Жс", score: 78 },
 ];
+const TREND_30 = Array.from({ length: 30 }, (_, i) => ({ d: `${i + 1}`, score: 60 + Math.round(Math.sin(i / 3) * 8 + i * 0.4) }));
+const TREND_90 = Array.from({ length: 12 }, (_, i) => ({ d: `W${i + 1}`, score: 55 + Math.round(Math.cos(i / 2) * 6 + i * 1.6) }));
+const TRENDS = { "7": TREND_7, "30": TREND_30, "90": TREND_90 } as const;
+type Range = keyof typeof TRENDS;
+
 
 const RECENT = [
   { icon: "🍔", title: "Fried chicken burger", note: "168% қант шегі", to: "/nutrition-scan" as const, tone: "danger" as const, time: "5 сағ" },
@@ -35,6 +42,10 @@ const MEDS_TODAY = [
 ];
 
 function Dashboard() {
+  const [range, setRange] = useState<Range>("7");
+  const [meds, setMeds] = useState(MEDS_TODAY);
+  const toggleMed = (t: string) => setMeds(s => s.map(m => m.t === t ? { ...m, ok: !m.ok } : m));
+  const takenCount = meds.filter(m => m.ok).length;
   return (
     <div className="space-y-6">
       {/* HERO */}
@@ -116,14 +127,16 @@ function Dashboard() {
               <div className="font-serif text-2xl text-foreground">Денсаулық индексі <span className="italic text-[color:var(--mint)]">жоғарылап</span> келеді</div>
             </div>
             <div className="flex gap-1">
-              <Chip active>7 күн</Chip>
-              <Chip>30 күн</Chip>
-              <Chip>90 күн</Chip>
+              {(["7","30","90"] as Range[]).map((r) => (
+                <button key={r} onClick={() => setRange(r)}>
+                  <Chip active={range === r}>{r} күн</Chip>
+                </button>
+              ))}
             </div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={TREND} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <LineChart data={TRENDS[range]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <XAxis dataKey="d" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
@@ -163,23 +176,23 @@ function Dashboard() {
           <div className="flex items-baseline justify-between">
             <div>
               <SectionEyebrow>Бүгінгі дәрі-дәрмек</SectionEyebrow>
-              <div className="font-serif text-2xl text-foreground">4 <span className="text-muted-foreground">/ 7 қабылданды</span></div>
+              <div className="font-serif text-2xl text-foreground">{takenCount} <span className="text-muted-foreground">/ {meds.length} қабылданды</span></div>
             </div>
             <Link to="/prescription-rx" className="text-[11px] text-[color:var(--mint)]">Толық →</Link>
           </div>
           <div className="mt-3">
-            <Bar value={57} tone="mint" />
+            <Bar value={(takenCount / meds.length) * 100} tone="mint" />
           </div>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {MEDS_TODAY.map((m) => (
-              <div key={m.t} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2">
+            {meds.map((m) => (
+              <button key={m.t} onClick={() => { toggleMed(m.t); toast(m.ok ? `${m.n} қайта белгіленді` : `✓ ${m.n} қабылданды`); }} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left transition hover:border-white/15">
                 <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
                 <div className="min-w-0 flex-1">
                   <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
                   <div className="truncate text-[12px] text-foreground">{m.n}</div>
                 </div>
                 {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="muted">Күтуде</Badge>}
-              </div>
+              </button>
             ))}
           </div>
         </Bento>

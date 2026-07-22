@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { toast } from "sonner";
+import { useState } from "react";
 import { Card, Badge, Stat, Bar, PageHeader } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/nutrition-scan")({
@@ -23,6 +25,7 @@ const INGREDIENTS = [
 ];
 
 function NutritionScan() {
+  const [logged, setLogged] = useState(false);
   return (
     <div>
       <PageHeader
@@ -31,12 +34,13 @@ function NutritionScan() {
         description="Dish: «Fried chicken burger + soda» · scanned 12:47 · GS1 barcode 4870204..."
         actions={
           <>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">📷 Photo</button>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">🧾 Barcode</button>
-            <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Log meal</button>
+            <button onClick={() => toast.info("📷 Камера ашылуда...", { description: "Тағамды фотоға түсіріңіз" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">📷 Photo</button>
+            <button onClick={() => toast.info("🧾 Штрих-код сканері", { description: "Өнім штрих-кодына бағыттаңыз" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">🧾 Barcode</button>
+            <button onClick={() => { setLogged(true); toast.success(logged ? "Тағам жаңартылды" : "Тағам күнделігіне жазылды ✓", { description: "680 kcal · медициналық хронологияға қосылды" }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{logged ? "Logged ✓" : "Log meal"}</button>
           </>
         }
       />
+
 
       <div className="mb-4 grid grid-cols-4 gap-3">
         <Stat label="Total Kcal" value="680 kcal" hint="34% of 2000 goal" tone="warning" />
@@ -135,11 +139,11 @@ function NutritionScan() {
                 { n: "Quinoa bowl", k: "380 kcal" },
                 { n: "Lentil soup + bread", k: "310 kcal" },
               ].map((s) => (
-                <div key={s.n} className="rounded-md border border-border bg-surface p-3">
+                <button key={s.n} onClick={() => toast.success(`✓ ${s.n} таңдалды`, { description: `${s.k} · ұсыныс сақталды` })} className="rounded-md border border-border bg-surface p-3 text-left transition hover:border-white/20">
                   <div className="text-2xl">🥗</div>
                   <div className="mt-1 font-medium text-foreground">{s.n}</div>
                   <div className="text-muted-foreground">{s.k}</div>
-                </div>
+                </button>
               ))}
             </div>
           </Card>

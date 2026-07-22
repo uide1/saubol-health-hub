@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Bento, Badge, Bar, Chip, SectionEyebrow, Stat } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/family")({
@@ -70,7 +71,19 @@ const FAMILY_FEED = [
 
 function FamilyPage() {
   const [active, setActive] = useState(KIDS[0].id);
+  const [medsState, setMedsState] = useState<Record<string, boolean>>({});
   const kid = KIDS.find((k) => k.id === active)!;
+  const medKey = (t: string, n: string) => `${active}-${t}-${n}`;
+  const toggleMed = (t: string, n: string, current: boolean) => {
+    const k = medKey(t, n);
+    const next = k in medsState ? !medsState[k] : !current;
+    setMedsState(s => ({ ...s, [k]: next }));
+    toast(next ? `✓ ${n} қабылданды` : `${n} қайта белгіленді`);
+  };
+  const isMedOk = (t: string, n: string, current: boolean) => {
+    const k = medKey(t, n);
+    return k in medsState ? medsState[k] : current;
+  };
 
   return (
     <div className="space-y-6">
@@ -87,7 +100,7 @@ function FamilyPage() {
         </div>
         <div className="flex items-center gap-2">
           <Chip>Ата-ана PIN қосулы</Chip>
-          <button className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">+ Бала қосу</button>
+          <button onClick={() => { const n = window.prompt("Баланың аты"); if (n) toast.success(`+ ${n} қосылды`, { description: "Профиль жасалуда..." }); }} className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">+ Бала қосу</button>
         </div>
       </div>
 
@@ -170,7 +183,7 @@ function FamilyPage() {
               </div>
             )}
           </div>
-          <button className="mt-4 w-full rounded-full border border-red-900/60 bg-red-950/30 py-2 text-[12px] font-medium uppercase tracking-wider text-red-300">
+          <button onClick={() => { if (window.confirm(`103-ке ${kid.name} үшін хабарласу?`)) toast.error("🚨 103 шақырылды", { description: `${kid.name} · GPS жіберілді · ETA 8 min` }); }} className="mt-4 w-full rounded-full border border-red-900/60 bg-red-950/30 py-2 text-[12px] font-medium uppercase tracking-wider text-red-300 hover:bg-red-950/50">
             🚨 SOS · 103 шақыру
           </button>
         </Bento>
@@ -185,14 +198,17 @@ function FamilyPage() {
           </div>
           <div className="mt-3 space-y-2">
             {kid.meds.length === 0 && <div className="text-[12px] text-muted-foreground">Тағайындалған дәрі жоқ.</div>}
-            {kid.meds.map((m) => (
-              <div key={m.t + m.n} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5">
-                <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
-                <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
-                <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
-                {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">Күтуде</Badge>}
-              </div>
-            ))}
+            {kid.meds.map((m) => {
+              const ok = isMedOk(m.t, m.n, m.ok);
+              return (
+                <button key={m.t + m.n} onClick={() => toggleMed(m.t, m.n, m.ok)} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition hover:border-white/15">
+                  <div className={`h-2 w-2 rounded-full ${ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
+                  <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
+                  <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
+                  {ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">Күтуде</Badge>}
+                </button>
+              );
+            })}
           </div>
         </Bento>
 

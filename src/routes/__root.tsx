@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -151,6 +152,7 @@ function RootComponent() {
       <div className="min-h-screen bg-background pt-4 text-foreground">
         <CustomCursor />
         <TopNav />
+        <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
         <main className="mx-auto max-w-[1400px] px-6 py-8">
           <Outlet />
         </main>

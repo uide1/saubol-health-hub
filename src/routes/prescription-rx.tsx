@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Card, Badge, PageHeader } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/prescription-rx")({
@@ -21,9 +23,21 @@ const SCHEDULE = [
   { time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted" as const },
 ];
 
-const CURRENT = ["Aspirin 75 mg", "Ibuprofen 400 mg", "Warfarin 5 mg", "Metformin 850 mg"];
+
 
 function PrescriptionRx() {
+  const [current, setCurrent] = useState<string[]>(["Aspirin 75 mg", "Ibuprofen 400 mg", "Warfarin 5 mg", "Metformin 850 mg"]);
+  const [synced, setSynced] = useState(false);
+  const [replaced, setReplaced] = useState(false);
+
+  const addDrug = () => {
+    const name = window.prompt("Дәрі атауы (мысалы: Losartan 50 mg)");
+    if (!name) return;
+    setCurrent((s) => [...s, name.trim()]);
+    toast.success(`+ ${name} қосылды`, { description: "Өзара әрекет тексерілуде..." });
+  };
+  const removeDrug = (n: string) => { setCurrent((s) => s.filter(x => x !== n)); toast(`${n} алынды`); };
+
   return (
     <div>
       <PageHeader
@@ -32,11 +46,12 @@ function PrescriptionRx() {
         description="Handwriting decoded · 7 medications · 2 interaction flags · pharmacist-verified schedule"
         actions={
           <>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Upload photo</button>
-            <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Sync to Apple Health</button>
+            <button onClick={() => toast.info("📸 Рецепт суретін жүктеңіз", { description: "OCR модельі жазуды тануға дайын" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Upload photo</button>
+            <button onClick={() => { setSynced(true); toast.success(synced ? "Apple Health-пен қайта синхрондалды" : "✓ Apple Health-ке синхрондалды", { description: "7 дәрі-дәрмек кестесі экспортталды" }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{synced ? "Synced ✓" : "Sync to Apple Health"}</button>
           </>
         }
       />
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_1fr]">
         <div className="space-y-4">
@@ -105,13 +120,13 @@ function PrescriptionRx() {
         <div className="space-y-4">
           <Card title="Currently Taken Medications" subtitle="Add drugs to test against your prescription">
             <div className="flex flex-wrap gap-2">
-              {CURRENT.map((c) => (
+              {current.map((c) => (
                 <span key={c} className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-2 py-1 text-[12px] text-foreground">
                   {c}
-                  <button className="text-muted-foreground hover:text-foreground">×</button>
+                  <button onClick={() => removeDrug(c)} className="text-muted-foreground hover:text-foreground">×</button>
                 </span>
               ))}
-              <button className="rounded-md border border-dashed border-border px-2 py-1 text-[12px] text-muted-foreground hover:text-foreground">+ Add drug</button>
+              <button onClick={addDrug} className="rounded-md border border-dashed border-border px-2 py-1 text-[12px] text-muted-foreground hover:text-foreground">+ Add drug</button>
             </div>
           </Card>
 
@@ -143,8 +158,8 @@ function PrescriptionRx() {
                   <div className="font-semibold text-red-200">Rapid</div>
                 </div>
               </div>
-              <button className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
-                Replace with safer alternative
+              <button onClick={() => { setReplaced(true); setCurrent((s) => s.filter(x => !x.startsWith("Ibuprofen")).concat(replaced ? [] : ["Paracetamol 500 mg (safe)"])); toast.success("✓ Ibuprofen → Paracetamol", { description: "Қауіпсіз балама енгізілді, өзара әрекет жойылды" }); }} className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
+                {replaced ? "Ауыстырылды ✓" : "Replace with safer alternative"}
               </button>
             </div>
           </div>

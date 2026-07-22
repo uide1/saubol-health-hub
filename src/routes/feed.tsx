@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Bento, Badge, Chip, SectionEyebrow } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/feed")({
@@ -82,7 +83,7 @@ function FeedPage() {
                 {featured.title}
               </h2>
               <p className="mt-3 max-w-xl text-sm text-muted-foreground">{featured.body}</p>
-              <button className="mt-5 inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background">
+              <button onClick={() => toast.info(featured.title, { description: featured.body })} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background hover:scale-[1.02] transition">
                 Толық оқу →
               </button>
             </div>
@@ -96,7 +97,7 @@ function FeedPage() {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {rest.map((n, i) => (
-          <article key={i} className="group flex flex-col rounded-2xl border border-border bg-card p-5 transition hover:border-white/15">
+          <article key={i} onClick={() => toast.info(n.title, { description: `${n.body} · Дерек көзі: ${n.src}` })} className="group flex cursor-pointer flex-col rounded-2xl border border-border bg-card p-5 transition hover:border-white/15 hover:-translate-y-0.5">
             <div className="flex items-center justify-between">
               <div className="grid h-10 w-10 place-items-center rounded-full bg-secondary text-xl">{n.icon}</div>
               <Badge tone={n.tone}>{n.tag}</Badge>

@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Card, Badge, PageHeader } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/triage-voice")({
@@ -21,7 +23,18 @@ const TURNS: Turn[] = [
   { who: "ai", time: "12:41:49", text: "Я уже отправил ваши GPS-координаты в службу 103. Оставайтесь на связи, помощь в пути." },
 ];
 
+const LANGS = ["KZ", "RU", "EN"];
+const VOICES = ["Aigerim", "Dana", "Alua"];
+
 function TriageVoice() {
+  const [recording, setRecording] = useState(true);
+  const [lang, setLang] = useState(0);
+  const [voice, setVoice] = useState(0);
+  const copyTranscript = () => {
+    const text = TURNS.map(t => `[${t.time}] ${t.who === "ai" ? "SauBol" : "Пациент"}: ${t.text}`).join("\n");
+    if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+    toast.success("Транскрипт көшірілді", { description: `${TURNS.length} хабарлама алмасу буферінде` });
+  };
   return (
     <div>
       <PageHeader
@@ -30,8 +43,8 @@ function TriageVoice() {
         description="Live symptom capture · KZ / RU / EN · triage model v4.2 · latency 220 ms"
         actions={
           <>
-            <Badge tone="danger">LIVE</Badge>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Transcript</button>
+            <Badge tone={recording ? "danger" : "muted"}>{recording ? "LIVE" : "PAUSED"}</Badge>
+            <button onClick={copyTranscript} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Transcript</button>
           </>
         }
       />
@@ -42,26 +55,26 @@ function TriageVoice() {
           <Card>
             <div className="grid-bg -m-5 mb-0 flex flex-col items-center justify-center rounded-t-xl border-b border-border px-6 py-10">
               <div className="relative">
-                <div className="absolute inset-0 animate-ping rounded-full bg-white/5" />
+                {recording && <div className="absolute inset-0 animate-ping rounded-full bg-white/5" />}
                 <div className="absolute -inset-6 rounded-full border border-white/10" />
                 <div className="absolute -inset-12 rounded-full border border-white/5" />
-                <div className="relative grid h-32 w-32 place-items-center rounded-full border border-border bg-gradient-to-b from-zinc-800 to-zinc-950 shadow-[0_0_60px_-10px_rgba(255,255,255,0.15)]">
-                  <span className="text-3xl">🎤</span>
-                </div>
+                <button onClick={() => { setRecording(r => !r); toast(recording ? "⏸ Жазба тоқтатылды" : "🔴 Жазба жалғасуда"); }} className="relative grid h-32 w-32 place-items-center rounded-full border border-border bg-gradient-to-b from-zinc-800 to-zinc-950 shadow-[0_0_60px_-10px_rgba(255,255,255,0.15)] transition hover:scale-105">
+                  <span className="text-3xl">{recording ? "🎤" : "⏸"}</span>
+                </button>
               </div>
               <div className="mt-6 flex items-end gap-1 h-8">
                 {[8,14,22,30,18,26,32,24,16,28,20,12,24,30,22,16,10,20,26,18].map((h, i) => (
-                  <span key={i} className="w-1 rounded-full bg-foreground/70" style={{ height: `${h}px` }} />
+                  <span key={i} className={`w-1 rounded-full bg-foreground/70 ${recording ? "animate-pulse" : "opacity-40"}`} style={{ height: `${h}px`, animationDelay: `${i * 40}ms` }} />
                 ))}
               </div>
-              <div className="mt-4 text-sm font-medium text-foreground">Хотите сказать симптом? Нажмите и говорите</div>
-              <div className="mt-1 text-[11px] text-muted-foreground">Recording · 00:47 · Kazakh detected</div>
+              <div className="mt-4 text-sm font-medium text-foreground">{recording ? "Хотите сказать симптом? Нажмите и говорите" : "Жазба кідіртілді — жалғастыру үшін басыңыз"}</div>
+              <div className="mt-1 text-[11px] text-muted-foreground">{recording ? "Recording · 00:47" : "Paused"} · {LANGS[lang]} detected</div>
             </div>
             <div className="flex items-center justify-between pt-5">
               <div className="flex items-center gap-2">
-                <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Pause</button>
-                <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-foreground">Language: KZ</button>
-                <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-foreground">Voice: Aigerim</button>
+                <button onClick={() => { setRecording(r => !r); toast(recording ? "⏸ Кідіртілді" : "▶ Жалғастырылды"); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{recording ? "Pause" : "Resume"}</button>
+                <button onClick={() => { const n = (lang + 1) % LANGS.length; setLang(n); toast(`Тіл: ${LANGS[n]}`); }} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-foreground">Language: {LANGS[lang]}</button>
+                <button onClick={() => { const n = (voice + 1) % VOICES.length; setVoice(n); toast(`Дауыс: ${VOICES[n]}`); }} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-foreground">Voice: {VOICES[voice]}</button>
               </div>
               <div className="text-[11px] text-muted-foreground">Encrypted E2E · session auto-purges in 24h</div>
             </div>
@@ -135,7 +148,7 @@ function TriageVoice() {
                 </div>
               </div>
 
-              <button className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
+              <button onClick={() => toast.error("📞 103 диспетчерімен байланысу...", { description: "Almira K. · Unit A-14 · ETA 6 min" })} className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
                 Speak to dispatcher now
               </button>
             </div>
