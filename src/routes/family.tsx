@@ -48,6 +48,9 @@ const KIDS: Kid[] = [
     alerts: [
       { icon: "🌡", t: "Температура 37.6° — 4 сағ бұрын", tone: "warning" },
       { icon: "🍭", t: "Қант шегі 82% — конфеттер шектеу", tone: "danger" },
+      { icon: "💊", t: "Nurofen 15:00 — 30 мин ішінде", tone: "warning" },
+      { icon: "💧", t: "Су нормасы: 3/6 стакан — арттыру керек", tone: "muted" },
+      { icon: "😴", t: "Ұйқы 8.5 сағ — жақсы режим", tone: "success" },
     ],
   },
   {
@@ -55,8 +58,13 @@ const KIDS: Kid[] = [
     weight: "48 кг", height: "162 см", status: "ok", note: "Спорт секциясы — 3 сағ жүктеме.",
     meds: [],
     today: { calories: 2380, sugar: 28, water: 8 },
-    alerts: [{ icon: "💪", t: "Ақуыз мақсаты орындалды", tone: "success" }],
+    alerts: [
+      { icon: "💪", t: "Ақуыз мақсаты орындалды (128 г)", tone: "success" },
+      { icon: "🏃", t: "Кардио 45 мин — ЖСС макс 168", tone: "success" },
+      { icon: "📱", t: "Экран уақыты 4.2 сағ — шектеу ұсынылады", tone: "warning" },
+    ],
   },
+
 ];
 
 function FamilyPage() {
