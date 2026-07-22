@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Bento, Badge, SectionEyebrow, Gauge } from "@/components/ui-kit";
 import { supabase } from "@/integrations/supabase/client";
 import { useProfile, type ProfileRow } from "@/lib/use-session";
+import { useNotifications } from "@/lib/notifications";
 import { L, useL } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/profile")({
@@ -22,6 +23,7 @@ type FamilyRow = { id: string; child_id: string; status: string; profiles: Profi
 
 function ProfilePage() {
   const { profile, refetch } = useProfile();
+  const { push } = useNotifications();
   const [editing, setEditing] = useState(false);
   const [family, setFamily] = useState<FamilyRow[]>([]);
   const [inviteId, setInviteId] = useState("");
@@ -31,7 +33,6 @@ function ProfilePage() {
 
   useEffect(() => {
     if (!profile) return;
-    // family links where I am the parent
     supabase.from("family_links").select("id, child_id, status").eq("parent_id", profile.id)
       .then(async ({ data }) => {
         if (!data?.length) { setFamily([]); return; }
@@ -40,7 +41,6 @@ function ProfilePage() {
         const map = new Map((profs ?? []).map(p => [p.id, p as ProfileRow]));
         setFamily(data.map(r => ({ ...r, profiles: map.get(r.child_id)! })).filter(r => r.profiles) as FamilyRow[]);
       });
-    // friends
     supabase.from("friendships").select("friend_id, user_id, status").or(`user_id.eq.${profile.id},friend_id.eq.${profile.id}`).eq("status", "accepted")
       .then(async ({ data }) => {
         if (!data?.length) { setFriends([]); return; }
@@ -63,9 +63,10 @@ function ProfilePage() {
     if (child.id === profile.id) { toast.error(L1({kk:"Өзіңізді шақыра алмайсыз",ru:"Нельзя пригласить себя",en:"Can't invite yourself"})); return; }
     const { error } = await supabase.from("family_links").insert({ parent_id: profile.id, child_id: child.id, status: "accepted" });
     if (error) { toast.error(error.message); return; }
-    toast.success(`+ ${child.username} ${L1({kk:"отбасыға қосылды",ru:"добавлен(а) в семью",en:"added to family"})}`);
+    toast.success(`+ ${child.username}`);
     setInviteId("");
-    setFamily(s => [...s, { id: crypto.randomUUID(), child_id: child.id, status: "accepted", profiles: { ...child, public_id: "", full_name: null, age: null, height_cm: null, weight_kg: null, blood_type: null, allergies: null, avatar_url: null, role: "child" } as ProfileRow }]);
+    const { data: full } = await supabase.from("profiles").select("*").eq("id", child.id).maybeSingle();
+    if (full) setFamily(s => [...s, { id: crypto.randomUUID(), child_id: child.id, status: "accepted", profiles: full as ProfileRow }]);
   };
 
   const addFriend = async () => {
@@ -78,9 +79,12 @@ function ProfilePage() {
     toast.success(`+ @${f.username}`);
     setFriendUser("");
     setFriends(s => [...s, f as ProfileRow]);
+    void push({ kind: "friend_request", title: L1({kk:"Жаңа дос",ru:"Новый друг",en:"New friend"}), body: `@${f.username}` });
   };
 
   if (!profile) return <div className="text-sm text-muted-foreground">Loading...</div>;
+
+  const bmi = profile.height_cm && profile.weight_kg ? (Number(profile.weight_kg) / Math.pow(profile.height_cm/100, 2)) : null;
 
   return (
     <div className="space-y-6">
@@ -91,7 +95,7 @@ function ProfilePage() {
           <div className="flex-1">
             <SectionEyebrow>SauBol · {profile.public_id}</SectionEyebrow>
             <h1 className="font-serif text-4xl leading-tight tracking-tight text-foreground">{profile.full_name ?? profile.username}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">@{profile.username} · {profile.role} {profile.age ? `· ${profile.age} ${L1({kk:"жас",ru:"лет",en:"y.o."})}` : ""}</p>
+            <p className="mt-1 text-sm text-muted-foreground">@{profile.username} · {profile.role}{profile.age ? ` · ${profile.age} ${L1({kk:"жас",ru:"лет",en:"y.o."})}` : ""}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               {profile.blood_type && <Badge tone="mint">{profile.blood_type}</Badge>}
               {profile.allergies && <Badge tone="warning">⚠ {profile.allergies}</Badge>}
@@ -99,7 +103,7 @@ function ProfilePage() {
           </div>
           <div className="flex flex-col gap-2">
             <button onClick={()=>setEditing(true)} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-foreground"><L kk="Өңдеу" ru="Изменить" en="Edit" /></button>
-            <button onClick={copyId} className="rounded-full bg-foreground px-4 py-2 text-xs text-background">🆔 Copy ID</button>
+            <button onClick={copyId} className="rounded-full bg-foreground px-4 py-2 text-xs text-background"><L kk="ID көшіру" ru="Копировать ID" en="Copy ID" /></button>
           </div>
         </Bento>
         <Bento className="flex items-center gap-4">
@@ -107,17 +111,29 @@ function ProfilePage() {
           <div className="flex-1 space-y-1.5 text-[11px]">
             <div className="flex justify-between"><span className="text-muted-foreground"><L kk="Бой" ru="Рост" en="Height" /></span><span className="font-mono text-foreground">{profile.height_cm ?? "—"} см</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground"><L kk="Салмақ" ru="Вес" en="Weight" /></span><span className="font-mono text-foreground">{profile.weight_kg ?? "—"} кг</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground"><L kk="BMI" ru="BMI" en="BMI" /></span><span className="font-mono text-foreground">{profile.height_cm && profile.weight_kg ? (Number(profile.weight_kg) / Math.pow(profile.height_cm/100, 2)).toFixed(1) : "—"}</span></div>
+            <div className="flex justify-between"><span className="text-muted-foreground">BMI</span><span className="font-mono text-foreground">{bmi ? bmi.toFixed(1) : "—"}</span></div>
           </div>
         </Bento>
+      </div>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatCard label={L1({kk:"Жасы",ru:"Возраст",en:"Age"})} value={profile.age ? `${profile.age}` : "—"} unit={L1({kk:"жас",ru:"лет",en:"y.o."})} icon="🎂" />
+        <StatCard label={L1({kk:"Бой",ru:"Рост",en:"Height"})} value={profile.height_cm ? `${profile.height_cm}` : "—"} unit="см" icon="📏" />
+        <StatCard label={L1({kk:"Салмақ",ru:"Вес",en:"Weight"})} value={profile.weight_kg ? `${profile.weight_kg}` : "—"} unit="кг" icon="⚖" />
+        <StatCard label={L1({kk:"Қан тобы",ru:"Группа крови",en:"Blood"})} value={profile.blood_type ?? "—"} unit="" icon="🩸" />
       </div>
 
       {/* Family + Friends */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Bento>
           <SectionEyebrow><L kk="Отбасы мүшелері" ru="Семья" en="Family" /></SectionEyebrow>
+          <div className="mt-3 flex gap-2">
+            <input value={inviteId} onChange={(e)=>setInviteId(e.target.value.toUpperCase())} placeholder="SB-XXXXXX" className="flex-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-[12px] text-foreground" />
+            <button onClick={inviteChild} className="rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium text-background"><L kk="Шақыру" ru="Пригласить" en="Invite" /></button>
+          </div>
           <div className="mt-3 space-y-2">
-            {family.length === 0 && <div className="text-[12px] text-muted-foreground"><L kk="Бос. Баланың Public ID арқылы шақырыңыз." ru="Пусто. Пригласите ребёнка по Public ID." en="Empty. Invite a child by Public ID." /></div>}
+            {family.length === 0 && <div className="text-[12px] text-muted-foreground"><L kk="Бос. Баланың Public ID-і арқылы шақырыңыз." ru="Пусто. Пригласите по Public ID." en="Empty. Invite by Public ID." /></div>}
             {family.map(f => (
               <div key={f.id} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2">
                 <div className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-sm">{f.profiles.username?.[0]?.toUpperCase() ?? "?"}</div>
@@ -126,13 +142,13 @@ function ProfilePage() {
               </div>
             ))}
           </div>
-          <div className="mt-3 flex gap-2">
-            <input value={inviteId} onChange={(e)=>setInviteId(e.target.value.toUpperCase())} placeholder="SB-XXXXXX" className="flex-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-[12px] text-foreground" />
-            <button onClick={inviteChild} className="rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium text-background"><L kk="Шақыру" ru="Пригласить" en="Invite" /></button>
-          </div>
         </Bento>
         <Bento>
           <SectionEyebrow><L kk="Достар" ru="Друзья" en="Friends" /></SectionEyebrow>
+          <div className="mt-3 flex gap-2">
+            <input value={friendUser} onChange={(e)=>setFriendUser(e.target.value)} placeholder="username" className="flex-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-[12px] text-foreground" />
+            <button onClick={addFriend} className="rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium text-background"><L kk="Қосу" ru="Добавить" en="Add" /></button>
+          </div>
           <div className="mt-3 space-y-2">
             {friends.length === 0 && <div className="text-[12px] text-muted-foreground"><L kk="Бос. Username бойынша қосыңыз." ru="Пусто. Добавьте по username." en="Empty. Add by username." /></div>}
             {friends.map(f => (
@@ -142,14 +158,25 @@ function ProfilePage() {
               </div>
             ))}
           </div>
-          <div className="mt-3 flex gap-2">
-            <input value={friendUser} onChange={(e)=>setFriendUser(e.target.value)} placeholder="username" className="flex-1 rounded-lg border border-border bg-surface px-3 py-1.5 text-[12px] text-foreground" />
-            <button onClick={addFriend} className="rounded-full bg-foreground px-4 py-1.5 text-[11px] font-medium text-background"><L kk="Қосу" ru="Добавить" en="Add" /></button>
-          </div>
         </Bento>
       </div>
 
       {editing && <EditModal profile={profile} onClose={()=>setEditing(false)} onSaved={()=>{ setEditing(false); refetch(); }} />}
+    </div>
+  );
+}
+
+function StatCard({ label, value, unit, icon }: { label: string; value: string; unit: string; icon: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+        <div className="text-lg">{icon}</div>
+      </div>
+      <div className="mt-2 flex items-baseline gap-1">
+        <div className="font-serif text-3xl text-foreground">{value}</div>
+        {unit && <div className="text-[11px] text-muted-foreground">{unit}</div>}
+      </div>
     </div>
   );
 }

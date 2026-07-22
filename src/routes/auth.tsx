@@ -24,8 +24,9 @@ function AuthPage() {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
-  const [role, setRole] = useState<"user" | "parent" | "child">("user");
   const [loading, setLoading] = useState(false);
   const [sentEmail, setSentEmail] = useState<string | null>(null);
 
@@ -44,12 +45,24 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        if (!username.trim()) { toast.error(L1({ kk: "Username керек", ru: "Нужен username", en: "Username required" })); return; }
+        if (!firstName.trim() || !lastName.trim()) {
+          toast.error(L1({ kk: "Аты-жөні керек", ru: "Укажите имя и фамилию", en: "First & last name required" })); return;
+        }
+        if (!username.trim() || username.trim().length < 3) {
+          toast.error(L1({ kk: "Username 3+ таңба", ru: "Username от 3 символов", en: "Username 3+ chars" })); return;
+        }
+        const { data: taken } = await supabase.from("profiles").select("id").eq("username", username.trim()).maybeSingle();
+        if (taken) { toast.error(L1({ kk: "Бұл username бос емес", ru: "Этот username занят", en: "Username is taken" })); return; }
         const { error } = await supabase.auth.signUp({
           email, password,
           options: {
             emailRedirectTo: `${window.location.origin}/dashboard`,
-            data: { username: username.trim(), role },
+            data: {
+              username: username.trim(),
+              first_name: firstName.trim(),
+              last_name: lastName.trim(),
+              full_name: `${firstName.trim()} ${lastName.trim()}`,
+            },
           },
         });
         if (error) throw error;
@@ -104,15 +117,11 @@ function AuthPage() {
         <form onSubmit={submit} className="mt-5 space-y-3">
           {mode === "signup" && (
             <>
-              <input required minLength={3} value={username} onChange={(e)=>setUsername(e.target.value)} placeholder={L1({kk:"Username",ru:"Username",en:"Username"})} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground" />
-              <div className="flex gap-2">
-                {(["user","parent","child"] as const).map(r => (
-                  <button type="button" key={r} onClick={()=>setRole(r)}
-                    className={`flex-1 rounded-lg border px-3 py-2 text-xs ${role===r?"border-[color:var(--mint)] bg-[color:var(--mint-soft)] text-foreground":"border-border bg-surface text-muted-foreground"}`}>
-                    {r === "user" ? L1({kk:"Жеке",ru:"Личный",en:"Personal"}) : r === "parent" ? L1({kk:"Ата-ана",ru:"Родитель",en:"Parent"}) : L1({kk:"Бала",ru:"Ребёнок",en:"Child"})}
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-2">
+                <input required value={firstName} onChange={(e)=>setFirstName(e.target.value)} placeholder={L1({kk:"Аты",ru:"Имя",en:"First name"})} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground" />
+                <input required value={lastName} onChange={(e)=>setLastName(e.target.value)} placeholder={L1({kk:"Тегі",ru:"Фамилия",en:"Last name"})} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground" />
               </div>
+              <input required minLength={3} value={username} onChange={(e)=>setUsername(e.target.value.replace(/\s/g,"").toLowerCase())} placeholder={L1({kk:"Username",ru:"Username",en:"Username"})} className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground" />
             </>
           )}
           <input required type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="you@example.com" className="w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm text-foreground" />

@@ -13,6 +13,9 @@ const FoodSchema = z.object({
 });
 export type FoodResult = z.infer<typeof FoodSchema>;
 
+const INSTRUCTIONS = (allergies?: string) =>
+  `You are a nutrition analyst. Respond in JSON with fields name, calories (kcal), carbs_g, protein_g, fat_g, warning. Warning is a short medical note (<=90 chars) if the food conflicts with user allergies/conditions, otherwise null. Assume one typical serving. User allergies/conditions: ${allergies ?? "none"}.`;
+
 function getModel() {
   const key = process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("LOVABLE_API_KEY missing");
@@ -20,41 +23,48 @@ function getModel() {
   return gw("google/gemini-2.5-flash");
 }
 
-async function analyze(prompt: string, imageDataUrl?: string, allergies?: string): Promise<FoodResult> {
-  const model = getModel();
-  const sys = `You are a nutrition analyst. Return JSON with fields: name (string), calories (kcal number), carbs_g, protein_g, fat_g, warning (string or null). Warning is a short medical note if user's allergies/conditions conflict. User allergies/conditions: ${allergies ?? "none"}. Be realistic — a typical serving size.`;
-  try {
-    const { output } = await generateText({
-      model,
-      output: Output.object({ schema: FoodSchema }),
-      messages: [
-        { role: "system", content: sys },
-        {
-          role: "user",
-          content: imageDataUrl
-            ? [
-                { type: "text", text: prompt },
-                { type: "image", image: imageDataUrl },
-              ]
-            : [{ type: "text", text: prompt }],
-        },
-      ],
-    });
-    return output;
-  } catch (e) {
-    if (NoObjectGeneratedError.isInstance(e)) {
-      return { name: "Unknown food", calories: 0, carbs_g: 0, protein_g: 0, fat_g: 0, warning: "AI could not parse; please enter manually." };
-    }
-    throw e;
-  }
-}
-
 export const analyzeFoodPhoto = createServerFn({ method: "POST" })
   .inputValidator((d: { imageDataUrl: string; allergies?: string }) => d)
-  .handler(async ({ data }) => analyze("Identify this food and estimate nutrition for one serving.", data.imageDataUrl, data.allergies));
+  .handler(async ({ data }) => {
+    const model = getModel();
+    try {
+      const { output } = await generateText({
+        model,
+        output: Output.object({ schema: FoodSchema }),
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", text: `${INSTRUCTIONS(data.allergies)}\n\nIdentify this food and estimate nutrition for one serving.` },
+              { type: "image", image: data.imageDataUrl },
+            ],
+          },
+        ],
+      });
+      return output;
+    } catch (e) {
+      if (NoObjectGeneratedError.isInstance(e)) {
+        return { name: "Unknown food", calories: 0, carbs_g: 0, protein_g: 0, fat_g: 0, warning: "AI could not parse this photo; try a clearer angle." } as FoodResult;
+      }
+      throw e;
+    }
+  });
 
 export const analyzeBarcode = createServerFn({ method: "POST" })
   .inputValidator((d: { barcode: string; allergies?: string }) => d)
-  .handler(async ({ data }) =>
-    analyze(`Barcode ${data.barcode}. Identify this product and give per-serving nutrition. If unknown, guess a plausible packaged food and note in warning.`, undefined, data.allergies)
-  );
+  .handler(async ({ data }) => {
+    const model = getModel();
+    try {
+      const { output } = await generateText({
+        model,
+        output: Output.object({ schema: FoodSchema }),
+        prompt: `${INSTRUCTIONS(data.allergies)}\n\nBarcode: ${data.barcode}. Identify this product (packaged food, Kazakhstan/EU/US markets) and give per-serving nutrition. If unknown, make a plausible guess and note that in warning.`,
+      });
+      return output;
+    } catch (e) {
+      if (NoObjectGeneratedError.isInstance(e)) {
+        return { name: `Product ${data.barcode}`, calories: 0, carbs_g: 0, protein_g: 0, fat_g: 0, warning: "AI could not identify this barcode." } as FoodResult;
+      }
+      throw e;
+    }
+  });

@@ -134,6 +134,69 @@ export type Database = {
         }
         Relationships: []
       }
+      medication_schedules: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          note: string | null
+          taken: boolean
+          time: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          note?: string | null
+          taken?: boolean
+          time: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          note?: string | null
+          taken?: boolean
+          time?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          meta: Json | null
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json | null
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json | null
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
@@ -141,9 +204,11 @@ export type Database = {
           avatar_url: string | null
           blood_type: string | null
           created_at: string
+          first_name: string | null
           full_name: string | null
           height_cm: number | null
           id: string
+          last_name: string | null
           public_id: string
           role: string
           updated_at: string
@@ -156,9 +221,11 @@ export type Database = {
           avatar_url?: string | null
           blood_type?: string | null
           created_at?: string
+          first_name?: string | null
           full_name?: string | null
           height_cm?: number | null
           id: string
+          last_name?: string | null
           public_id: string
           role?: string
           updated_at?: string
@@ -171,9 +238,11 @@ export type Database = {
           avatar_url?: string | null
           blood_type?: string | null
           created_at?: string
+          first_name?: string | null
           full_name?: string | null
           height_cm?: number | null
           id?: string
+          last_name?: string | null
           public_id?: string
           role?: string
           updated_at?: string
