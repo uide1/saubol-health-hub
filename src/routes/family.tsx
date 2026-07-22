@@ -100,7 +100,7 @@ function FamilyPage() {
         </div>
         <div className="flex items-center gap-2">
           <Chip>Ата-ана PIN қосулы</Chip>
-          <button className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">+ Бала қосу</button>
+          <button onClick={() => { const n = window.prompt("Баланың аты"); if (n) toast.success(`+ ${n} қосылды`, { description: "Профиль жасалуда..." }); }} className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">+ Бала қосу</button>
         </div>
       </div>
 
