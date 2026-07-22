@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
 import { Toaster } from "sonner";
+import { LangProvider, LangSwitcher, useL, L } from "@/lib/i18n";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -21,9 +22,11 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <div className="font-serif text-8xl text-foreground">404</div>
-        <p className="mt-4 text-sm text-muted-foreground">Бұл бет табылмады.</p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          <L kk="Бұл бет табылмады." ru="Страница не найдена." en="Page not found." />
+        </p>
         <Link to="/" className="mt-6 inline-flex rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background">
-          Басты бетке
+          <L kk="Басты бетке" ru="На главную" en="Go home" />
         </Link>
       </div>
     </div>
@@ -38,12 +41,14 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="font-serif text-2xl text-foreground">Бірдеңе дұрыс болмады</h1>
+        <h1 className="font-serif text-2xl text-foreground">
+          <L kk="Бірдеңе дұрыс болмады" ru="Что-то пошло не так" en="Something went wrong" />
+        </h1>
         <button
           onClick={() => { router.invalidate(); reset(); }}
           className="mt-6 rounded-full bg-foreground px-5 py-2 text-sm font-medium text-background"
         >
-          Қайталау
+          <L kk="Қайталау" ru="Повторить" en="Try again" />
         </button>
       </div>
     </div>
@@ -85,20 +90,18 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-const NAV = [
-  { to: "/", label: "Басты" },
-  { to: "/family", label: "Family" },
-  { to: "/nutrition-scan", label: "Тамақ" },
-  { to: "/triage-voice", label: "Дауыс" },
-  { to: "/prescription-rx", label: "Дәрілер" },
-  { to: "/profile", label: "Профиль" },
-] as const;
-
-
-
 function TopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { theme, toggle } = useTheme();
+  const L1 = useL();
+  const NAV = [
+    { to: "/", label: L1({ kk: "Басты", ru: "Главная", en: "Home" }) },
+    { to: "/family", label: L1({ kk: "Отбасы", ru: "Семья", en: "Family" }) },
+    { to: "/nutrition-scan", label: L1({ kk: "Тамақ", ru: "Питание", en: "Nutrition" }) },
+    { to: "/triage-voice", label: L1({ kk: "Дауыс", ru: "Голос", en: "Voice" }) },
+    { to: "/prescription-rx", label: L1({ kk: "Дәрілер", ru: "Лекарства", en: "Meds" }) },
+    { to: "/profile", label: L1({ kk: "Профиль", ru: "Профиль", en: "Profile" }) },
+  ] as const;
   return (
     <header className="sticky top-4 z-40 mx-auto max-w-[1400px] px-6">
       <div className="flex items-center gap-4 rounded-full border border-border bg-background/70 px-4 py-2 backdrop-blur-xl">
@@ -127,9 +130,10 @@ function TopNav() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <LangSwitcher />
           <button
             onClick={toggle}
-            aria-label="Тақырыпты ауыстыру"
+            aria-label={L1({ kk: "Тақырыпты ауыстыру", ru: "Сменить тему", en: "Toggle theme" })}
             className="grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-[13px] text-foreground transition hover:border-white/20"
           >
             {theme === "dark" ? "☾" : "☀"}
@@ -149,20 +153,28 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background pt-4 text-foreground">
-        <CustomCursor />
-        <TopNav />
-        <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
-        <main className="mx-auto max-w-[1400px] px-6 py-8">
-          <Outlet />
-        </main>
-        <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="font-serif italic">SauBol AI · Медициналық ақпараттандыру құралы, диагноз емес.</span>
-            <span className="font-mono">© 2026 · v1.4.2 · Almaty</span>
-          </div>
-        </footer>
-      </div>
+      <LangProvider>
+        <div className="min-h-screen bg-background pt-4 text-foreground">
+          <CustomCursor />
+          <TopNav />
+          <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
+          <main className="mx-auto max-w-[1400px] px-6 py-8">
+            <Outlet />
+          </main>
+          <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="font-serif italic">
+                <L
+                  kk="SauBol AI · Медициналық ақпараттандыру құралы, диагноз емес."
+                  ru="SauBol AI · Инструмент медицинской информации, не диагноз."
+                  en="SauBol AI · Medical information tool, not a diagnosis."
+                />
+              </span>
+              <span className="font-mono">© 2026 · v1.4.2 · Almaty</span>
+            </div>
+          </footer>
+        </div>
+      </LangProvider>
     </QueryClientProvider>
   );
 }

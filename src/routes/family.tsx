@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Bento, Badge, Bar, Chip, SectionEyebrow, Stat } from "@/components/ui-kit";
+import { useL, L } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/family")({
   head: () => ({
@@ -73,24 +75,44 @@ function FamilyPage() {
     return k in medsState ? medsState[k] : current;
   };
 
+  const L1 = useL();
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-3 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
         <div>
-          <SectionEyebrow>Family Mode · Ата-ана бақылауы</SectionEyebrow>
+          <SectionEyebrow>
+            <L kk="Family Mode · Ата-ана бақылауы" ru="Family Mode · Родительский контроль" en="Family Mode · Parental control" />
+          </SectionEyebrow>
           <h1 className="mt-2 font-serif text-4xl leading-[1.05] tracking-tight text-foreground md:text-5xl">
-            Отбасы <span className="italic text-[color:var(--mint)]">аман</span>. 3 бала қосылған.
+            <L
+              kk={<>Отбасы <span className="italic text-[color:var(--mint)]">аман</span>. 3 бала қосылған.</>}
+              ru={<>Семья <span className="italic text-[color:var(--mint)]">в безопасности</span>. 3 ребёнка.</>}
+              en={<>Family is <span className="italic text-[color:var(--mint)]">safe</span>. 3 children.</>}
+            />
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            Балалардың дәрі-дәрмегі, тамақ талдауы мен төтенше сигналдары бір орында.
+            <L
+              kk="Балалардың дәрі-дәрмегі, тамақ талдауы мен төтенше сигналдары бір орында."
+              ru="Лекарства детей, анализ питания и экстренные сигналы в одном месте."
+              en="Kids' meds, nutrition analysis, and emergency alerts in one place."
+            />
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Chip>Ата-ана PIN қосулы</Chip>
-          <button onClick={() => { const n = window.prompt("Баланың аты"); if (n) toast.success(`+ ${n} қосылды`, { description: "Профиль жасалуда..." }); }} className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background">+ Бала қосу</button>
+          <Chip>{L1({ kk: "Ата-ана PIN қосулы", ru: "PIN родителя вкл.", en: "Parent PIN on" })}</Chip>
+          <button
+            onClick={() => {
+              const n = window.prompt(L1({ kk: "Баланың аты", ru: "Имя ребёнка", en: "Child's name" }));
+              if (n) toast.success(`+ ${n} ${L1({ kk: "қосылды", ru: "добавлен(а)", en: "added" })}`, { description: L1({ kk: "Профиль жасалуда...", ru: "Профиль создаётся...", en: "Creating profile..." }) });
+            }}
+            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background"
+          >
+            + <L kk="Бала қосу" ru="Добавить ребёнка" en="Add child" />
+          </button>
         </div>
       </div>
+
 
       {/* Kid switcher */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">

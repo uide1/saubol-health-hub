@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Bento, Badge, Chip, SectionEyebrow, Gauge } from "@/components/ui-kit";
+import { useL, L } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -20,6 +22,8 @@ function ProfilePage() {
   const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
   const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
   const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
+  const L1 = useL();
+
 
 
   return (
@@ -31,31 +35,34 @@ function ProfilePage() {
             АН
           </div>
           <div className="flex-1">
-            <SectionEyebrow>Пациент профилі · SB-24817</SectionEyebrow>
+            <SectionEyebrow><L kk="Пациент профилі · SB-24817" ru="Профиль пациента · SB-24817" en="Patient profile · SB-24817" /></SectionEyebrow>
             <h1 className="font-serif text-4xl leading-tight tracking-tight text-foreground">Айнұр Нұрланова</h1>
-            <p className="mt-1 text-sm text-muted-foreground">32 жас · Талдықорған · II (A+) қан тобы · SauBol-да 4 ай</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              <L kk="32 жас · Талдықорған · II (A+) қан тобы · SauBol-да 4 ай" ru="32 года · Талдыкорган · группа крови II (A+) · в SauBol 4 месяца" en="32 y.o. · Taldykorgan · blood type A+ · 4 months on SauBol" />
+            </p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Badge tone="mint">Premium</Badge>
-              <Badge tone="warning">Пенициллинге аллергия</Badge>
-              <Badge tone="muted">Анемия · курста</Badge>
+              <Badge tone="warning"><L kk="Пенициллинге аллергия" ru="Аллергия на пенициллин" en="Penicillin allergy" /></Badge>
+              <Badge tone="muted"><L kk="Анемия · курста" ru="Анемия · курс лечения" en="Anemia · in treatment" /></Badge>
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <button onClick={() => toast.info("Өңдеу режимі жақында", { description: "Профиль редакторы дайындалуда" })} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-foreground">Өңдеу</button>
-            <button onClick={() => toast.success("📄 PDF дайындалуда...", { description: "47 сканер · 4 ай тарихы жүктеледі" })} className="rounded-full bg-foreground px-4 py-2 text-xs text-background">PDF экспорт</button>
+            <button onClick={() => toast.info(L1({ kk: "Өңдеу режимі жақында", ru: "Режим редактирования скоро", en: "Edit mode coming soon" }))} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-foreground"><L kk="Өңдеу" ru="Изменить" en="Edit" /></button>
+            <button onClick={() => toast.success(L1({ kk: "📄 PDF дайындалуда...", ru: "📄 PDF готовится...", en: "📄 Preparing PDF..." }))} className="rounded-full bg-foreground px-4 py-2 text-xs text-background"><L kk="PDF экспорт" ru="Экспорт PDF" en="Export PDF" /></button>
           </div>
         </Bento>
 
         <Bento className="flex items-center gap-4">
-          <Gauge value={72} label="Индекс" size={120} />
+          <Gauge value={72} label={L1({ kk: "Индекс", ru: "Индекс", en: "Index" })} size={120} />
           <div className="flex-1 space-y-1.5">
-            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">Бүгін</span><span className="font-mono text-foreground">72</span></div>
-            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">Апта</span><span className="font-mono text-[color:var(--mint)]">+4</span></div>
-            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">Ай</span><span className="font-mono text-[color:var(--mint)]">+11</span></div>
-            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground">Барлық сканер</span><span className="font-mono text-foreground">47</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Бүгін" ru="Сегодня" en="Today" /></span><span className="font-mono text-foreground">72</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Апта" ru="Неделя" en="Week" /></span><span className="font-mono text-[color:var(--mint)]">+4</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Ай" ru="Месяц" en="Month" /></span><span className="font-mono text-[color:var(--mint)]">+11</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Барлық сканер" ru="Всего сканов" en="Total scans" /></span><span className="font-mono text-foreground">47</span></div>
           </div>
         </Bento>
       </div>
+
 
       {/* Body metrics */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">

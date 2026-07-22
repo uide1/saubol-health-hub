@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useState, type ReactNode } from "react";
 import { Card, Badge, PageHeader, SectionEyebrow, Bar } from "@/components/ui-kit";
+import { useL, L } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/nutrition-scan")({
   head: () => ({
@@ -72,17 +74,24 @@ function CalorieRing({ eaten, remaining, burned, goal }: { eaten: number; remain
       <div className="absolute inset-x-0 top-6 flex items-end justify-between px-2 text-center">
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{eaten}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Съедено</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Жеді" ru="Съедено" en="Eaten" />
+          </div>
         </div>
         <div>
           <div className="font-serif text-4xl text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Осталось</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Қалды" ru="Осталось" en="Left" />
+          </div>
         </div>
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{burned}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Сожжено</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Күйдірілді" ru="Сожжено" en="Burned" />
+          </div>
         </div>
       </div>
+
     </div>
   );
 }
@@ -143,6 +152,7 @@ function NutritionScan() {
   const [logged, setLogged] = useState(false);
   const [open, setOpen] = useState<string | null>(null);
   const toggle = (k: string) => setOpen((s) => (s === k ? null : k));
+  const L1 = useL();
 
   const eaten = 680;
   const burned = 162;
@@ -152,14 +162,18 @@ function NutritionScan() {
   return (
     <div>
       <PageHeader
-        eyebrow="SmartNutri · Meal 03"
-        title="Nutrition & Safety Scan"
-        description="Dish: «Fried chicken burger + soda» · scanned 12:47 · GS1 barcode 4870204..."
+        eyebrow={<L kk="SmartNutri · Тағам 03" ru="SmartNutri · Приём 03" en="SmartNutri · Meal 03" />}
+        title={<L kk="Тамақтану және қауіпсіздік сканері" ru="Сканер питания и безопасности" en="Nutrition & Safety Scan" />}
+        description={<L
+          kk="Тағам: «Fried chicken burger + soda» · 12:47 сканерленді · GS1 4870204..."
+          ru="Блюдо: «Fried chicken burger + soda» · отсканировано 12:47 · GS1 4870204..."
+          en="Dish: «Fried chicken burger + soda» · scanned 12:47 · GS1 barcode 4870204..."
+        />}
         actions={
           <>
-            <button onClick={() => toast.info("📷 Камера ашылуда...", { description: "Тағамды фотоға түсіріңіз" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">📷 Photo</button>
-            <button onClick={() => toast.info("🧾 Штрих-код сканері", { description: "Өнім штрих-кодына бағыттаңыз" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">🧾 Barcode</button>
-            <button onClick={() => { setLogged(true); toast.success(logged ? "Тағам жаңартылды" : "Тағам күнделігіне жазылды ✓", { description: "680 kcal · медициналық хронологияға қосылды" }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{logged ? "Logged ✓" : "Log meal"}</button>
+            <button onClick={() => toast.info(L1({ kk: "📷 Камера ашылуда...", ru: "📷 Открываем камеру...", en: "📷 Opening camera..." }), { description: L1({ kk: "Тағамды фотоға түсіріңіз", ru: "Сфотографируйте блюдо", en: "Take a photo of the meal" }) })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">📷 {L1({ kk: "Фото", ru: "Фото", en: "Photo" })}</button>
+            <button onClick={() => toast.info(L1({ kk: "🧾 Штрих-код сканері", ru: "🧾 Сканер штрих-кода", en: "🧾 Barcode scanner" }), { description: L1({ kk: "Өнім штрих-кодына бағыттаңыз", ru: "Наведите на штрих-код", en: "Point at product barcode" }) })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">🧾 {L1({ kk: "Штрих-код", ru: "Штрих-код", en: "Barcode" })}</button>
+            <button onClick={() => { setLogged(true); toast.success(logged ? L1({ kk: "Тағам жаңартылды", ru: "Приём обновлён", en: "Meal updated" }) : L1({ kk: "Тағам күнделігіне жазылды ✓", ru: "Приём записан в дневник ✓", en: "Meal logged ✓" }), { description: L1({ kk: "680 ккал · хронологияға қосылды", ru: "680 ккал · добавлено в хронологию", en: "680 kcal · added to timeline" }) }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{logged ? L1({ kk: "Тіркелді ✓", ru: "Записано ✓", en: "Logged ✓" }) : L1({ kk: "Тіркеу", ru: "Записать", en: "Log meal" })}</button>
           </>
         }
       />
@@ -167,14 +181,14 @@ function NutritionScan() {
       {/* Calorie summary widget (from reference screenshot) */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-serif text-3xl text-foreground">Сводка</h2>
-          <button className="text-sm font-medium text-[color:var(--mint)]">Подробности →</button>
+          <h2 className="font-serif text-3xl text-foreground"><L kk="Қорытынды" ru="Сводка" en="Summary" /></h2>
+          <button className="text-sm font-medium text-[color:var(--mint)]"><L kk="Толығырақ →" ru="Подробности →" en="Details →" /></button>
         </div>
         <CalorieRing eaten={eaten} remaining={remaining} burned={burned} goal={goal} />
         <div className="mt-4 grid grid-cols-3 gap-3">
-          <Macro label="Углеводы" value={72} goal={268} />
-          <Macro label="Белки" value={28} goal={107} />
-          <Macro label="Жиры" value={34} goal={71} />
+          <Macro label={L1({ kk: "Көмірсу", ru: "Углеводы", en: "Carbs" })} value={72} goal={268} />
+          <Macro label={L1({ kk: "Ақуыз", ru: "Белки", en: "Protein" })} value={28} goal={107} />
+          <Macro label={L1({ kk: "Май", ru: "Жиры", en: "Fat" })} value={34} goal={71} />
         </div>
       </div>
 
@@ -183,22 +197,31 @@ function NutritionScan() {
         <div className="flex items-start gap-3">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400">⚠</div>
           <div className="flex-1">
-            <div className="text-sm font-semibold text-amber-300">Excessive Sugar & Sodium — Medical Restriction Triggered</div>
+            <div className="text-sm font-semibold text-amber-300">
+              <L kk="Қант және натрий шектен тыс — медициналық шектеу" ru="Превышен сахар и натрий — медицинское ограничение" en="Excessive Sugar & Sodium — Medical Restriction Triggered" />
+            </div>
             <p className="mt-1 text-xs text-amber-200/80">
-              Added sugar 168% of daily ceiling and sodium 62% RDI in a single meal. Flagged in your medical timeline.
+              <L
+                kk="Қант күндік шектен 168%, натрий 62% RDI — бір тағамда. Хронологияға белгіленді."
+                ru="Добавленный сахар 168% дневной нормы, натрий 62% RDI — за один приём. Отмечено в хронологии."
+                en="Added sugar 168% of daily ceiling and sodium 62% RDI in a single meal. Flagged in your medical timeline."
+              />
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
-              <Badge tone="danger">Sugar +168%</Badge>
-              <Badge tone="danger">Sodium 1,240 mg</Badge>
-              <Badge tone="warning">Sat. fat +55%</Badge>
+              <Badge tone="danger">{L1({ kk: "Қант", ru: "Сахар", en: "Sugar" })} +168%</Badge>
+              <Badge tone="danger">{L1({ kk: "Натрий", ru: "Натрий", en: "Sodium" })} 1,240 mg</Badge>
+              <Badge tone="warning">{L1({ kk: "Қаныққан май", ru: "Насыщ. жиры", en: "Sat. fat" })} +55%</Badge>
             </div>
           </div>
         </div>
       </div>
 
       {/* 4-square expandable grid */}
-      <SectionEyebrow>Terең талдау · басып ашыңыз</SectionEyebrow>
+      <SectionEyebrow>
+        <L kk="Терең талдау · басып ашыңыз" ru="Глубокий анализ · нажмите, чтобы открыть" en="Deep analysis · tap to expand" />
+      </SectionEyebrow>
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+
         <SquareBlock
           title="Ingredients"
           icon="🧪"
