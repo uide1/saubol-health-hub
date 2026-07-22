@@ -22,8 +22,26 @@ function ProfilePage() {
   const [lang, setLang] = useState("kk");
   const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
   const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
+  const [water, setWater] = useState(5); // glasses of 8
+  const [mood, setMood] = useState<number | null>(3);
+  const [sleep] = useState([6.2, 7.1, 5.8, 7.8, 6.9, 8.1, 7.4]);
   const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
   const L1 = useL();
+
+  const hrSeries = [
+    { t: "00", v: 62 }, { t: "04", v: 58 }, { t: "08", v: 74 },
+    { t: "12", v: 82 }, { t: "14", v: 91 }, { t: "18", v: 78 },
+    { t: "22", v: 66 },
+  ];
+  const weekLabels = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  const moods = ["😔","😐","🙂","😊","🤩"];
+  const timeline = [
+    { time: "09:12", icon: "💊", tone: "mint" as const, label: L1({ kk: "Ferrum 100мг қабылданды", ru: "Принят Ferrum 100мг", en: "Ferrum 100mg taken" }) },
+    { time: "08:40", icon: "🥗", tone: "muted" as const, label: L1({ kk: "Таңғы ас · 420 ккал", ru: "Завтрак · 420 ккал", en: "Breakfast · 420 kcal" }) },
+    { time: "07:55", icon: "🏃", tone: "mint" as const, label: L1({ kk: "Жүру · 2.4 км", ru: "Ходьба · 2.4 км", en: "Walk · 2.4 km" }) },
+    { time: "07:10", icon: "😴", tone: "muted" as const, label: L1({ kk: "Ұйқы · 7с 24м · терең фаза 22%", ru: "Сон · 7ч 24м · глубокая фаза 22%", en: "Sleep · 7h 24m · deep 22%" }) },
+    { time: "06:45", icon: "❤️", tone: "warning" as const, label: L1({ kk: "Демалыс ЖСС 62 bpm", ru: "Пульс покоя 62 bpm", en: "Resting HR 62 bpm" }) },
+  ];
 
 
 
