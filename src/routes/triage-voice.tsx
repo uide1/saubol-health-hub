@@ -87,14 +87,18 @@ function TriageVoice() {
   return (
     <div>
       <PageHeader
-        eyebrow="Triage Voice · Session #TR-4419"
-        title="Emergency Consultation Chat"
-        description="Type or dictate symptoms · KZ / RU / EN · triage model v4.2 · latency 220 ms"
+        eyebrow={<L kk="Triage Voice · Сессия #TR-4419" ru="Triage Voice · Сессия #TR-4419" en="Triage Voice · Session #TR-4419" />}
+        title={<L kk="Жедел кеңес беру чаты" ru="Чат экстренной консультации" en="Emergency Consultation Chat" />}
+        description={<L
+          kk="Симптомды жазыңыз немесе диктовкамен айтыңыз · KZ / RU / EN · triage v4.2 · latency 220 ms"
+          ru="Введите или продиктуйте симптомы · KZ / RU / EN · triage v4.2 · latency 220 ms"
+          en="Type or dictate symptoms · KZ / RU / EN · triage model v4.2 · latency 220 ms"
+        />}
         actions={
           <>
             <Badge tone="success">LIVE</Badge>
-            <button onClick={() => { const n = (lang + 1) % LANGS.length; setLang(n); toast(`Тіл: ${LANGS[n]}`); }} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-foreground">Lang: {LANGS[lang]}</button>
-            <button onClick={copyTranscript} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Transcript</button>
+            <button onClick={() => { const n = (lang + 1) % LANGS.length; setLang(n); toast(`${L1({ kk: "Тіл", ru: "Язык", en: "Lang" })}: ${LANGS[n]}`); }} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-foreground">{L1({ kk: "Тіл", ru: "Язык", en: "Lang" })}: {LANGS[lang]}</button>
+            <button onClick={copyTranscript} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">{L1({ kk: "Транскрипт", ru: "Транскрипт", en: "Transcript" })}</button>
           </>
         }
       />
@@ -104,11 +108,16 @@ function TriageVoice() {
         <div className="rounded-2xl border border-border bg-card">
           <div className="flex items-center justify-between border-b border-border px-5 py-3">
             <div>
-              <h3 className="text-[13px] font-semibold text-foreground">Interactive Dialogue</h3>
-              <p className="text-[11px] text-muted-foreground">{turns.length} turns · symptom vector locked</p>
+              <h3 className="text-[13px] font-semibold text-foreground">
+                <L kk="Интерактивті диалог" ru="Интерактивный диалог" en="Interactive Dialogue" />
+              </h3>
+              <p className="text-[11px] text-muted-foreground">
+                {turns.length} <L kk="хабарлама · симптом векторы бекітілді" ru="реплик · симптомный вектор зафиксирован" en="turns · symptom vector locked" />
+              </p>
             </div>
-            <div className="text-[10px] text-muted-foreground">Encrypted E2E · 24h purge</div>
+            <div className="text-[10px] text-muted-foreground"><L kk="Шифрлеу E2E · 24сағ өшіру" ru="Шифрование E2E · очистка 24ч" en="Encrypted E2E · 24h purge" /></div>
           </div>
+
 
           <div ref={feedRef} className="max-h-[520px] space-y-3 overflow-y-auto p-5">
             {turns.map((t, i) => (
