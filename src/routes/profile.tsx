@@ -222,9 +222,11 @@ function ProfilePage() {
           ["Бой", "165 см"], ["Салмақ", "58 кг"], ["BMI", "21.3"],
           ["ЖСС", "68 bpm"], ["АҚ", "118/76"], ["SpO₂", "98%"],
         ].map(([l, v]) => (
-          <div key={l} className="rounded-xl border border-border bg-surface p-3">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{l}</div>
-            <div className="mt-1 font-mono text-lg text-foreground">{v}</div>
+          <div key={l} className="grid aspect-square place-items-center rounded-full border border-border bg-surface p-3 text-center transition hover:border-[color:var(--mint)]/40">
+            <div>
+              <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{l}</div>
+              <div className="mt-1 font-serif text-xl text-foreground">{v}</div>
+            </div>
           </div>
         ))}
       </div>
