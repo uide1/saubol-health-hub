@@ -187,118 +187,124 @@ function NutritionScan() {
         }
       />
 
-      {/* Calorie summary widget (from reference screenshot) */}
-      <div className="mb-6 rounded-2xl border border-border bg-card p-6">
-        <div className="mb-2 flex items-center justify-between">
-          <h2 className="font-serif text-3xl text-foreground"><L kk="Қорытынды" ru="Сводка" en="Summary" /></h2>
-          <button className="text-sm font-medium text-[color:var(--mint)]"><L kk="Толығырақ →" ru="Подробности →" en="Details →" /></button>
-        </div>
-        <CalorieRing eaten={eaten} remaining={remaining} burned={burned} goal={goal} />
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <Macro label={L1({ kk: "Көмірсу", ru: "Углеводы", en: "Carbs" })} value={72} goal={268} />
-          <Macro label={L1({ kk: "Ақуыз", ru: "Белки", en: "Protein" })} value={28} goal={107} />
-          <Macro label={L1({ kk: "Май", ru: "Жиры", en: "Fat" })} value={34} goal={71} />
-        </div>
-      </div>
-
-
-      {/* 4-square expandable grid */}
-      <SectionEyebrow>
-        <L kk="Терең талдау · басып ашыңыз" ru="Глубокий анализ · нажмите, чтобы открыть" en="Deep analysis · tap to expand" />
-      </SectionEyebrow>
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-
-        <SquareBlock
-          title="Ingredients"
-          icon="🧪"
-          badge="4 flagged"
-          summary="12 detected · 1 hidden"
-          expanded={open === "ing"}
-          onToggle={() => toggle("ing")}
-        >
-          <ul className="divide-y divide-border">
-            {INGREDIENTS.map((i) => (
-              <li key={i.name} className="flex items-center justify-between py-2.5 text-[13px]">
-                <span className="text-foreground">{i.name}</span>
-                <Badge tone={i.tone}>{i.tag}</Badge>
-              </li>
-            ))}
-          </ul>
-        </SquareBlock>
-
-        <SquareBlock
-          title="Contraindications"
-          icon="⚕️"
-          badge="6 conditions"
-          summary="Cross-checked profile"
-          expanded={open === "contra"}
-          onToggle={() => toggle("contra")}
-        >
-          <div className="mb-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-rose-300">STRICTLY FORBIDDEN</span>
-              <Badge tone="danger">Triggered</Badge>
-            </div>
-            <p className="mt-1 text-[12px] text-rose-200/80">
-              For patients with Type 2 Diabetes, Hypertension, and CKD combined.
-            </p>
+      {/* Two-column: square summary + 2x2 expandable grid */}
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        {/* Calorie summary widget — square */}
+        <div className="flex aspect-square flex-col rounded-2xl border border-border bg-card p-6">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="font-serif text-3xl text-foreground"><L kk="Қорытынды" ru="Сводка" en="Summary" /></h2>
+            <button className="text-sm font-medium text-[color:var(--mint)]"><L kk="Толығырақ →" ru="Подробности →" en="Details →" /></button>
           </div>
-          <div className="space-y-2">
-            {CONTRA.map((r) => (
-              <div key={r.c} className="flex items-start justify-between rounded-md border border-border bg-surface px-3 py-2">
-                <div>
-                  <div className="text-[13px] font-medium text-foreground">{r.c}</div>
-                  <div className="text-[11px] text-muted-foreground">{r.r}</div>
+          <div className="flex flex-1 flex-col justify-center">
+            <CalorieRing eaten={eaten} remaining={remaining} burned={burned} goal={goal} />
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <Macro label={L1({ kk: "Көмірсу", ru: "Углеводы", en: "Carbs" })} value={72} goal={268} />
+            <Macro label={L1({ kk: "Ақуыз", ru: "Белки", en: "Protein" })} value={28} goal={107} />
+            <Macro label={L1({ kk: "Май", ru: "Жиры", en: "Fat" })} value={34} goal={71} />
+          </div>
+        </div>
+
+        {/* 4-square expandable grid */}
+        <div>
+          <SectionEyebrow>
+            <L kk="Терең талдау · басып ашыңыз" ru="Глубокий анализ · нажмите, чтобы открыть" en="Deep analysis · tap to expand" />
+          </SectionEyebrow>
+          <div className="grid aspect-square grid-cols-2 grid-rows-2 gap-3">
+            <SquareBlock
+              title="Ingredients"
+              icon="🧪"
+              badge="4 flagged"
+              summary="12 detected · 1 hidden"
+              expanded={open === "ing"}
+              onToggle={() => toggle("ing")}
+            >
+              <ul className="divide-y divide-border">
+                {INGREDIENTS.map((i) => (
+                  <li key={i.name} className="flex items-center justify-between py-2.5 text-[13px]">
+                    <span className="text-foreground">{i.name}</span>
+                    <Badge tone={i.tone}>{i.tag}</Badge>
+                  </li>
+                ))}
+              </ul>
+            </SquareBlock>
+
+            <SquareBlock
+              title="Contraindications"
+              icon="⚕️"
+              badge="6 conditions"
+              summary="Cross-checked profile"
+              expanded={open === "contra"}
+              onToggle={() => toggle("contra")}
+            >
+              <div className="mb-3 rounded-md border border-rose-500/30 bg-rose-500/10 p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-rose-300">STRICTLY FORBIDDEN</span>
+                  <Badge tone="danger">Triggered</Badge>
                 </div>
-                <Badge tone={r.tone}>Avoid</Badge>
+                <p className="mt-1 text-[12px] text-rose-200/80">
+                  For patients with Type 2 Diabetes, Hypertension, and CKD combined.
+                </p>
               </div>
-            ))}
-          </div>
-        </SquareBlock>
-
-        <SquareBlock
-          title="Allergens"
-          icon="🌾"
-          badge="2 high"
-          summary="Personal profile scan"
-          expanded={open === "all"}
-          onToggle={() => toggle("all")}
-        >
-          <ul className="divide-y divide-border">
-            {ALLERGENS.map((a) => (
-              <li key={a.n} className="flex items-center justify-between py-2.5 text-[13px]">
-                <span className="text-foreground">{a.n}</span>
-                <Badge tone={a.tone}>{a.s}</Badge>
-              </li>
-            ))}
-          </ul>
-        </SquareBlock>
-
-        <SquareBlock
-          title="Macro breakdown"
-          icon="📊"
-          badge="Above target"
-          summary="Protein · Carbs · Fats"
-          expanded={open === "macro"}
-          onToggle={() => toggle("macro")}
-        >
-          <div className="flex gap-4">
-            <div className="grid-bg grid h-40 w-40 shrink-0 place-items-center rounded-lg border border-border bg-surface text-4xl">🍔</div>
-            <div className="flex-1 space-y-3">
-              {MACROS.map((r) => (
-                <div key={r.l}>
-                  <div className="mb-1 flex items-center justify-between text-[11px]">
-                    <span className="text-foreground">{r.l}</span>
-                    <span className="tabular-nums text-muted-foreground">{r.v} · {r.note}</span>
+              <div className="space-y-2">
+                {CONTRA.map((r) => (
+                  <div key={r.c} className="flex items-start justify-between rounded-md border border-border bg-surface px-3 py-2">
+                    <div>
+                      <div className="text-[13px] font-medium text-foreground">{r.c}</div>
+                      <div className="text-[11px] text-muted-foreground">{r.r}</div>
+                    </div>
+                    <Badge tone={r.tone}>Avoid</Badge>
                   </div>
-                  <Bar value={r.pct} tone={(r as { tone?: "danger" | "warning" }).tone ?? "neutral"} />
+                ))}
+              </div>
+            </SquareBlock>
+
+            <SquareBlock
+              title="Allergens"
+              icon="🌾"
+              badge="2 high"
+              summary="Personal profile scan"
+              expanded={open === "all"}
+              onToggle={() => toggle("all")}
+            >
+              <ul className="divide-y divide-border">
+                {ALLERGENS.map((a) => (
+                  <li key={a.n} className="flex items-center justify-between py-2.5 text-[13px]">
+                    <span className="text-foreground">{a.n}</span>
+                    <Badge tone={a.tone}>{a.s}</Badge>
+                  </li>
+                ))}
+              </ul>
+            </SquareBlock>
+
+            <SquareBlock
+              title="Macro breakdown"
+              icon="📊"
+              badge="Above target"
+              summary="Protein · Carbs · Fats"
+              expanded={open === "macro"}
+              onToggle={() => toggle("macro")}
+            >
+              <div className="flex gap-4">
+                <div className="grid-bg grid h-40 w-40 shrink-0 place-items-center rounded-lg border border-border bg-surface text-4xl">🍔</div>
+                <div className="flex-1 space-y-3">
+                  {MACROS.map((r) => (
+                    <div key={r.l}>
+                      <div className="mb-1 flex items-center justify-between text-[11px]">
+                        <span className="text-foreground">{r.l}</span>
+                        <span className="tabular-nums text-muted-foreground">{r.v} · {r.note}</span>
+                      </div>
+                      <Bar value={r.pct} tone={(r as { tone?: "danger" | "warning" }).tone ?? "neutral"} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+              <div className="mt-3 text-[11px] text-muted-foreground">USDA + KZ Nutrient DB · portion 340 g</div>
+            </SquareBlock>
           </div>
-          <div className="mt-3 text-[11px] text-muted-foreground">USDA + KZ Nutrient DB · portion 340 g</div>
-        </SquareBlock>
+        </div>
       </div>
+
 
     </div>
   );
