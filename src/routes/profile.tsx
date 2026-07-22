@@ -125,25 +125,36 @@ function ProfilePage() {
         <Bento>
           <SectionEyebrow>Тіл</SectionEyebrow>
           <div className="flex gap-2">
-            <Chip active>Қазақша</Chip>
-            <Chip>Русский</Chip>
-            <Chip>English</Chip>
+            {[["kk","Қазақша"],["ru","Русский"],["en","English"]].map(([k,v]) => (
+              <button key={k} onClick={() => { setLang(k); toast(`Тіл: ${v}`); }}>
+                <Chip active={lang === k}>{v}</Chip>
+              </button>
+            ))}
           </div>
         </Bento>
         <Bento>
           <SectionEyebrow>Мақсаттар</SectionEyebrow>
           <div className="flex flex-wrap gap-1.5">
-            <Chip active>🩸 Анемия</Chip>
-            <Chip active>💤 Ұйқы</Chip>
-            <Chip active>⚖️ Салмақ</Chip>
+            {["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ", "🍎 Тамақ", "🏃 Спорт"].map((g) => (
+              <button key={g} onClick={() => toggleGoal(g)}>
+                <Chip active={goals.includes(g)}>{g}</Chip>
+              </button>
+            ))}
           </div>
         </Bento>
         <Bento>
           <SectionEyebrow>Құпиялылық</SectionEyebrow>
           <div className="space-y-1.5 text-[12px] text-foreground">
-            <div className="flex justify-between"><span>Деректер шифрлеу</span><Badge tone="mint">Қосулы</Badge></div>
-            <div className="flex justify-between"><span>103-ке автотабысу</span><Badge tone="mint">Қосулы</Badge></div>
-            <div className="flex justify-between"><span>Дәрігермен бөлісу</span><Badge tone="muted">Өшірулі</Badge></div>
+            {[
+              { k: "enc" as const, l: "Деректер шифрлеу" },
+              { k: "sos" as const, l: "103-ке автотабысу" },
+              { k: "share" as const, l: "Дәрігермен бөлісу" },
+            ].map((r) => (
+              <button key={r.k} onClick={() => { setPrivacy(p => ({ ...p, [r.k]: !p[r.k] })); toast(`${r.l}: ${!privacy[r.k] ? "Қосулы" : "Өшірулі"}`); }} className="flex w-full items-center justify-between">
+                <span>{r.l}</span>
+                <Badge tone={privacy[r.k] ? "mint" : "muted"}>{privacy[r.k] ? "Қосулы" : "Өшірулі"}</Badge>
+              </button>
+            ))}
           </div>
         </Bento>
       </div>
