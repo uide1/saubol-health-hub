@@ -92,27 +92,11 @@ function FamilyPage() {
   const L1 = useL();
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <SectionEyebrow>
-            <L kk="Family Mode · Ата-ана бақылауы" ru="Family Mode · Родительский контроль" en="Family Mode · Parental control" />
-          </SectionEyebrow>
-          <h1 className="mt-2 font-serif text-4xl leading-[1.05] tracking-tight text-foreground md:text-5xl">
-            <L
-              kk={<>Отбасы <span className="italic text-[color:var(--mint)]">аман</span>. 3 бала қосылған.</>}
-              ru={<>Семья <span className="italic text-[color:var(--mint)]">в безопасности</span>. 3 ребёнка.</>}
-              en={<>Family is <span className="italic text-[color:var(--mint)]">safe</span>. 3 children.</>}
-            />
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            <L
-              kk="Балалардың дәрі-дәрмегі, тамақ талдауы мен төтенше сигналдары бір орында."
-              ru="Лекарства детей, анализ питания и экстренные сигналы в одном месте."
-              en="Kids' meds, nutrition analysis, and emergency alerts in one place."
-            />
-          </p>
-        </div>
+      {/* Top bar — actions only */}
+      <div className="flex items-center justify-between gap-3">
+        <SectionEyebrow>
+          <L kk="Отбасы · бақылау" ru="Семья · контроль" en="Family · monitor" />
+        </SectionEyebrow>
         <div className="flex items-center gap-2">
           <Chip>{L1({ kk: "Ата-ана PIN қосулы", ru: "PIN родителя вкл.", en: "Parent PIN on" })}</Chip>
           <button
@@ -127,100 +111,108 @@ function FamilyPage() {
         </div>
       </div>
 
-
-      {/* Kid switcher */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        {KIDS.map((k) => {
-          const isActive = k.id === active;
-          const tone = k.status === "ok" ? "success" : k.status === "watch" ? "warning" : "danger";
-          return (
-            <button
-              key={k.id}
-              onClick={() => setActive(k.id)}
-              className={`text-left transition ${isActive ? "-translate-y-0.5" : ""}`}
-            >
-              <div className={`relative overflow-hidden rounded-2xl border p-5 ${isActive ? "border-[color:var(--mint)]/50 bg-[color:var(--mint-soft)]" : "border-border bg-card"}`}>
-                <div className="flex items-center gap-3">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-secondary text-2xl">{k.emoji}</div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-baseline gap-2">
-                      <div className="font-serif text-xl text-foreground">{k.name}</div>
-                      <span className="text-[11px] text-muted-foreground">{k.age} жас</span>
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">{k.weight} · {k.height}</div>
-                  </div>
-                  <Badge tone={tone}>{k.score}</Badge>
-                </div>
-                <p className="mt-3 text-[12px] text-muted-foreground line-clamp-2">{k.note}</p>
-              </div>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Selected kid detail */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
+      {/* Two-column layout: children list | selected kid detail */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[340px_1fr]">
+        {/* Children list block */}
         <Bento>
           <div className="flex items-baseline justify-between">
-            <div>
-              <SectionEyebrow>Бүгін · {kid.name}</SectionEyebrow>
-              <div className="font-serif text-2xl text-foreground">Күнделікті көрсеткіштер</div>
+            <SectionEyebrow>
+              <L kk="Балалар" ru="Дети" en="Children" />
+            </SectionEyebrow>
+            <span className="text-[11px] text-muted-foreground">{KIDS.length}</span>
+          </div>
+          <div className="mt-3 space-y-2">
+            {KIDS.map((k) => {
+              const isActive = k.id === active;
+              const tone = k.status === "ok" ? "success" : k.status === "watch" ? "warning" : "danger";
+              return (
+                <button
+                  key={k.id}
+                  onClick={() => setActive(k.id)}
+                  className={`flex w-full items-center gap-3 rounded-xl border px-3 py-3 text-left transition ${isActive ? "border-[color:var(--mint)]/50 bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-white/15"}`}
+                >
+                  <div className="grid h-11 w-11 place-items-center rounded-full bg-secondary text-2xl">{k.emoji}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2">
+                      <div className="font-serif text-lg text-foreground">{k.name}</div>
+                      <span className="text-[11px] text-muted-foreground">{k.age} {L1({ kk: "жас", ru: "лет", en: "y" })}</span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground truncate">{k.weight} · {k.height}</div>
+                  </div>
+                  <Badge tone={tone}>{k.score}</Badge>
+                </button>
+              );
+            })}
+          </div>
+        </Bento>
+
+        {/* Selected kid detail column */}
+        <div className="space-y-4">
+          {/* Daily stats */}
+          <Bento>
+            <div className="flex items-baseline justify-between">
+              <div>
+                <SectionEyebrow><L kk="Бүгін" ru="Сегодня" en="Today" /> · {kid.name}</SectionEyebrow>
+                <div className="font-serif text-2xl text-foreground">
+                  <L kk="Күнделікті көрсеткіштер" ru="Дневные показатели" en="Daily metrics" />
+                </div>
+              </div>
+              <Badge tone={kid.status === "ok" ? "success" : kid.status === "watch" ? "warning" : "danger"}>
+                {kid.status === "ok" ? L1({ kk: "Аман", ru: "В норме", en: "OK" }) : kid.status === "watch" ? L1({ kk: "Бақылауда", ru: "Наблюдение", en: "Watch" }) : L1({ kk: "Назар", ru: "Внимание", en: "Alert" })}
+              </Badge>
             </div>
-            <Badge tone={kid.status === "ok" ? "success" : kid.status === "watch" ? "warning" : "danger"}>
-              {kid.status === "ok" ? "Аман" : kid.status === "watch" ? "Бақылауда" : "Назар"}
-            </Badge>
-          </div>
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            <Stat label="Калория" value={`${kid.today.calories}`} hint="/ мақсат 1600" tone="mint" />
-            <Stat label="Қант" value={`${kid.today.sugar} г`} hint="шек 25 г" tone={kid.today.sugar > 25 ? "danger" : "success"} />
-            <Stat label="Су" value={`${kid.today.water} ст`} hint="/ 6 стакан" />
-          </div>
-        </Bento>
+            <p className="mt-2 text-[12px] text-muted-foreground">{kid.note}</p>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <Stat label={L1({ kk: "Калория", ru: "Калории", en: "Calories" })} value={`${kid.today.calories}`} hint="/ 1600" tone="mint" />
+              <Stat label={L1({ kk: "Қант", ru: "Сахар", en: "Sugar" })} value={`${kid.today.sugar} г`} hint={L1({ kk: "шек 25 г", ru: "лимит 25 г", en: "limit 25 g" })} tone={kid.today.sugar > 25 ? "danger" : "success"} />
+              <Stat label={L1({ kk: "Су", ru: "Вода", en: "Water" })} value={`${kid.today.water} ст`} hint="/ 6" />
+            </div>
+          </Bento>
 
-        <Bento>
-          <SectionEyebrow>Ескертулер</SectionEyebrow>
-          <div className="mt-2 space-y-2">
-            {kid.alerts.map((a, i) => (
-              <div key={i} className="flex items-start gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
-                <div className="text-xl">{a.icon}</div>
-                <div className="flex-1 text-[12px] text-foreground">{a.t}</div>
-                <Badge tone={a.tone}>·</Badge>
+          {/* Alerts + Meds side by side */}
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <Bento>
+              <SectionEyebrow><L kk="Ескертулер" ru="Уведомления" en="Alerts" /></SectionEyebrow>
+              <div className="mt-2 space-y-2">
+                {kid.alerts.map((a, i) => (
+                  <div key={i} className="flex items-start gap-3 rounded-xl border border-border bg-surface px-3 py-2.5">
+                    <div className="text-xl">{a.icon}</div>
+                    <div className="flex-1 text-[12px] text-foreground">{a.t}</div>
+                    <Badge tone={a.tone}>·</Badge>
+                  </div>
+                ))}
+                {kid.alerts.length === 0 && (
+                  <div className="rounded-xl border border-dashed border-border bg-surface px-3 py-6 text-center text-[12px] text-muted-foreground">
+                    <L kk="Ескертулер жоқ ✓" ru="Уведомлений нет ✓" en="No alerts ✓" />
+                  </div>
+                )}
               </div>
-            ))}
-            {kid.alerts.length === 0 && (
-              <div className="rounded-xl border border-dashed border-border bg-surface px-3 py-6 text-center text-[12px] text-muted-foreground">
-                Ескертулер жоқ ✓
+            </Bento>
+
+            <Bento>
+              <div className="flex items-baseline justify-between">
+                <SectionEyebrow><L kk="Дәрі-дәрмек" ru="Лекарства" en="Meds" /></SectionEyebrow>
+                <span className="text-[11px] text-muted-foreground">{kid.meds.filter(m=>m.ok).length}/{kid.meds.length}</span>
               </div>
-            )}
+              <div className="mt-3 space-y-2">
+                {kid.meds.length === 0 && <div className="text-[12px] text-muted-foreground"><L kk="Тағайындалған дәрі жоқ." ru="Назначений нет." en="No prescriptions." /></div>}
+                {kid.meds.map((m) => {
+                  const ok = isMedOk(m.t, m.n, m.ok);
+                  return (
+                    <button key={m.t + m.n} onClick={() => toggleMed(m.t, m.n, m.ok)} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition hover:border-white/15">
+                      <div className={`h-2 w-2 rounded-full ${ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
+                      <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
+                      <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
+                      {ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">…</Badge>}
+                    </button>
+                  );
+                })}
+              </div>
+            </Bento>
           </div>
-          <div className="mt-3 rounded-xl border border-dashed border-border bg-surface/50 px-3 py-2 text-[11px] text-muted-foreground">
-            <L kk="Ескертулер автоматты · SauBol AI бақылайды" ru="Уведомления автоматические · SauBol AI следит" en="Alerts are automatic · monitored by SauBol AI" />
-          </div>
-        </Bento>
+        </div>
       </div>
-
-
-      {/* Meds */}
-      <Bento>
-        <div className="flex items-baseline justify-between">
-          <SectionEyebrow>Дәрі-дәрмек кестесі · {kid.name}</SectionEyebrow>
-          <span className="text-[11px] text-muted-foreground">{kid.meds.filter(m=>m.ok).length}/{kid.meds.length} қабылданды</span>
-        </div>
-        <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2">
-          {kid.meds.length === 0 && <div className="text-[12px] text-muted-foreground">Тағайындалған дәрі жоқ.</div>}
-          {kid.meds.map((m) => {
-            const ok = isMedOk(m.t, m.n, m.ok);
-            return (
-              <button key={m.t + m.n} onClick={() => toggleMed(m.t, m.n, m.ok)} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition hover:border-white/15">
-                <div className={`h-2 w-2 rounded-full ${ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
-                <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
-                <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
-                {ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">Күтуде</Badge>}
-              </button>
-            );
-          })}
-        </div>
-      </Bento>
     </div>
   );
 }
+
