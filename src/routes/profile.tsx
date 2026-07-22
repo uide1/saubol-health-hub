@@ -70,36 +70,8 @@ function ProfilePage() {
         ))}
       </div>
 
-      {/* History */}
-      <Bento>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <SectionEyebrow>Медициналық хронология</SectionEyebrow>
-            <h2 className="font-serif text-3xl text-foreground">Барлық сканерлер</h2>
-          </div>
-          <div className="flex gap-1">
-            {TABS.map((t) => (
-              <button key={t.k} onClick={() => setTab(t.k)}>
-                <Chip active={tab === t.k}>{t.l} · {t.n}</Chip>
-              </button>
-            ))}
-          </div>
-        </div>
 
-        <div className="mt-5 space-y-2">
-          {filtered.map((h, i) => (
-            <Link key={i} to={h.to} className="flex items-center gap-4 rounded-xl border border-border bg-surface px-4 py-3 transition hover:border-white/15">
-              <div className="w-14 shrink-0 font-mono text-[11px] text-muted-foreground">{h.date}</div>
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-medium text-foreground">{h.title}</div>
-                <div className="truncate text-[11px] text-muted-foreground">{h.note}</div>
-              </div>
-              <Badge tone={h.tone}>{h.type}</Badge>
-              <span className="text-muted-foreground">→</span>
-            </Link>
-          ))}
-        </div>
-      </Bento>
+
 
       {/* Preferences */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
