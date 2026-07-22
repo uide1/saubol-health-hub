@@ -38,8 +38,14 @@ const KIDS: Kid[] = [
     weight: "26 кг", height: "128 см", status: "ok", note: "Бәрі қалыпты, бүгін мектепте.",
     meds: [{ t: "08:00", n: "Витамин D 400 IU", ok: true }, { t: "20:00", n: "Ferrum syrup 5 ml", ok: false }],
     today: { calories: 1420, sugar: 32, water: 5 },
-    alerts: [{ icon: "🥛", t: "Сүт өнімі шектелген — кальций жетпейді", tone: "warning" }],
+    alerts: [
+      { icon: "🥛", t: "Сүт өнімі шектелген — кальций жетпейді", tone: "warning" },
+      { icon: "💊", t: "Ferrum syrup 20:00 — кешкі доза күтуде", tone: "muted" },
+      { icon: "🏫", t: "Мектеп асханасы: салат + сорпа таңдалды", tone: "success" },
+      { icon: "🌙", t: "Ұйқы уақыты 22:00 — экран режимін өшіріңіз", tone: "muted" },
+    ],
   },
+
   {
     id: "aruzhan", name: "Аружан", age: 4, emoji: "👧", score: 68,
     weight: "16 кг", height: "104 см", status: "watch", note: "Түнде 37.6° болды — бақылауда.",
