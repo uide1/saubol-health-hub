@@ -42,6 +42,10 @@ const MEDS_TODAY = [
 ];
 
 function Dashboard() {
+  const [range, setRange] = useState<Range>("7");
+  const [meds, setMeds] = useState(MEDS_TODAY);
+  const toggleMed = (t: string) => setMeds(s => s.map(m => m.t === t ? { ...m, ok: !m.ok } : m));
+  const takenCount = meds.filter(m => m.ok).length;
   return (
     <div className="space-y-6">
       {/* HERO */}
