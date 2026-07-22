@@ -23,7 +23,7 @@ const SCHEDULE = [
   { time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted" as const },
 ];
 
-const CURRENT = ["Aspirin 75 mg", "Ibuprofen 400 mg", "Warfarin 5 mg", "Metformin 850 mg"];
+
 
 function PrescriptionRx() {
   const [current, setCurrent] = useState<string[]>(["Aspirin 75 mg", "Ibuprofen 400 mg", "Warfarin 5 mg", "Metformin 850 mg"]);
