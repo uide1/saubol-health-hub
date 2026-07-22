@@ -229,10 +229,10 @@ function TriageVoice() {
               />
               <button
                 type="submit"
-                disabled={!input.trim()}
+                disabled={!input.trim() || thinking}
                 className="rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background disabled:opacity-40"
               >
-                <L kk="Жіберу" ru="Отправить" en="Send" />
+                {thinking ? <L kk="..." ru="..." en="..." /> : <L kk="Жіберу" ru="Отправить" en="Send" />}
               </button>
             </form>
             <div className="mt-2 flex flex-wrap gap-1.5 px-1">
