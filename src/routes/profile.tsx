@@ -117,45 +117,49 @@ function ProfilePage() {
         </Bento>
 
         {/* Water tracker */}
-        <Bento>
+        <Bento className="rounded-[32px]">
           <SectionEyebrow><L kk="Су · бүгін" ru="Вода · сегодня" en="Water · today" /></SectionEyebrow>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="font-serif text-3xl text-foreground">{(water * 0.25).toFixed(2)}<span className="text-base text-muted-foreground"> L</span></span>
-            <span className="text-[11px] text-muted-foreground">/ 2.00 L</span>
-          </div>
-          <div className="mt-3 grid grid-cols-8 gap-1.5">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setWater(i + 1 === water ? i : i + 1)}
-                className={`aspect-[3/4] rounded-md border text-xs transition ${i < water ? "border-[color:var(--mint)]/50 bg-[color:var(--mint-soft)] text-[color:var(--mint)]" : "border-border bg-surface text-muted-foreground hover:border-[color:var(--mint)]/30"}`}
-                aria-label={`glass-${i+1}`}
-              >💧</button>
-            ))}
-          </div>
-          <div className="mt-3 flex gap-2">
-            <button onClick={() => { setWater(w => Math.min(8, w + 1)); toast.success(L1({ kk: "+250 мл", ru: "+250 мл", en: "+250 ml" })); }} className="flex-1 rounded-full bg-foreground py-1.5 text-[11px] font-medium text-background">+ 250 мл</button>
-            <button onClick={() => setWater(0)} className="rounded-full border border-border px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground"><L kk="Тазалау" ru="Сброс" en="Reset" /></button>
+          <div className="mt-2 flex items-center gap-4">
+            <div className="relative grid h-24 w-24 shrink-0 place-items-center">
+              <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--secondary)" strokeWidth="8" />
+                <circle cx="50" cy="50" r="42" fill="none" stroke="var(--mint)" strokeWidth="8" strokeLinecap="round"
+                  strokeDasharray={2 * Math.PI * 42}
+                  strokeDashoffset={2 * Math.PI * 42 * (1 - water / 8)} />
+              </svg>
+              <div className="text-center">
+                <div className="font-serif text-2xl text-foreground tabular-nums">{water}<span className="text-xs text-muted-foreground">/8</span></div>
+                <div className="text-[9px] uppercase tracking-widest text-muted-foreground">💧</div>
+              </div>
+            </div>
+            <div className="flex-1">
+              <div className="font-serif text-2xl text-foreground">{(water * 0.25).toFixed(2)}<span className="text-sm text-muted-foreground"> / 2.00 L</span></div>
+              <div className="mt-1 text-[11px] text-muted-foreground"><L kk="Күндік мақсат" ru="Дневная цель" en="Daily goal" /></div>
+              <div className="mt-3 flex gap-2">
+                <button onClick={() => { setWater(w => Math.min(8, w + 1)); toast.success(L1({ kk: "+250 мл", ru: "+250 мл", en: "+250 ml" })); }} className="flex-1 rounded-full bg-foreground py-1.5 text-[11px] font-medium text-background">+ 250 мл</button>
+                <button onClick={() => setWater(0)} className="rounded-full border border-border px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground"><L kk="Тазалау" ru="Сброс" en="Reset" /></button>
+              </div>
+            </div>
           </div>
         </Bento>
       </div>
 
       {/* Sleep week + mood + timeline */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <Bento>
+        <Bento className="bg-gradient-to-br from-[color:var(--mint-soft)]/40 via-card to-card">
           <SectionEyebrow><L kk="Ұйқы · 7 күн" ru="Сон · 7 дней" en="Sleep · 7 days" /></SectionEyebrow>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="font-serif text-3xl text-foreground">{(sleep.reduce((a,b)=>a+b,0)/sleep.length).toFixed(1)}<span className="text-base text-muted-foreground">ч</span></span>
             <Badge tone="mint">+0.4</Badge>
           </div>
-          <div className="mt-3 flex h-24 items-end gap-2">
+          <div className="mt-4 flex h-28 items-stretch gap-2">
             {sleep.map((h, i) => {
               const pct = Math.min(100, (h / 9) * 100);
               const ok = h >= 7;
               return (
                 <div key={i} className="group flex flex-1 flex-col items-center gap-1">
                   <div className="relative flex h-full w-full items-end">
-                    <div style={{ height: `${pct}%` }} className={`w-full rounded-md ${ok ? "bg-gradient-to-t from-[color:var(--mint-soft)] to-[color:var(--mint)]" : "bg-gradient-to-t from-surface to-muted"} transition group-hover:opacity-80`} />
+                    <div style={{ height: `${pct}%` }} className={`w-full rounded-md ${ok ? "bg-gradient-to-t from-[color:var(--mint-soft)] to-[color:var(--mint)]" : "bg-gradient-to-t from-surface to-muted-foreground/40"} transition group-hover:opacity-80`} />
                     <span className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 rounded bg-foreground px-1.5 py-0.5 text-[9px] text-background opacity-0 transition group-hover:opacity-100">{h}ч</span>
                   </div>
                   <span className="text-[9px] text-muted-foreground">{weekLabels[i]}</span>
@@ -165,18 +169,18 @@ function ProfilePage() {
           </div>
         </Bento>
 
-        <Bento>
+        <Bento className="rounded-[32px]">
           <SectionEyebrow><L kk="Бүгінгі көңіл-күй" ru="Настроение сегодня" en="Today's mood" /></SectionEyebrow>
           <div className="mt-1 flex items-baseline gap-2">
             <span className="font-serif text-3xl text-foreground">{mood !== null ? moods[mood] : "—"}</span>
             <span className="text-[11px] text-muted-foreground"><L kk="8 күн тізбегі" ru="серия 8 дней" en="8-day streak" /></span>
           </div>
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 flex gap-1.5">
             {moods.map((m, i) => (
               <button
                 key={i}
                 onClick={() => { setMood(i); toast(m); }}
-                className={`grid h-11 flex-1 place-items-center rounded-lg border text-xl transition ${mood === i ? "border-[color:var(--mint)] bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-[color:var(--mint)]/40"}`}
+                className={`grid h-12 flex-1 place-items-center rounded-full border text-xl transition ${mood === i ? "border-[color:var(--mint)] bg-[color:var(--mint-soft)] scale-110" : "border-border bg-surface hover:border-[color:var(--mint)]/40"}`}
               >{m}</button>
             ))}
           </div>
@@ -186,7 +190,7 @@ function ProfilePage() {
               [L1({ kk: "Энергия", ru: "Энергия", en: "Energy" }), "78%"],
               [L1({ kk: "Фокус", ru: "Фокус", en: "Focus" }), "Good"],
             ].map(([k, v]) => (
-              <div key={k} className="rounded-md border border-border bg-surface p-2">
+              <div key={k} className="rounded-full border border-border bg-surface px-2 py-1.5">
                 <div className="uppercase tracking-wider text-muted-foreground">{k}</div>
                 <div className="mt-0.5 font-semibold text-foreground">{v}</div>
               </div>
@@ -194,12 +198,13 @@ function ProfilePage() {
           </div>
         </Bento>
 
-        <Bento>
+        <Bento className="relative">
+          <span className="absolute left-0 top-6 bottom-6 w-[3px] rounded-r bg-[color:var(--mint)]" />
           <SectionEyebrow><L kk="Соңғы белсенділік" ru="Последняя активность" en="Recent activity" /></SectionEyebrow>
-          <ol className="mt-1 space-y-2">
+          <ol className="mt-2 space-y-2">
             {timeline.map((e, i) => (
-              <li key={i} className="flex items-center gap-3 border-b border-border/50 pb-2 last:border-none">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border bg-surface text-sm">{e.icon}</div>
+              <li key={i} className="flex items-center gap-3 rounded-xl border border-border/50 bg-surface/40 px-3 py-2">
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border bg-card text-sm">{e.icon}</div>
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[12px] text-foreground">{e.label}</div>
                   <div className="text-[10px] text-muted-foreground tabular-nums">{e.time}</div>
@@ -217,9 +222,11 @@ function ProfilePage() {
           ["Бой", "165 см"], ["Салмақ", "58 кг"], ["BMI", "21.3"],
           ["ЖСС", "68 bpm"], ["АҚ", "118/76"], ["SpO₂", "98%"],
         ].map(([l, v]) => (
-          <div key={l} className="rounded-xl border border-border bg-surface p-3">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{l}</div>
-            <div className="mt-1 font-mono text-lg text-foreground">{v}</div>
+          <div key={l} className="grid aspect-square place-items-center rounded-full border border-border bg-surface p-3 text-center transition hover:border-[color:var(--mint)]/40">
+            <div>
+              <div className="text-[9px] uppercase tracking-widest text-muted-foreground">{l}</div>
+              <div className="mt-1 font-serif text-xl text-foreground">{v}</div>
+            </div>
           </div>
         ))}
       </div>

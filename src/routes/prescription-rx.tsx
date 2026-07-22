@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Card, Badge, PageHeader, SectionEyebrow } from "@/components/ui-kit";
+import { Badge, PageHeader, SectionEyebrow } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 
 
@@ -178,26 +178,6 @@ function PrescriptionRx() {
         </div>
       </div>
 
-      <Card title={L1({ kk: "Танылған рецепт", ru: "Расшифрованный рецепт", en: "Deciphered Prescription" })} subtitle="Dr. Nurlan T. · Polyclinic №3 · 96.2%">
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-          {[
-            ["Paracetamol", "500 mg · 3× · after meals · 5 days"],
-            ["Amoxicillin", "500 mg · 2× · with food · 7 days"],
-            ["Omeprazole", "20 mg · 1× · morning · 14 days"],
-            ["Ferrous bisglycinate", "25 mg · 2× · with vit C · 8 wk"],
-            ["Vitamin D3", "4000 IU · 1× · with fats"],
-            ["Melatonin", "3 mg · at bedtime · prn"],
-          ].map(([n, d]) => (
-            <div key={n} className="flex items-center justify-between rounded-md border border-border bg-surface px-3 py-2 text-[12px]">
-              <div>
-                <div className="font-medium text-foreground">{n}</div>
-                <div className="text-[11px] text-muted-foreground">{d}</div>
-              </div>
-              <Badge tone="success">✓</Badge>
-            </div>
-          ))}
-        </div>
-      </Card>
     </div>
   );
 }

@@ -140,14 +140,6 @@ function TriageVoice() {
   };
 
 
-  // Session timer
-  const [sessionSec, setSessionSec] = useState(42);
-  useEffect(() => {
-    const id = setInterval(() => setSessionSec((s) => s + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-  const mm = String(Math.floor(sessionSec / 60)).padStart(2, "0");
-  const ss = String(sessionSec % 60).padStart(2, "0");
 
   return (
     <div>
@@ -177,27 +169,23 @@ function TriageVoice() {
             <div className="relative flex flex-col items-center">
               <div className="relative grid h-[220px] w-[220px] place-items-center">
                 {/* pulse rings */}
-                <span className={`absolute inset-0 rounded-full border border-[color:var(--mint)]/40 ${dictating ? "orb-pulse" : ""}`} />
-                <span className={`absolute inset-3 rounded-full border border-[color:var(--mint)]/25 ${dictating ? "orb-pulse" : ""}`} style={{ animationDelay: "0.6s" }} />
-                <span className={`absolute inset-6 rounded-full border border-[color:var(--mint)]/15 ${dictating ? "orb-pulse" : ""}`} style={{ animationDelay: "1.2s" }} />
+                <span className={`absolute inset-0 rounded-full border border-white/15 ${dictating ? "orb-pulse" : ""}`} />
+                <span className={`absolute inset-3 rounded-full border border-white/10 ${dictating ? "orb-pulse" : ""}`} style={{ animationDelay: "0.6s" }} />
+                <span className={`absolute inset-6 rounded-full border border-white/5 ${dictating ? "orb-pulse" : ""}`} style={{ animationDelay: "1.2s" }} />
                 {/* orb */}
-                <div className="relative grid h-[150px] w-[150px] place-items-center rounded-full mint-glow"
-                     style={{ background: "radial-gradient(circle at 35% 30%, color-mix(in oklab, var(--mint) 45%, transparent), color-mix(in oklab, var(--mint) 8%, transparent) 70%, transparent 100%)" }}>
+                <div className="relative grid h-[150px] w-[150px] place-items-center rounded-full"
+                     style={{ background: "radial-gradient(circle at 35% 30%, #4b5563, #1f2937 70%, #0b0f14 100%)", boxShadow: "0 20px 60px -20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.06)" }}>
                   <div className="flex items-end gap-1 h-10">
                     {[0.4, 0.9, 0.55, 1, 0.65].map((h, i) => (
-                      <span key={i} className="spark-bar w-1.5 rounded-full bg-[color:var(--mint)]"
+                      <span key={i} className="spark-bar w-1.5 rounded-full bg-white/70"
                             style={{ height: `${h * 100}%`, animationDelay: `${i * 0.12}s`, animationIterationCount: dictating ? "infinite" as any : 1, animationDirection: "alternate" }} />
                     ))}
                   </div>
                 </div>
               </div>
-              <div className="mt-4 font-mono text-2xl tabular-nums text-foreground">{mm}:{ss}</div>
-              <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                <L kk="сессия · triage v4.2" ru="сессия · triage v4.2" en="session · triage v4.2" />
-              </div>
-              <div className="mt-3 flex w-full items-center gap-2 text-[11px] text-muted-foreground">
+              <div className="mt-4 flex w-full items-center gap-2 text-[11px] text-muted-foreground">
                 <div className="flex-1 h-1 rounded-full bg-white/5 overflow-hidden">
-                  <div className="h-full bg-[color:var(--mint)]" style={{ width: `${Math.min(100, turns.length * 12)}%` }} />
+                  <div className="h-full bg-foreground/60" style={{ width: `${Math.min(100, turns.length * 12)}%` }} />
                 </div>
                 <span className="tabular-nums">{turns.length} <L kk="turn" ru="turn" en="turn" /></span>
               </div>
