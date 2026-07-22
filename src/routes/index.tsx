@@ -20,10 +20,11 @@ const TREND = [
 ];
 
 const RECENT = [
-  { icon: "🩸", title: "Қан анализі", note: "Ferritin төмен · 3 маркер", to: "/labs" as const, tone: "warning" as const, time: "2 сағ" },
   { icon: "🍔", title: "Fried chicken burger", note: "168% қант шегі", to: "/nutrition-scan" as const, tone: "danger" as const, time: "5 сағ" },
   { icon: "🎙", title: "Дауыстық консультация", note: "Аппендицит күдігі · 103", to: "/triage-voice" as const, tone: "danger" as const, time: "Кеше" },
+  { icon: "💊", title: "Рецепт декодталды", note: "3 дәрі · 1 өзара әрекет", to: "/prescription-rx" as const, tone: "warning" as const, time: "2 күн" },
 ];
+
 
 const MEDS_TODAY = [
   { t: "08:00", n: "Paracetamol 500 mg", ok: true },
@@ -45,16 +46,17 @@ function Dashboard() {
             Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.
           </h1>
           <div className="mt-6 flex flex-wrap gap-2">
-            <Link to="/chat" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
-              AI дәрігермен сөйлесу →
+            <Link to="/nutrition-scan" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
+              Тамақ сканерлеу →
             </Link>
-            <Link to="/labs" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
-              Анализды қарау
+            <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
+              Дәрі-дәрмек
             </Link>
             <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
               Онбординг
             </Link>
           </div>
+
           <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[color:var(--mint)]/20 blur-3xl" />
         </Bento>
 
@@ -75,14 +77,14 @@ function Dashboard() {
       <div>
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="font-serif text-2xl tracking-tight text-foreground">Модульдер</h2>
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">4 белсенді</span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">3 белсенді</span>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {[
-            { to: "/labs" as const, e: "🩸", t: "Анализдер", s: "BioSign AI", d: "Қан панелі, 42 биомаркер, AI диагноз" },
             { to: "/nutrition-scan" as const, e: "🥗", t: "Тамақ & Калория", s: "SmartNutri", d: "Фото/штрих-код, контр-индикация" },
             { to: "/triage-voice" as const, e: "🎙", t: "Дауыстық Триаж", s: "Voice AI", d: "KZ/RU/EN дауыс, 103 диспетчер" },
             { to: "/prescription-rx" as const, e: "💊", t: "Дәрі-дәрмек", s: "RxClarify", d: "OCR рецепт, өзара әрекеттесу" },
+
           ].map((m) => (
             <Link key={m.to} to={m.to} className="group">
               <Bento className="h-full transition group-hover:-translate-y-0.5">

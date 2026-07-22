@@ -15,24 +15,22 @@ export const Route = createFileRoute("/profile")({
 });
 
 type HistTone = "warning" | "danger" | "success" | "muted";
-const HISTORY: { date: string; type: string; title: string; note: string; tone: HistTone; to: "/labs" | "/nutrition-scan" | "/triage-voice" | "/prescription-rx" }[] = [
-  { date: "20 шіл", type: "lab", title: "Қан панелі — CBC + Ferritin", note: "3 маркер критикалық", tone: "warning", to: "/labs" },
+const HISTORY: { date: string; type: string; title: string; note: string; tone: HistTone; to: "/nutrition-scan" | "/triage-voice" | "/prescription-rx" }[] = [
   { date: "20 шіл", type: "food", title: "Fried chicken burger", note: "Sugar +168% · Sodium 62%", tone: "danger", to: "/nutrition-scan" },
   { date: "19 шіл", type: "voice", title: "Аудио триаж — ішке ауырсыну", note: "Аппендицит күдігі · 103", tone: "danger", to: "/triage-voice" },
   { date: "18 шіл", type: "rx", title: "Рецепт Rx-2026-0472", note: "7 дәрі-дәрмек · 2 өзара әсер", tone: "warning", to: "/prescription-rx" },
   { date: "17 шіл", type: "food", title: "Quinoa bowl", note: "Дұрыс тамақтану", tone: "success", to: "/nutrition-scan" },
-  { date: "15 шіл", type: "lab", title: "Липид панелі", note: "Барлық көрсеткіш нормада", tone: "success", to: "/labs" },
   { date: "10 шіл", type: "rx", title: "Vitamin D3 4000 IU", note: "Ұзақ мерзімді курс", tone: "muted", to: "/prescription-rx" },
   { date: "05 шіл", type: "voice", title: "Бас ауруы сұхбаты", note: "Мигрень белгілері", tone: "muted", to: "/triage-voice" },
 ];
 
 const TABS = [
-  { k: "all", l: "Барлығы", n: 8 },
-  { k: "lab", l: "Анализдер", n: 2 },
+  { k: "all", l: "Барлығы", n: 6 },
   { k: "food", l: "Тамақ", n: 2 },
   { k: "voice", l: "Дауыс", n: 2 },
   { k: "rx", l: "Дәрі", n: 2 },
 ];
+
 
 function ProfilePage() {
   const [tab, setTab] = useState("all");

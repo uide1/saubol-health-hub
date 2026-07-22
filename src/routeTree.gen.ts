@@ -14,10 +14,7 @@ import { Route as TriageVoiceRouteImport } from './routes/triage-voice'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as PrescriptionRxRouteImport } from './routes/prescription-rx'
 import { Route as NutritionScanRouteImport } from './routes/nutrition-scan'
-import { Route as LabsRouteImport } from './routes/labs'
-import { Route as ChatRouteImport } from './routes/chat'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ApiChatRouteImport } from './routes/api/chat'
 
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
@@ -44,107 +41,71 @@ const NutritionScanRoute = NutritionScanRouteImport.update({
   path: '/nutrition-scan',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LabsRoute = LabsRouteImport.update({
-  id: '/labs',
-  path: '/labs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChatRoute = ChatRouteImport.update({
-  id: '/chat',
-  path: '/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
-  '/labs': typeof LabsRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
   '/profile': typeof ProfileRoute
   '/triage-voice': typeof TriageVoiceRoute
   '/welcome': typeof WelcomeRoute
-  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
-  '/labs': typeof LabsRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
   '/profile': typeof ProfileRoute
   '/triage-voice': typeof TriageVoiceRoute
   '/welcome': typeof WelcomeRoute
-  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/chat': typeof ChatRoute
-  '/labs': typeof LabsRoute
   '/nutrition-scan': typeof NutritionScanRoute
   '/prescription-rx': typeof PrescriptionRxRoute
   '/profile': typeof ProfileRoute
   '/triage-voice': typeof TriageVoiceRoute
   '/welcome': typeof WelcomeRoute
-  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/chat'
-    | '/labs'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
     | '/triage-voice'
     | '/welcome'
-    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/chat'
-    | '/labs'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
     | '/triage-voice'
     | '/welcome'
-    | '/api/chat'
   id:
     | '__root__'
     | '/'
-    | '/chat'
-    | '/labs'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
     | '/triage-voice'
     | '/welcome'
-    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ChatRoute: typeof ChatRoute
-  LabsRoute: typeof LabsRoute
   NutritionScanRoute: typeof NutritionScanRoute
   PrescriptionRxRoute: typeof PrescriptionRxRoute
   ProfileRoute: typeof ProfileRoute
   TriageVoiceRoute: typeof TriageVoiceRoute
   WelcomeRoute: typeof WelcomeRoute
-  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,20 +145,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NutritionScanRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/labs': {
-      id: '/labs'
-      path: '/labs'
-      fullPath: '/labs'
-      preLoaderRoute: typeof LabsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/chat': {
-      id: '/chat'
-      path: '/chat'
-      fullPath: '/chat'
-      preLoaderRoute: typeof ChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -205,26 +152,16 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/chat': {
-      id: '/api/chat'
-      path: '/api/chat'
-      fullPath: '/api/chat'
-      preLoaderRoute: typeof ApiChatRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ChatRoute: ChatRoute,
-  LabsRoute: LabsRoute,
   NutritionScanRoute: NutritionScanRoute,
   PrescriptionRxRoute: PrescriptionRxRoute,
   ProfileRoute: ProfileRoute,
   TriageVoiceRoute: TriageVoiceRoute,
   WelcomeRoute: WelcomeRoute,
-  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

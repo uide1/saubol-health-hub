@@ -84,13 +84,12 @@ function RootShell({ children }: { children: ReactNode }) {
 
 const NAV = [
   { to: "/", label: "Басты" },
-  { to: "/chat", label: "AI Дәрігер" },
-  { to: "/labs", label: "Анализдер" },
   { to: "/nutrition-scan", label: "Тамақ" },
   { to: "/triage-voice", label: "Дауыс" },
   { to: "/prescription-rx", label: "Дәрілер" },
   { to: "/profile", label: "Профиль" },
 ] as const;
+
 
 function TopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
