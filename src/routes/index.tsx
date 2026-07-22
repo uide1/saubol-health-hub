@@ -102,13 +102,21 @@ function Dashboard() {
         <Bento>
           <div className="mb-2 flex items-baseline justify-between">
             <div>
-              <SectionEyebrow>Апталық тренд</SectionEyebrow>
-              <div className="font-serif text-2xl text-foreground">Денсаулық индексі <span className="italic text-[color:var(--mint)]">жоғарылап</span> келеді</div>
+              <SectionEyebrow>
+                <L kk="Апталық тренд" ru="Недельный тренд" en="Weekly trend" />
+              </SectionEyebrow>
+              <div className="font-serif text-2xl text-foreground">
+                <L
+                  kk={<>Денсаулық индексі <span className="italic text-[color:var(--mint)]">жоғарылап</span> келеді</>}
+                  ru={<>Индекс здоровья <span className="italic text-[color:var(--mint)]">растёт</span></>}
+                  en={<>Health index is <span className="italic text-[color:var(--mint)]">rising</span></>}
+                />
+              </div>
             </div>
             <div className="flex gap-1">
               {(["7","30","90"] as Range[]).map((r) => (
                 <button key={r} onClick={() => setRange(r)}>
-                  <Chip active={range === r}>{r} күн</Chip>
+                  <Chip active={range === r}>{r} {L1({ kk: "күн", ru: "дн.", en: "d" })}</Chip>
                 </button>
               ))}
             </div>
@@ -126,36 +134,50 @@ function Dashboard() {
             </ResponsiveContainer>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-3 border-t border-border pt-3">
-            <div><div className="text-[10px] uppercase text-muted-foreground">Орташа</div><div className="font-mono text-sm text-foreground">72.6</div></div>
-            <div><div className="text-[10px] uppercase text-muted-foreground">Ең жоғары</div><div className="font-mono text-sm text-[color:var(--mint)]">78</div></div>
-            <div><div className="text-[10px] uppercase text-muted-foreground">Динамика</div><div className="font-mono text-sm text-[color:var(--mint)]">+14.7%</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Орташа", ru: "Среднее", en: "Average" })}</div><div className="font-mono text-sm text-foreground">72.6</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Ең жоғары", ru: "Максимум", en: "Peak" })}</div><div className="font-mono text-sm text-[color:var(--mint)]">78</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Динамика", ru: "Динамика", en: "Trend" })}</div><div className="font-mono text-sm text-[color:var(--mint)]">+14.7%</div></div>
           </div>
         </Bento>
 
         <Bento>
           <div className="flex items-baseline justify-between">
             <div>
-              <SectionEyebrow>Бүгінгі дәрі-дәрмек</SectionEyebrow>
-              <div className="font-serif text-2xl text-foreground">{takenCount} <span className="text-muted-foreground">/ {meds.length} қабылданды</span></div>
+              <SectionEyebrow>
+                <L kk="Бүгінгі дәрі-дәрмек" ru="Лекарства сегодня" en="Today's meds" />
+              </SectionEyebrow>
+              <div className="font-serif text-2xl text-foreground">
+                {takenCount} <span className="text-muted-foreground">/ {meds.length} {L1({ kk: "қабылданды", ru: "принято", en: "taken" })}</span>
+              </div>
             </div>
-            <Link to="/prescription-rx" className="text-[11px] text-[color:var(--mint)]">Толық →</Link>
+            <Link to="/prescription-rx" className="text-[11px] text-[color:var(--mint)]">
+              <L kk="Толық →" ru="Всё →" en="All →" />
+            </Link>
           </div>
           <div className="mt-3">
             <Bar value={(takenCount / meds.length) * 100} tone="mint" />
           </div>
           <div className="mt-4 space-y-2">
             {meds.map((m) => (
-              <button key={m.t} onClick={() => { toggleMed(m.t); toast(m.ok ? `${m.n} қайта белгіленді` : `✓ ${m.n} қабылданды`); }} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left transition hover:border-white/15">
+              <button
+                key={m.t}
+                onClick={() => {
+                  toggleMed(m.t);
+                  toast(m.ok ? `${m.n} ${L1({ kk: "қайта белгіленді", ru: "снято", en: "unmarked" })}` : `✓ ${m.n} ${L1({ kk: "қабылданды", ru: "принято", en: "taken" })}`);
+                }}
+                className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left transition hover:border-white/15"
+              >
                 <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
                 <div className="min-w-0 flex-1">
                   <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
                   <div className="truncate text-[12px] text-foreground">{m.n}</div>
                 </div>
-                {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="muted">Күтуде</Badge>}
+                {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="muted">{L1({ kk: "Күтуде", ru: "Ждёт", en: "Pending" })}</Badge>}
               </button>
             ))}
           </div>
         </Bento>
+
       </div>
     </div>
   );
