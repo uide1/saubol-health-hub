@@ -290,13 +290,13 @@
   position: relative;
   overflow: hidden;
   background: color-mix(in oklab, var(--mint) 8%, transparent);
-}
-@utility shimmer-bar::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 40%;
-  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--mint) 45%, transparent), transparent);
-  animation: shimmer-slide 1.4s ease-in-out infinite;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--mint) 45%, transparent), transparent);
+    animation: shimmer-slide 1.4s ease-in-out infinite;
+  }
 }
 
