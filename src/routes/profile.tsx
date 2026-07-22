@@ -35,7 +35,11 @@ const TABS = [
 
 function ProfilePage() {
   const [tab, setTab] = useState("all");
+  const [lang, setLang] = useState("kk");
+  const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
+  const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
   const filtered = tab === "all" ? HISTORY : HISTORY.filter((h) => h.type === tab);
+  const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
 
   return (
     <div className="space-y-6">
