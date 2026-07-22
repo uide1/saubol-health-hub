@@ -60,8 +60,8 @@ function ProfilePage() {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <button className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-foreground">Өңдеу</button>
-            <button className="rounded-full bg-foreground px-4 py-2 text-xs text-background">PDF экспорт</button>
+            <button onClick={() => toast.info("Өңдеу режимі жақында", { description: "Профиль редакторы дайындалуда" })} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-foreground">Өңдеу</button>
+            <button onClick={() => toast.success("📄 PDF дайындалуда...", { description: "47 сканер · 4 ай тарихы жүктеледі" })} className="rounded-full bg-foreground px-4 py-2 text-xs text-background">PDF экспорт</button>
           </div>
         </Bento>
 
