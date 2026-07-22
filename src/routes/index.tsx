@@ -77,14 +77,14 @@ function Dashboard() {
       <div>
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="font-serif text-2xl tracking-tight text-foreground">Модульдер</h2>
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">4 белсенді</span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">3 белсенді</span>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
           {[
-            { to: "/labs" as const, e: "🩸", t: "Анализдер", s: "BioSign AI", d: "Қан панелі, 42 биомаркер, AI диагноз" },
             { to: "/nutrition-scan" as const, e: "🥗", t: "Тамақ & Калория", s: "SmartNutri", d: "Фото/штрих-код, контр-индикация" },
             { to: "/triage-voice" as const, e: "🎙", t: "Дауыстық Триаж", s: "Voice AI", d: "KZ/RU/EN дауыс, 103 диспетчер" },
             { to: "/prescription-rx" as const, e: "💊", t: "Дәрі-дәрмек", s: "RxClarify", d: "OCR рецепт, өзара әрекеттесу" },
+
           ].map((m) => (
             <Link key={m.to} to={m.to} className="group">
               <Bento className="h-full transition group-hover:-translate-y-0.5">
