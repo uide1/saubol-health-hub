@@ -124,17 +124,17 @@ function SquareBlock({ title, badge, icon, expanded, onToggle, children, summary
     <>
       <button
         onClick={onToggle}
-        className="group relative flex aspect-square flex-col justify-between rounded-2xl border border-border bg-card p-4 text-left transition hover:border-[color:var(--mint)]/40 hover:-translate-y-0.5"
+        className="group relative flex aspect-square flex-col items-center justify-center rounded-full border border-border bg-card p-6 text-center transition hover:border-[color:var(--mint)]/50 hover:-translate-y-0.5 hover:shadow-[0_20px_60px_-20px_color-mix(in_oklab,var(--mint)_40%,transparent)]"
       >
-        <div className="flex items-start justify-between">
-          <div className="text-3xl">{icon}</div>
-          {badge && <Badge tone="warning">{badge}</Badge>}
-        </div>
-        <div>
-          <div className="font-serif text-lg leading-tight text-foreground">{title}</div>
-          <div className="mt-1 text-[11px] text-muted-foreground">{summary}</div>
-          <div className="mt-3 text-[11px] text-[color:var(--mint)] opacity-0 transition group-hover:opacity-100">Ашу →</div>
-        </div>
+        {badge && (
+          <span className="absolute right-4 top-6">
+            <Badge tone="warning">{badge}</Badge>
+          </span>
+        )}
+        <div className="text-4xl">{icon}</div>
+        <div className="mt-2 font-serif text-lg leading-tight text-foreground">{title}</div>
+        <div className="mt-1 px-4 text-[11px] text-muted-foreground">{summary}</div>
+        <div className="mt-3 text-[11px] text-[color:var(--mint)] opacity-0 transition group-hover:opacity-100">Ашу →</div>
       </button>
       {expanded && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm" onClick={onToggle}>
