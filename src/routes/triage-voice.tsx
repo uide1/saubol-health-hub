@@ -45,6 +45,8 @@ function TriageVoice() {
   const [lang, setLang] = useState(0);
   const [dictating, setDictating] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
+  const L1 = useL();
+
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
