@@ -38,8 +38,14 @@ const KIDS: Kid[] = [
     weight: "26 кг", height: "128 см", status: "ok", note: "Бәрі қалыпты, бүгін мектепте.",
     meds: [{ t: "08:00", n: "Витамин D 400 IU", ok: true }, { t: "20:00", n: "Ferrum syrup 5 ml", ok: false }],
     today: { calories: 1420, sugar: 32, water: 5 },
-    alerts: [{ icon: "🥛", t: "Сүт өнімі шектелген — кальций жетпейді", tone: "warning" }],
+    alerts: [
+      { icon: "🥛", t: "Сүт өнімі шектелген — кальций жетпейді", tone: "warning" },
+      { icon: "💊", t: "Ferrum syrup 20:00 — кешкі доза күтуде", tone: "muted" },
+      { icon: "🏫", t: "Мектеп асханасы: салат + сорпа таңдалды", tone: "success" },
+      { icon: "🌙", t: "Ұйқы уақыты 22:00 — экран режимін өшіріңіз", tone: "muted" },
+    ],
   },
+
   {
     id: "aruzhan", name: "Аружан", age: 4, emoji: "👧", score: 68,
     weight: "16 кг", height: "104 см", status: "watch", note: "Түнде 37.6° болды — бақылауда.",
@@ -48,6 +54,9 @@ const KIDS: Kid[] = [
     alerts: [
       { icon: "🌡", t: "Температура 37.6° — 4 сағ бұрын", tone: "warning" },
       { icon: "🍭", t: "Қант шегі 82% — конфеттер шектеу", tone: "danger" },
+      { icon: "💊", t: "Nurofen 15:00 — 30 мин ішінде", tone: "warning" },
+      { icon: "💧", t: "Су нормасы: 3/6 стакан — арттыру керек", tone: "muted" },
+      { icon: "😴", t: "Ұйқы 8.5 сағ — жақсы режим", tone: "success" },
     ],
   },
   {
@@ -55,8 +64,13 @@ const KIDS: Kid[] = [
     weight: "48 кг", height: "162 см", status: "ok", note: "Спорт секциясы — 3 сағ жүктеме.",
     meds: [],
     today: { calories: 2380, sugar: 28, water: 8 },
-    alerts: [{ icon: "💪", t: "Ақуыз мақсаты орындалды", tone: "success" }],
+    alerts: [
+      { icon: "💪", t: "Ақуыз мақсаты орындалды (128 г)", tone: "success" },
+      { icon: "🏃", t: "Кардио 45 мин — ЖСС макс 168", tone: "success" },
+      { icon: "📱", t: "Экран уақыты 4.2 сағ — шектеу ұсынылады", tone: "warning" },
+    ],
   },
+
 ];
 
 function FamilyPage() {
@@ -193,11 +207,12 @@ function FamilyPage() {
               </div>
             )}
           </div>
-          <button onClick={() => { if (window.confirm(`103-ке ${kid.name} үшін хабарласу?`)) toast.error("🚨 103 шақырылды", { description: `${kid.name} · GPS жіберілді · ETA 8 min` }); }} className="mt-4 w-full rounded-full border border-rose-500/40 bg-rose-500/10 py-2 text-[12px] font-medium uppercase tracking-wider text-rose-300 hover:bg-rose-500/15">
-            🚨 SOS · 103 шақыру
-          </button>
+          <div className="mt-3 rounded-xl border border-dashed border-border bg-surface/50 px-3 py-2 text-[11px] text-muted-foreground">
+            <L kk="Ескертулер автоматты · SauBol AI бақылайды" ru="Уведомления автоматические · SauBol AI следит" en="Alerts are automatic · monitored by SauBol AI" />
+          </div>
         </Bento>
       </div>
+
 
       {/* Meds */}
       <Bento>

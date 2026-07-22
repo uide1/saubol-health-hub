@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useState, type ReactNode } from "react";
-import { Card, Badge, PageHeader, SectionEyebrow, Bar } from "@/components/ui-kit";
+import { Badge, PageHeader, SectionEyebrow, Bar } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
+
 
 
 export const Route = createFileRoute("/nutrition-scan")({
@@ -35,12 +36,14 @@ const CONTRA = [
   { c: "Pediatric (<12y)", r: "Preservatives E211 above pediatric guidance", tone: "warning" as const },
 ];
 
-const SUBS = [
-  { n: "Grilled chicken wrap", k: "420 kcal", e: "🌯" },
-  { n: "Quinoa bowl", k: "380 kcal", e: "🥗" },
-  { n: "Lentil soup + bread", k: "310 kcal", e: "🍲" },
-  { n: "Baked salmon + veg", k: "460 kcal", e: "🐟" },
+const MACROS = [
+  { l: "Protein", v: "28 g", pct: 40, note: "16% kcal" },
+  { l: "Carbohydrates", v: "72 g", pct: 82, note: "42% kcal" },
+  { l: "of which sugars", v: "42 g", pct: 95, tone: "danger" as const, note: "168% daily limit" },
+  { l: "Fats", v: "34 g", pct: 68, note: "45% kcal" },
+  { l: "of which saturated", v: "11 g", pct: 55, tone: "warning" as const, note: "55% limit" },
 ];
+
 
 const ALLERGENS = [
   { n: "Wheat gluten", s: "High", tone: "danger" as const },
@@ -54,47 +57,53 @@ const ALLERGENS = [
 function CalorieRing({ eaten, remaining, burned, goal }: { eaten: number; remaining: number; burned: number; goal: number }) {
   const pct = Math.min(100, Math.max(0, (eaten / goal) * 100));
   const r = 80;
-  const c = Math.PI * r; // half-circle circumference
+  const c = Math.PI * r;
   const offset = c - (pct / 100) * c;
   return (
-    <div className="relative mx-auto" style={{ width: 240, height: 150 }}>
-      <svg width={240} height={150} viewBox="0 0 200 120">
-        <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="var(--secondary)" strokeWidth="10" strokeLinecap="round" />
-        <path
-          d="M 20 110 A 80 80 0 0 1 180 110"
-          fill="none"
-          stroke="var(--mint)"
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-        />
-        <circle cx={20 + (160 * pct) / 100} cy={110 - Math.sin((pct / 100) * Math.PI) * 78} r="6" fill="var(--mint)" />
-      </svg>
-      <div className="absolute inset-x-0 top-6 flex items-end justify-between px-2 text-center">
+    <div className="mx-auto w-full max-w-md">
+      {/* Top: 3 stats aligned */}
+      <div className="grid grid-cols-3 items-end gap-2 text-center">
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{eaten}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Жеді" ru="Съедено" en="Eaten" />
           </div>
         </div>
         <div>
-          <div className="font-serif text-4xl text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="font-serif text-5xl leading-none text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
+          <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Қалды" ru="Осталось" en="Left" />
           </div>
         </div>
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{burned}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Күйдірілді" ru="Сожжено" en="Burned" />
           </div>
         </div>
       </div>
-
+      {/* Arc below */}
+      <div className="relative mx-auto mt-3" style={{ width: 280, height: 150 }}>
+        <svg width={280} height={150} viewBox="0 0 200 110" preserveAspectRatio="xMidYMid meet">
+          <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--secondary)" strokeWidth="10" strokeLinecap="round" />
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="var(--mint)"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={c}
+            strokeDashoffset={offset}
+          />
+        </svg>
+        <div className="absolute inset-x-0 bottom-2 text-center text-[11px] text-muted-foreground">
+          {Math.round(pct)}% <L kk="күндік мақсаттан" ru="дневной цели" en="of daily goal" /> · {goal.toLocaleString("ru")} kcal
+        </div>
+      </div>
     </div>
   );
 }
+
 
 function Macro({ label, value, goal }: { label: string; value: number; goal: number }) {
   const pct = Math.min(100, (value / goal) * 100);
@@ -271,25 +280,6 @@ function NutritionScan() {
         </SquareBlock>
 
         <SquareBlock
-          title="Healthier subs"
-          icon="🥗"
-          badge="4 options"
-          summary="Under 500 kcal"
-          expanded={open === "sub"}
-          onToggle={() => toggle("sub")}
-        >
-          <div className="grid grid-cols-2 gap-2">
-            {SUBS.map((s) => (
-              <button key={s.n} onClick={() => { toast.success(`✓ ${s.n} таңдалды`, { description: `${s.k} · ұсыныс сақталды` }); setOpen(null); }} className="rounded-lg border border-border bg-surface p-3 text-left transition hover:border-[color:var(--mint)]/40">
-                <div className="text-2xl">{s.e}</div>
-                <div className="mt-1 text-[13px] font-medium text-foreground">{s.n}</div>
-                <div className="text-[11px] text-muted-foreground">{s.k}</div>
-              </button>
-            ))}
-          </div>
-        </SquareBlock>
-
-        <SquareBlock
           title="Allergens"
           icon="🌾"
           badge="2 high"
@@ -306,21 +296,19 @@ function NutritionScan() {
             ))}
           </ul>
         </SquareBlock>
-      </div>
 
-      {/* Macro breakdown card underneath */}
-      <div className="mt-6">
-        <Card title="Calorie & Macro Breakdown" subtitle="USDA + KZ Nutrient DB · portion 340 g" right={<Badge tone="warning">Above target</Badge>}>
+        <SquareBlock
+          title="Macro breakdown"
+          icon="📊"
+          badge="Above target"
+          summary="Protein · Carbs · Fats"
+          expanded={open === "macro"}
+          onToggle={() => toggle("macro")}
+        >
           <div className="flex gap-4">
             <div className="grid-bg grid h-40 w-40 shrink-0 place-items-center rounded-lg border border-border bg-surface text-4xl">🍔</div>
             <div className="flex-1 space-y-3">
-              {[
-                { l: "Protein", v: "28 g", pct: 40, note: "16% kcal" },
-                { l: "Carbohydrates", v: "72 g", pct: 82, note: "42% kcal" },
-                { l: "of which sugars", v: "42 g", pct: 95, tone: "danger" as const, note: "168% daily limit" },
-                { l: "Fats", v: "34 g", pct: 68, note: "45% kcal" },
-                { l: "of which saturated", v: "11 g", pct: 55, tone: "warning" as const, note: "55% limit" },
-              ].map((r) => (
+              {MACROS.map((r) => (
                 <div key={r.l}>
                   <div className="mb-1 flex items-center justify-between text-[11px]">
                     <span className="text-foreground">{r.l}</span>
@@ -331,8 +319,10 @@ function NutritionScan() {
               ))}
             </div>
           </div>
-        </Card>
+          <div className="mt-3 text-[11px] text-muted-foreground">USDA + KZ Nutrient DB · portion 340 g</div>
+        </SquareBlock>
       </div>
+
     </div>
   );
 }

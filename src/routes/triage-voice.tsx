@@ -45,6 +45,7 @@ function TriageVoice() {
   const [lang, setLang] = useState(0);
   const [dictating, setDictating] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
+  const recogRef = useRef<any>(null);
   const L1 = useL();
 
 
@@ -63,26 +64,51 @@ function TriageVoice() {
   };
 
   const toggleDictation = () => {
-    if (!dictating) {
-      setDictating(true);
-      toast("🎙 Дауыс жазылуда...", { description: "Сөйлеңіз — мәтінге аударылады" });
-      setTimeout(() => {
-        setDictating(false);
-        const sample = "Голова кружится и слабость с утра";
-        setInput((s) => (s ? s + " " : "") + sample);
-        toast.success("Транскрипция дайын", { description: `+${sample.length} таңба` });
-      }, 1800);
-    } else {
+    if (dictating) {
+      recogRef.current?.stop?.();
       setDictating(false);
-      toast("⏸ Дауыс жазба тоқтатылды");
+      return;
     }
+    const SR: any = typeof window !== "undefined" && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+    if (!SR) {
+      toast.error(L1({ kk: "Дауыс тану қолжетімсіз", ru: "Распознавание речи недоступно", en: "Speech recognition unavailable" }), { description: L1({ kk: "Chrome/Edge браузерін қолданыңыз", ru: "Используйте Chrome/Edge", en: "Use Chrome or Edge" }) });
+      return;
+    }
+    const rec = new SR();
+    const langMap = ["kk-KZ", "ru-RU", "en-US"];
+    rec.lang = langMap[lang] ?? "ru-RU";
+    rec.interimResults = true;
+    rec.continuous = false;
+    let finalText = "";
+    rec.onresult = (e: any) => {
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      setInput((finalText + interim).trim());
+    };
+    rec.onerror = (e: any) => {
+      setDictating(false);
+      toast.error(L1({ kk: "Дауыс қатесі", ru: "Ошибка микрофона", en: "Mic error" }), { description: e.error ?? "" });
+    };
+    rec.onend = () => {
+      setDictating(false);
+      if (finalText.trim()) toast.success(L1({ kk: "Транскрипция дайын", ru: "Транскрипция готова", en: "Transcription ready" }));
+    };
+    recogRef.current = rec;
+    setDictating(true);
+    toast(L1({ kk: "🎙 Тыңдап тұрмын...", ru: "🎙 Слушаю...", en: "🎙 Listening..." }));
+    try { rec.start(); } catch { /* already started */ }
   };
 
   const copyTranscript = () => {
     const text = turns.map(t => `[${t.time}] ${t.who === "ai" ? "SauBol" : "Пациент"}: ${t.text}`).join("\n");
     if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
-    toast.success("Транскрипт көшірілді", { description: `${turns.length} хабарлама` });
+    toast.success(L1({ kk: "Транскрипт көшірілді", ru: "Транскрипт скопирован", en: "Transcript copied" }), { description: `${turns.length} ${L1({ kk: "хабарлама", ru: "реплик", en: "turns" })}` });
   };
+
 
   return (
     <div>
@@ -182,50 +208,37 @@ function TriageVoice() {
 
         {/* Side column */}
         <div className="space-y-4">
-          {/* Softened critical risk */}
-          <div className="overflow-hidden rounded-2xl border border-rose-400/30 bg-gradient-to-br from-rose-500/10 via-rose-500/5 to-transparent">
-            <div className="flex items-center justify-between border-b border-rose-400/20 px-4 py-2.5">
+          {/* Compact critical risk — neutral tone */}
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
               <div className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-rose-400" />
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-rose-300">Critical Risk</span>
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[color:var(--mint)]" />
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  <L kk="Критикалық қауіп" ru="Критический риск" en="Critical Risk" />
+                </span>
               </div>
-              <Badge tone="danger">103 dispatch</Badge>
+              <Badge tone="solid">103</Badge>
             </div>
             <div className="p-4">
-              <div className="font-serif text-xl leading-tight text-rose-100">Acute Appendicitis Suspected</div>
-              <p className="mt-1.5 text-[12px] text-rose-200/70">
-                GPS-координаты отправлены в <span className="font-medium text-rose-100">103 · Талдықорған</span>. Не ешьте и не пейте.
-              </p>
-
-              <div className="mt-3 grid-bg h-28 overflow-hidden rounded-md border border-rose-400/20 bg-black/30 relative">
-                <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_30%_50%,rgba(244,63,94,0.25),transparent_40%),radial-gradient(circle_at_70%_60%,rgba(255,255,255,0.05),transparent_50%)]" />
-                <div className="absolute left-[30%] top-[50%] -translate-x-1/2 -translate-y-1/2">
-                  <div className="h-2.5 w-2.5 rounded-full bg-rose-400 shadow-[0_0_0_5px_rgba(244,63,94,0.2)]" />
-                </div>
-                <div className="absolute bottom-1.5 left-1.5 rounded bg-black/50 px-2 py-0.5 text-[10px] text-rose-200">
-                  45.01° N · 78.37° E
-                </div>
-                <div className="absolute right-1.5 top-1.5 rounded bg-black/50 px-2 py-0.5 text-[10px] text-rose-200">
-                  ETA 6 min
-                </div>
-              </div>
-
-              <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[10px]">
-                {[["Unit","A-14"],["Dispatcher","Almira K."],["Priority","P1"]].map(([l,v]) => (
-                  <div key={l} className="rounded-md border border-rose-400/20 bg-rose-500/5 p-2">
-                    <div className="uppercase text-rose-300/60">{l}</div>
-                    <div className="font-semibold text-rose-100">{v}</div>
+              <div className="grid grid-cols-3 gap-2 text-center text-[10px]">
+                {[
+                  [L1({ kk: "Экипаж", ru: "Экипаж", en: "Unit" }), "A-14"],
+                  [L1({ kk: "Диспетчер", ru: "Диспетчер", en: "Dispatcher" }), "Almira K."],
+                  [L1({ kk: "Басымдық", ru: "Приоритет", en: "Priority" }), "P1"],
+                ].map(([l, v]) => (
+                  <div key={l} className="rounded-md border border-border bg-surface p-2">
+                    <div className="uppercase tracking-wider text-muted-foreground">{l}</div>
+                    <div className="mt-0.5 font-semibold text-foreground">{v}</div>
                   </div>
                 ))}
               </div>
-
-              <button onClick={() => toast.error("📞 103 диспетчерімен байланысу...", { description: "Almira K. · Unit A-14 · ETA 6 min" })} className="mt-3 w-full rounded-full bg-rose-500 py-2 text-sm font-semibold text-white transition hover:bg-rose-400">
-                Speak to dispatcher
+              <button onClick={() => toast(L1({ kk: "📞 103 диспетчерімен байланысу...", ru: "📞 Связь с диспетчером 103...", en: "📞 Connecting to dispatcher..." }), { description: "Almira K. · Unit A-14 · ETA 6 min" })} className="mt-3 w-full rounded-full bg-foreground py-2 text-sm font-semibold text-background transition hover:opacity-90">
+                <L kk="Диспетчермен сөйлесу" ru="Связаться с диспетчером" en="Speak to dispatcher" />
               </button>
             </div>
           </div>
 
-          <Card title="Home Care Guidance" subtitle="Applicable to mild presentations only">
+          <Card title={L1({ kk: "Үй жағдайында көмек", ru: "Помощь дома", en: "Home Care Guidance" })} subtitle={L1({ kk: "Жеңіл жағдайлар үшін", ru: "Только при лёгких симптомах", en: "Applicable to mild presentations only" })}>
             <ol className="list-decimal space-y-1.5 pl-5 text-[12px] text-muted-foreground">
               <li>Lie on your left side, knees drawn to chest.</li>
               <li>Do not apply heat to the abdomen.</li>
@@ -235,13 +248,14 @@ function TriageVoice() {
             </ol>
           </Card>
 
-          <Card title="Detected Symptom Vector">
+          <Card title={L1({ kk: "Анықталған симптомдар", ru: "Обнаруженные симптомы", en: "Detected Symptom Vector" })}>
             <div className="flex flex-wrap gap-1.5">
               {["RLQ pain","Rebound tenderness","Nausea","Fever 38.4°C","3h duration","No prior surgery"].map((s) => (
                 <Badge key={s} tone="muted">{s}</Badge>
               ))}
             </div>
           </Card>
+
         </div>
       </div>
     </div>

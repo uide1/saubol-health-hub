@@ -81,19 +81,9 @@ function ProfilePage() {
 
 
       {/* Preferences */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Bento>
-          <SectionEyebrow>Тіл</SectionEyebrow>
-          <div className="flex gap-2">
-            {[["kk","Қазақша"],["ru","Русский"],["en","English"]].map(([k,v]) => (
-              <button key={k} onClick={() => { setLang(k); toast(`Тіл: ${v}`); }}>
-                <Chip active={lang === k}>{v}</Chip>
-              </button>
-            ))}
-          </div>
-        </Bento>
-        <Bento>
-          <SectionEyebrow>Мақсаттар</SectionEyebrow>
+          <SectionEyebrow><L kk="Мақсаттар" ru="Цели" en="Goals" /></SectionEyebrow>
           <div className="flex flex-wrap gap-1.5">
             {["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ", "🍎 Тамақ", "🏃 Спорт"].map((g) => (
               <button key={g} onClick={() => toggleGoal(g)}>
@@ -103,21 +93,22 @@ function ProfilePage() {
           </div>
         </Bento>
         <Bento>
-          <SectionEyebrow>Құпиялылық</SectionEyebrow>
+          <SectionEyebrow><L kk="Құпиялылық" ru="Приватность" en="Privacy" /></SectionEyebrow>
           <div className="space-y-1.5 text-[12px] text-foreground">
             {[
-              { k: "enc" as const, l: "Деректер шифрлеу" },
-              { k: "sos" as const, l: "103-ке автотабысу" },
-              { k: "share" as const, l: "Дәрігермен бөлісу" },
+              { k: "enc" as const, l: L1({ kk: "Деректер шифрлеу", ru: "Шифрование данных", en: "Data encryption" }) },
+              { k: "sos" as const, l: L1({ kk: "103-ке автотабысу", ru: "Автовызов 103", en: "Auto-dial 103" }) },
+              { k: "share" as const, l: L1({ kk: "Дәрігермен бөлісу", ru: "Делиться с врачом", en: "Share with doctor" }) },
             ].map((r) => (
-              <button key={r.k} onClick={() => { setPrivacy(p => ({ ...p, [r.k]: !p[r.k] })); toast(`${r.l}: ${!privacy[r.k] ? "Қосулы" : "Өшірулі"}`); }} className="flex w-full items-center justify-between">
+              <button key={r.k} onClick={() => { setPrivacy(p => ({ ...p, [r.k]: !p[r.k] })); toast(`${r.l}: ${!privacy[r.k] ? L1({ kk: "Қосулы", ru: "Вкл", en: "On" }) : L1({ kk: "Өшірулі", ru: "Выкл", en: "Off" })}`); }} className="flex w-full items-center justify-between">
                 <span>{r.l}</span>
-                <Badge tone={privacy[r.k] ? "mint" : "muted"}>{privacy[r.k] ? "Қосулы" : "Өшірулі"}</Badge>
+                <Badge tone={privacy[r.k] ? "mint" : "muted"}>{privacy[r.k] ? L1({ kk: "Қосулы", ru: "Вкл", en: "On" }) : L1({ kk: "Өшірулі", ru: "Выкл", en: "Off" })}</Badge>
               </button>
             ))}
           </div>
         </Bento>
       </div>
+
     </div>
   );
 }
