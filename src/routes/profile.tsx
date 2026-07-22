@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Bento, Badge, Chip, SectionEyebrow, Gauge } from "@/components/ui-kit";
+import { Bento, Badge, SectionEyebrow, Gauge } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
