@@ -45,6 +45,7 @@ function TriageVoice() {
   const [input, setInput] = useState("");
   const [lang, setLang] = useState(0);
   const [dictating, setDictating] = useState(false);
+  const [thinking, setThinking] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
   const recogRef = useRef<any>(null);
   const L1 = useL();
@@ -52,17 +53,45 @@ function TriageVoice() {
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
-  }, [turns]);
+  }, [turns, thinking]);
 
-  const send = (text: string, meta?: string) => {
-    if (!text.trim()) return;
+  const send = async (text: string, meta?: string) => {
+    if (!text.trim() || thinking) return;
     const patient: Turn = { who: "patient", time: nowStamp(), text: text.trim(), meta };
-    setTurns((s) => [...s, patient]);
+    const nextTurns = [...turns, patient];
+    setTurns(nextTurns);
     setInput("");
-    setTimeout(() => {
-      setTurns((s) => [...s, { who: "ai", time: nowStamp(), text: aiReply(text) }]);
-    }, 700);
+    setThinking(true);
+    try {
+      const langCode = (["kk", "ru", "en"] as const)[lang];
+      const messages = nextTurns.map((t) => ({
+        role: (t.who === "ai" ? "assistant" : "user") as "assistant" | "user",
+        content: t.text,
+      }));
+      const { text: reply } = await triageChat({ data: { messages, lang: langCode } });
+      setTurns((s) => [...s, { who: "ai", time: nowStamp(), text: reply }]);
+    } catch (e: any) {
+      const msg = String(e?.message ?? e ?? "");
+      const is402 = msg.includes("402");
+      const is429 = msg.includes("429");
+      toast.error(
+        is402
+          ? L1({ kk: "AI лимиті таусылды", ru: "Кредиты AI исчерпаны", en: "AI credits exhausted" })
+          : is429
+            ? L1({ kk: "Тым көп сұрау", ru: "Слишком много запросов", en: "Too many requests" })
+            : L1({ kk: "AI қатесі", ru: "Ошибка AI", en: "AI error" }),
+      );
+      setTurns((s) => [
+        ...s,
+        { who: "ai", time: nowStamp(), text: L1({ kk: "Кешіріңіз, қазір жауап бере алмаймын. Қайталап көріңіз.", ru: "Извините, сейчас не могу ответить. Попробуйте ещё раз.", en: "Sorry, I can't respond right now. Please try again." }) },
+      ]);
+    } finally {
+      setThinking(false);
+    }
   };
+
+  // ignore reference below
+  void aiReply;
 
   const toggleDictation = () => {
     if (dictating) {
