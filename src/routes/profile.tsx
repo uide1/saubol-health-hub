@@ -82,8 +82,140 @@ function ProfilePage() {
         </Bento>
       </div>
 
+      {/* Interactive widgets */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        {/* Heart rate sparkline */}
+        <Bento className="lg:col-span-2">
+          <div className="mb-3 flex items-end justify-between">
+            <div>
+              <SectionEyebrow><L kk="Жүрек соғысы · 24 сағат" ru="Пульс · 24 часа" en="Heart rate · 24h" /></SectionEyebrow>
+              <div className="flex items-baseline gap-2">
+                <span className="font-serif text-3xl text-foreground">72</span>
+                <span className="text-[11px] text-muted-foreground">bpm avg</span>
+                <Badge tone="mint">–4 vs {L1({ kk: "апта", ru: "неделя", en: "week" })}</Badge>
+              </div>
+            </div>
+            <div className="text-right text-[10px] text-muted-foreground">
+              <div><L kk="Мин" ru="Мин" en="Min" /> <span className="font-mono text-foreground">58</span></div>
+              <div><L kk="Макс" ru="Макс" en="Max" /> <span className="font-mono text-foreground">91</span></div>
+            </div>
+          </div>
+          <div className="h-32">
+            <ResponsiveContainer>
+              <AreaChart data={hrSeries} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="hrFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--mint)" stopOpacity={0.5} />
+                    <stop offset="100%" stopColor="var(--mint)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="t" tick={{ fill: "var(--muted-foreground)", fontSize: 10 }} axisLine={false} tickLine={false} />
+                <Tooltip
+                  contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 11 }}
+                  labelStyle={{ color: "var(--muted-foreground)" }}
+                />
+                <Area type="monotone" dataKey="v" stroke="var(--mint)" strokeWidth={2} fill="url(#hrFill)" activeDot={{ r: 4, fill: "var(--mint)" }} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Bento>
 
-      {/* Body metrics */}
+        {/* Water tracker */}
+        <Bento>
+          <SectionEyebrow><L kk="Су · бүгін" ru="Вода · сегодня" en="Water · today" /></SectionEyebrow>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-serif text-3xl text-foreground">{(water * 0.25).toFixed(2)}<span className="text-base text-muted-foreground"> L</span></span>
+            <span className="text-[11px] text-muted-foreground">/ 2.00 L</span>
+          </div>
+          <div className="mt-3 grid grid-cols-8 gap-1.5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setWater(i + 1 === water ? i : i + 1)}
+                className={`aspect-[3/4] rounded-md border text-xs transition ${i < water ? "border-[color:var(--mint)]/50 bg-[color:var(--mint-soft)] text-[color:var(--mint)]" : "border-border bg-surface text-muted-foreground hover:border-[color:var(--mint)]/30"}`}
+                aria-label={`glass-${i+1}`}
+              >💧</button>
+            ))}
+          </div>
+          <div className="mt-3 flex gap-2">
+            <button onClick={() => { setWater(w => Math.min(8, w + 1)); toast.success(L1({ kk: "+250 мл", ru: "+250 мл", en: "+250 ml" })); }} className="flex-1 rounded-full bg-foreground py-1.5 text-[11px] font-medium text-background">+ 250 мл</button>
+            <button onClick={() => setWater(0)} className="rounded-full border border-border px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground"><L kk="Тазалау" ru="Сброс" en="Reset" /></button>
+          </div>
+        </Bento>
+      </div>
+
+      {/* Sleep week + mood + timeline */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Bento>
+          <SectionEyebrow><L kk="Ұйқы · 7 күн" ru="Сон · 7 дней" en="Sleep · 7 days" /></SectionEyebrow>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-serif text-3xl text-foreground">{(sleep.reduce((a,b)=>a+b,0)/sleep.length).toFixed(1)}<span className="text-base text-muted-foreground">ч</span></span>
+            <Badge tone="mint">+0.4</Badge>
+          </div>
+          <div className="mt-3 flex h-24 items-end gap-2">
+            {sleep.map((h, i) => {
+              const pct = Math.min(100, (h / 9) * 100);
+              const ok = h >= 7;
+              return (
+                <div key={i} className="group flex flex-1 flex-col items-center gap-1">
+                  <div className="relative flex h-full w-full items-end">
+                    <div style={{ height: `${pct}%` }} className={`w-full rounded-md ${ok ? "bg-gradient-to-t from-[color:var(--mint-soft)] to-[color:var(--mint)]" : "bg-gradient-to-t from-surface to-muted"} transition group-hover:opacity-80`} />
+                    <span className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 rounded bg-foreground px-1.5 py-0.5 text-[9px] text-background opacity-0 transition group-hover:opacity-100">{h}ч</span>
+                  </div>
+                  <span className="text-[9px] text-muted-foreground">{weekLabels[i]}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Bento>
+
+        <Bento>
+          <SectionEyebrow><L kk="Бүгінгі көңіл-күй" ru="Настроение сегодня" en="Today's mood" /></SectionEyebrow>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="font-serif text-3xl text-foreground">{mood !== null ? moods[mood] : "—"}</span>
+            <span className="text-[11px] text-muted-foreground"><L kk="8 күн тізбегі" ru="серия 8 дней" en="8-day streak" /></span>
+          </div>
+          <div className="mt-3 flex gap-2">
+            {moods.map((m, i) => (
+              <button
+                key={i}
+                onClick={() => { setMood(i); toast(m); }}
+                className={`grid h-11 flex-1 place-items-center rounded-lg border text-xl transition ${mood === i ? "border-[color:var(--mint)] bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-[color:var(--mint)]/40"}`}
+              >{m}</button>
+            ))}
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center text-[10px]">
+            {[
+              [L1({ kk: "Күйзеліс", ru: "Стресс", en: "Stress" }), "Low"],
+              [L1({ kk: "Энергия", ru: "Энергия", en: "Energy" }), "78%"],
+              [L1({ kk: "Фокус", ru: "Фокус", en: "Focus" }), "Good"],
+            ].map(([k, v]) => (
+              <div key={k} className="rounded-md border border-border bg-surface p-2">
+                <div className="uppercase tracking-wider text-muted-foreground">{k}</div>
+                <div className="mt-0.5 font-semibold text-foreground">{v}</div>
+              </div>
+            ))}
+          </div>
+        </Bento>
+
+        <Bento>
+          <SectionEyebrow><L kk="Соңғы белсенділік" ru="Последняя активность" en="Recent activity" /></SectionEyebrow>
+          <ol className="mt-1 space-y-2">
+            {timeline.map((e, i) => (
+              <li key={i} className="flex items-center gap-3 border-b border-border/50 pb-2 last:border-none">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border bg-surface text-sm">{e.icon}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-[12px] text-foreground">{e.label}</div>
+                  <div className="text-[10px] text-muted-foreground tabular-nums">{e.time}</div>
+                </div>
+                <Badge tone={e.tone}>·</Badge>
+              </li>
+            ))}
+          </ol>
+        </Bento>
+      </div>
+
+
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
         {[
           ["Бой", "165 см"], ["Салмақ", "58 кг"], ["BMI", "21.3"],
