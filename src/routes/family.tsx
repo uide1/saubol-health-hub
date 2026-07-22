@@ -198,14 +198,17 @@ function FamilyPage() {
           </div>
           <div className="mt-3 space-y-2">
             {kid.meds.length === 0 && <div className="text-[12px] text-muted-foreground">Тағайындалған дәрі жоқ.</div>}
-            {kid.meds.map((m) => (
-              <div key={m.t + m.n} className="flex items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5">
-                <div className={`h-2 w-2 rounded-full ${m.ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
-                <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
-                <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
-                {m.ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">Күтуде</Badge>}
-              </div>
-            ))}
+            {kid.meds.map((m) => {
+              const ok = isMedOk(m.t, m.n, m.ok);
+              return (
+                <button key={m.t + m.n} onClick={() => toggleMed(m.t, m.n, m.ok)} className="flex w-full items-center gap-3 rounded-lg border border-border bg-surface px-3 py-2.5 text-left transition hover:border-white/15">
+                  <div className={`h-2 w-2 rounded-full ${ok ? "bg-[color:var(--mint)]" : "bg-muted-foreground"}`} />
+                  <div className="font-mono text-[11px] text-muted-foreground">{m.t}</div>
+                  <div className="flex-1 text-[12px] text-foreground">{m.n}</div>
+                  {ok ? <Badge tone="mint">✓</Badge> : <Badge tone="warning">Күтуде</Badge>}
+                </button>
+              );
+            })}
           </div>
         </Bento>
 
