@@ -120,13 +120,13 @@ function PrescriptionRx() {
         <div className="space-y-4">
           <Card title="Currently Taken Medications" subtitle="Add drugs to test against your prescription">
             <div className="flex flex-wrap gap-2">
-              {CURRENT.map((c) => (
+              {current.map((c) => (
                 <span key={c} className="inline-flex items-center gap-1 rounded-md border border-border bg-surface px-2 py-1 text-[12px] text-foreground">
                   {c}
-                  <button className="text-muted-foreground hover:text-foreground">×</button>
+                  <button onClick={() => removeDrug(c)} className="text-muted-foreground hover:text-foreground">×</button>
                 </span>
               ))}
-              <button className="rounded-md border border-dashed border-border px-2 py-1 text-[12px] text-muted-foreground hover:text-foreground">+ Add drug</button>
+              <button onClick={addDrug} className="rounded-md border border-dashed border-border px-2 py-1 text-[12px] text-muted-foreground hover:text-foreground">+ Add drug</button>
             </div>
           </Card>
 
