@@ -26,6 +26,18 @@ const SCHEDULE = [
 const CURRENT = ["Aspirin 75 mg", "Ibuprofen 400 mg", "Warfarin 5 mg", "Metformin 850 mg"];
 
 function PrescriptionRx() {
+  const [current, setCurrent] = useState<string[]>(["Aspirin 75 mg", "Ibuprofen 400 mg", "Warfarin 5 mg", "Metformin 850 mg"]);
+  const [synced, setSynced] = useState(false);
+  const [replaced, setReplaced] = useState(false);
+
+  const addDrug = () => {
+    const name = window.prompt("Дәрі атауы (мысалы: Losartan 50 mg)");
+    if (!name) return;
+    setCurrent((s) => [...s, name.trim()]);
+    toast.success(`+ ${name} қосылды`, { description: "Өзара әрекет тексерілуде..." });
+  };
+  const removeDrug = (n: string) => { setCurrent((s) => s.filter(x => x !== n)); toast(`${n} алынды`); };
+
   return (
     <div>
       <PageHeader
@@ -34,11 +46,12 @@ function PrescriptionRx() {
         description="Handwriting decoded · 7 medications · 2 interaction flags · pharmacist-verified schedule"
         actions={
           <>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Upload photo</button>
-            <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Sync to Apple Health</button>
+            <button onClick={() => toast.info("📸 Рецепт суретін жүктеңіз", { description: "OCR модельі жазуды тануға дайын" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">Upload photo</button>
+            <button onClick={() => { setSynced(true); toast.success(synced ? "Apple Health-пен қайта синхрондалды" : "✓ Apple Health-ке синхрондалды", { description: "7 дәрі-дәрмек кестесі экспортталды" }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{synced ? "Synced ✓" : "Sync to Apple Health"}</button>
           </>
         }
       />
+
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.15fr_1fr]">
         <div className="space-y-4">
