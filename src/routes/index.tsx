@@ -44,63 +44,54 @@ function Dashboard() {
   const L1 = useL();
   return (
     <div className="space-y-6">
-      {/* HERO */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
-        <Bento className="noise relative overflow-hidden p-8">
-          <SectionEyebrow>
-            <L kk="20 шілде · Дүйсенбі · Талдықорған" ru="20 июля · Понедельник · Талдыкорган" en="July 20 · Monday · Taldykorgan" />
-          </SectionEyebrow>
-          <h1 className="font-serif text-5xl leading-[1.02] tracking-tight text-foreground md:text-6xl">
-            <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
-            <span className="italic text-[color:var(--mint)]">
-              <L kk="Айнұр" ru="Айнур" en="Ainur" />
-            </span>.
-            <br />
-            <L
-              kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.</>}
-              ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа требует внимания.</>}
-              en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
-            />
-          </h1>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <Link to="/nutrition-scan" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
-              <L kk="Тамақ сканерлеу →" ru="Сканировать еду →" en="Scan food →" />
-            </Link>
-            <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
-              <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
-            </Link>
-            <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
-              <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
-            </Link>
+      {/* Merged HERO with HealthOrb */}
+      <Bento className="noise relative overflow-hidden p-8">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.5fr_auto]">
+          <div>
+            <SectionEyebrow>
+              <L kk="20 шілде · Дүйсенбі · Талдықорған" ru="20 июля · Понедельник · Талдыкорган" en="July 20 · Monday · Taldykorgan" />
+            </SectionEyebrow>
+            <h1 className="font-serif text-5xl leading-[1.02] tracking-tight text-foreground md:text-6xl">
+              <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
+              <span className="italic text-[color:var(--mint)]">
+                <L kk="Айнұр" ru="Айнур" en="Ainur" />
+              </span>.
+              <br />
+              <L
+                kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.</>}
+                ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа требует внимания.</>}
+                en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
+              />
+            </h1>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link to="/nutrition-scan" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
+                <L kk="Тамақ сканерлеу →" ru="Сканировать еду →" en="Scan food →" />
+              </Link>
+              <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
+                <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
+              </Link>
+              <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
+                <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
+              </Link>
+            </div>
           </div>
-          <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[color:var(--mint)]/20 blur-3xl" />
-        </Bento>
-
-        <Bento className="flex flex-col items-center justify-center text-center">
-          <SectionEyebrow>
-            <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
-          </SectionEyebrow>
-          <div className="my-2">
-            <HealthOrb value={72} size={220} label="/ 100" />
+          <div className="flex flex-col items-center">
+            <SectionEyebrow>
+              <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
+            </SectionEyebrow>
+            <HealthOrb value={72} size={200} label="/ 100" />
+            <div className="mt-3 flex items-center gap-2">
+              <Badge tone="mint">{L1({ kk: "+4 апта сайын", ru: "+4 за неделю", en: "+4 this week" })}</Badge>
+              <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 внимание", en: "1 flag" })}</Badge>
+            </div>
           </div>
-          <div className="mt-3 flex items-center gap-2">
-            <Badge tone="mint">{L1({ kk: "+4 апта сайын", ru: "+4 за неделю", en: "+4 this week" })}</Badge>
-            <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 внимание", en: "1 flag" })}</Badge>
-          </div>
-          <p className="mt-3 max-w-[240px] text-[11px] text-muted-foreground">
-            <L
-              kk="Гемоглобин мен ферритинді қалпына келтірсе — индекс 85+ болады."
-              ru="Восстановите гемоглобин и ферритин — индекс достигнет 85+."
-              en="Restore hemoglobin and ferritin — index will reach 85+."
-            />
-          </p>
-        </Bento>
-      </div>
-
+        </div>
+        <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[color:var(--mint)]/20 blur-3xl" />
+      </Bento>
 
       {/* Trend + Meds */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
-        <Bento>
+        <Bento className="relative overflow-hidden">
           <div className="mb-2 flex items-baseline justify-between">
             <div>
               <SectionEyebrow>
@@ -124,14 +115,33 @@ function Dashboard() {
           </div>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={TRENDS[range]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <AreaChart data={TRENDS[range]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="mintFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--mint)" stopOpacity={0.55} />
+                    <stop offset="60%" stopColor="var(--mint)" stopOpacity={0.12} />
+                    <stop offset="100%" stopColor="var(--mint)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid stroke="var(--border)" strokeDasharray="2 4" vertical={false} />
                 <XAxis dataKey="d" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis hide domain={["dataMin - 4", "dataMax + 4"]} />
                 <Tooltip
-                  contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
+                  cursor={{ stroke: "var(--mint)", strokeWidth: 1, strokeDasharray: "3 3" }}
+                  contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 10, fontSize: 12, padding: "6px 10px" }}
                   labelStyle={{ color: "var(--muted-foreground)" }}
                 />
-                <Line type="monotone" dataKey="score" stroke="var(--mint)" strokeWidth={2.5} dot={{ r: 3, fill: "var(--mint)" }} activeDot={{ r: 5 }} />
-              </LineChart>
+                <Area
+                  type="monotone"
+                  dataKey="score"
+                  stroke="var(--mint)"
+                  strokeWidth={2.5}
+                  fill="url(#mintFill)"
+                  dot={{ r: 3, fill: "var(--mint)", strokeWidth: 0 }}
+                  activeDot={{ r: 6, fill: "var(--mint)", stroke: "var(--background)", strokeWidth: 2 }}
+                  animationDuration={900}
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-3 border-t border-border pt-3">
@@ -140,6 +150,7 @@ function Dashboard() {
             <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Динамика", ru: "Динамика", en: "Trend" })}</div><div className="font-mono text-sm text-[color:var(--mint)]">+14.7%</div></div>
           </div>
         </Bento>
+
 
         <Bento>
           <div className="flex items-baseline justify-between">
