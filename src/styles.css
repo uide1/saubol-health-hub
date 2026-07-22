@@ -41,7 +41,7 @@
   --font-mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-:root {
+:root, :root.dark {
   --radius: 0.75rem;
   --background: #0A0A0A;
   --surface: #131313;
@@ -71,6 +71,35 @@
   --mint-soft: rgba(168, 255, 96, 0.12);
 }
 
+:root.light {
+  --background: #F7F7F2;
+  --surface: #FFFFFF;
+  --surface-2: #EFEFE8;
+  --foreground: #0A0A0A;
+  --card: #FFFFFF;
+  --card-foreground: #0A0A0A;
+  --popover: #FFFFFF;
+  --popover-foreground: #0A0A0A;
+  --primary: #0A0A0A;
+  --primary-foreground: #F7F7F2;
+  --secondary: #ECECE4;
+  --secondary-foreground: #0A0A0A;
+  --muted: #F0F0EA;
+  --muted-foreground: #6B6B65;
+  --accent: #E8E8DE;
+  --accent-foreground: #0A0A0A;
+  --destructive: #C43C3C;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(10, 10, 10, 0.08);
+  --input: rgba(10, 10, 10, 0.12);
+  --ring: rgba(60, 160, 40, 0.35);
+  --success: #3CA028;
+  --warning: #C88414;
+  --danger: #C43C3C;
+  --mint: #3CA028;
+  --mint-soft: rgba(60, 160, 40, 0.12);
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -84,6 +113,43 @@
   }
   .font-serif { font-family: var(--font-serif); font-feature-settings: "liga", "dlig"; }
   .font-mono { font-family: var(--font-mono); }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--foreground) 12%, transparent);
+    border-radius: 999px;
+    border: 2px solid var(--background);
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in oklab, var(--mint) 60%, transparent);
+  }
+  html { scrollbar-color: color-mix(in oklab, var(--foreground) 12%, transparent) transparent; scrollbar-width: thin; }
+
+  /* Custom cursor dot (desktop only) */
+  @media (hover: hover) and (pointer: fine) {
+    .cursor-dot, .cursor-ring {
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: opacity .2s ease;
+      will-change: transform;
+    }
+    .cursor-dot {
+      width: 6px; height: 6px; border-radius: 999px;
+      background: var(--mint);
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 32px; height: 32px; border-radius: 999px;
+      border: 1px solid color-mix(in oklab, var(--foreground) 30%, transparent);
+      transition: transform .18s ease-out, width .2s, height .2s, border-color .2s;
+    }
+    .cursor-ring.is-hover {
+      width: 52px; height: 52px;
+      border-color: var(--mint);
+    }
+  }
 }
 
 @utility hairline {
@@ -92,8 +158,8 @@
 
 @utility grid-bg {
   background-image:
-    linear-gradient(rgba(245,245,240,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245,245,240,0.025) 1px, transparent 1px);
+    linear-gradient(color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
@@ -110,7 +176,7 @@
 }
 
 @utility mint-glow {
-  box-shadow: 0 0 0 1px rgba(168, 255, 96, 0.25), 0 20px 60px -20px rgba(168, 255, 96, 0.35);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--mint) 25%, transparent), 0 20px 60px -20px color-mix(in oklab, var(--mint) 45%, transparent);
 }
 
 @keyframes shimmer {
@@ -125,3 +191,14 @@
   color: transparent;
   animation: shimmer 2.4s linear infinite;
 }
+
+@keyframes orb-rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes orb-float {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-6px) scale(1.02); }
+}
+@utility orb-rotate { animation: orb-rotate 22s linear infinite; }
+@utility orb-float  { animation: orb-float 6s ease-in-out infinite; }
