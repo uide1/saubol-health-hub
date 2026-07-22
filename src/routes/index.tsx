@@ -4,6 +4,8 @@ import { Bento, Badge, Chip, SectionEyebrow, Bar } from "@/components/ui-kit";
 import { HealthOrb } from "@/components/health-orb";
 import { LineChart, Line, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import { toast } from "sonner";
+import { useL, L } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
