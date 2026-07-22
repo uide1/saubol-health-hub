@@ -1,78 +1,62 @@
-# SauBol AI — Заманауи қайта дизайн + жаңа функциялар
+# SauBol AI — Cloud + AI + Family linking
 
-## 1. Жаңа визуалды бағыт (Modern 2026 Health-Tech)
+Бұл қадамда сайт нағыз "толыққанды" қосымшаға айналады: Lovable Cloud (аутентификация, дерекқор, файл сақтау, realtime) + AI Gateway (тамақ фотосы, штрих-код, дауыс кеңесі).
 
-Қазіргі "quiet luxury dark" стилінен келесі заманауи бағытқа көшеміз:
+## 1. Lovable Cloud (бэкенд)
+Cloud қосамын — Supabase астында, бірақ пайдаланушыға жасырын.
+- **Auth**: email + пароль, **email растау міндетті**.
+- **Storage bucket** `food-photos` — тамақ суреттерін сақтау.
 
-**Aesthetic:** Editorial Bento + Soft Clinical
-- **Фон:** Ашық сүт-ақ (`#FAFAF7`) + терең көмір бөлімдер (`#0A0A0A`) — контрастты dual-tone
-- **Accent:** Медициналық жасыл-мята (`#00D4A8`) + жылы қызғылт-сары акцент (`#FF6B4A`) сирек қолданылады
-- **Типографика:** Instrument Serif (headlines, editorial сезім) + Geist Sans (UI/body) + Geist Mono (data)
-- **Layout:** Bento grid карточкалары, асимметриялық, үлкен ақ орын, әр карточка өз "тынысымен"
-- **Микро-детальдар:** Жұмсақ noise texture, subtle spring animations (Motion), hover-да lift эффект, animated numbers (count-up), скролл-параллакс
-- **Иконкалар:** Lucide + арнайы SVG медициналық пиктограммалар
-- **Radius:** Үлкен (rounded-3xl карточкалар), pill-shape батырмалар
+## 2. Дерекқор кестелері
+- `profiles` — `id (auth.users)`, `username` (уник), `public_id` (қысқа код, мыс. `SB-8F3K`), `full_name`, `age`, `height`, `weight`, `blood_type`, `allergies`, `avatar_url`, `role` ('parent' | 'child' | 'user').
+- `friendships` — `user_id`, `friend_id`, `status` ('pending'|'accepted').
+- `family_links` — `parent_id`, `child_id`, `status`. Ата-ана баланың `public_id`-і бойынша шақырады.
+- `food_logs` — `user_id`, `photo_url`, `name`, `calories`, `carbs`, `protein`, `fat`, `warning`, `created_at`.
+- `medication_logs` — `user_id`, `name`, `time`, `taken`, `created_at`.
+- RLS: өз деректері + ата-ана балалардың деректерін көру (family_links арқылы).
+- Realtime: `food_logs` + `medication_logs` — ата-ана экраны автоматты жаңарады.
 
-Бұл 2026 жылғы Linear + Vercel + Arc Browser + Apple Health эстетикасына жақын, ал "SauBol" бренд-идентификациясы медициналық + жылы болып қалады.
+## 3. AI функциялары (server functions, `openai/gpt-5.5`)
+- `analyzeFoodPhoto` — сурет → JSON `{name, calories, carbs, protein, fat, warning}`. Warning пайдаланушының аллергиясына/шектеулеріне қарай жасалады.
+- `analyzeBarcode` — штрих-код нөмірі → тамақ атауы + КБЖУ (AI + жалпы білім).
+- `triageChat` — стриминг чат: симптомдарға нақты жауап, кеңес береді, шұғыл жағдайда 103 ұсынады. Қазақша/орысша/ағылшынша.
 
-## 2. Жаңа модульдер (4 таңдалған идея)
+## 4. Беттердегі өзгерістер
 
-### A. AI Doctor Chat (`/chat`)
-- Streaming чат интерфейсі (AI SDK + Lovable AI Gateway, `openai/gpt-5.5`)
-- AI Elements компоненттері: Conversation, Message, PromptInput, Shimmer
-- Симптом енгізу → триаж, ықтимал диагноздар, ұсыныстар (mock disclaimer-мен)
-- Жылдам-старт "чипс" батырмалары ("Бас ауырады", "Дене қызуы 38", т.б.)
-- Тарихсыз, бір сеанс (localStorage-те соңғы сұхбат)
+### `/nutrition-scan`
+Оң жақта, Summary блогының жанында **2 шағын блок үстіңгі-астыңғы**:
+1. **📷 Тамақ фотосы** — файл жүктеу немесе камерадан түсіру → AI КБЖУ анықтайды → Summary-ге қосылады.
+2. **🔲 Штрих-код** — код енгізу/скан → AI анықтайды → қосылады.
+Ескерту (warning) пайдаланушының нақты жеген нәрсесіне сай өзгереді.
 
-### B. Dashboard / Басты панель (`/`)
-- Жаңа home page — bento grid
-- Виджеттер: денсаулық индексі (0-100 gauge), 4 модульге жылдам сілтеме, соңғы 3 сканер, апталық тренд-график (Recharts), келесі дәрі-дәрмек еске салуы, күнделікті ақыл-кеңес
-- Animated hero: SauBol logo + "Сіздің денсаулығыңыз, жасанды интеллектпен"
+### `/triage-voice`
+Чатта AI **шын жауап береді** (стриминг, GPT-5.5). Пайдаланушының жазғанын түсінеді, симптомдарды талдап нақты кеңес береді.
 
-### C. Профиль + Тарих (`/profile`)
-- Пайдаланушы карточкасы (аватар, жас, қан тобы, аллергиялар)
-- Барлық сканерлер тарихы (талдаулар, тамақ, дауыс, дәрі) — filter/tabs
-- PDF экспорт батырмасы (mock)
-- Ешбір auth емес — жергілікті mock профиль (тек фронтенд)
+### `/profile`
+- **"Өңдеу" батырмасы толық жұмыс істейді**: modal ашылады, барлық өрістерді (аты, жасы, бойы, салмағы, қан тобы, аллергия) өзгертуге болады.
+- **Аватар жүктеу** — Storage-қа сақталады.
+- Жаңа виджеттер: **Достар тізімі** (username бойынша қосу), **Менің Public ID** (көшірмелеу), **Отбасы мүшелері** (ата-ана — балалар тізімі, шақыру Public ID арқылы).
 
-### D. Онбординг + Hero лендинг (`/welcome`)
-- 3-қадамды онбординг: тіл таңдау → негізгі мәлімет → мақсат
-- Editorial hero: үлкен serif headline, өнім карусель-скрин демо, "Бастау" CTA
-- Соңында `/` (dashboard) бетіне бағыттайды
+### `/family`
+Ата-ана өз шақырған балаларының нақты `food_logs` + `medication_logs` деректерін көреді (realtime жаңару). Бала бір нәрсе тіркесе — ата-ана экранында бірден пайда болады.
 
-## 3. Навигация мен құрылым
+### Кіру беті `/auth`
+- Тіркелу (email + пароль + username) — **email растау керек**.
+- Кіру.
+- Қорғалған беттер (`/family`, `/profile`, `/nutrition-scan`, т.б.) — `_authenticated` layout астына көшеді.
+- Home (`/`) — публичный landing + Кіру CTA.
 
-Жаңа маршруттар (TanStack Start file-based):
-```
-src/routes/
-  __root.tsx           → жаңа floating glass navbar + Instrument Serif logo
-  index.tsx            → Dashboard (жаңа)
-  welcome.tsx          → Онбординг + hero
-  chat.tsx             → AI Doctor Chat
-  profile.tsx          → Профиль + тарих
-  nutrition-scan.tsx   → редизайн (жаңа стильге)
-  triage-voice.tsx     → редизайн
-  prescription-rx.tsx  → редизайн
-```
+## 5. Realtime синхрондау
+`food_logs` кестесіне Supabase realtime subscription. Ата-ана Family бетінде отырса, бала тамақ тіркегенде — экраны жаңарады.
 
-Барлық 4 бар модуль жаңа дизайн-жүйеге көшіріледі (түстер, типографика, bento layout).
+## 6. Техникалық ескертпе
+- Барлық AI шақырулар `createServerFn` арқылы, `LOVABLE_API_KEY` сервер жағында.
+- Camera API — `<input type="file" accept="image/*" capture="environment">` (жүктеу де, түсіру де).
+- Штрих-код: MVP-де қолмен код енгізу + AI іздеу; толық сканер (BarcodeDetector API) қосымша.
+- Notifications (дәрі еске салу) — қазір бар күйінде қалады.
 
-## 4. Техникалық детальдар
+---
 
-- **Lovable Cloud** іске қосылады → AI Doctor Chat серверлік маршруты үшін (`src/routes/api/chat.ts`) + `LOVABLE_API_KEY`
-- **AI SDK + AI Elements** орнатылады: `bun add ai @ai-sdk/react @ai-sdk/openai-compatible zod` + `bunx ai-elements@latest add conversation message prompt-input shimmer`
-- **Motion** (framer-motion) орнатылады — микро-анимация үшін
-- **Recharts** орнатылады — dashboard графиктері үшін
-- **Google Fonts** (Instrument Serif, Geist) `__root.tsx` head-те `<link>` арқылы
-- `src/styles.css` толықтай қайта жазылады — жаңа semantic токендер (light + optional dark)
-- `src/components/ui-kit.tsx` жаңа bento карточкалары, gauge, stat block, chip, timeline компоненттерімен толықтырылады
-- Барлық 4 бар бет мазмұны сақталады (казак тіліндегі клиникалық mock деректер), тек презентация қабаты жаңа стильге ауыстырылады
-- SEO: әр route жеке `head()` — title, description, og:title, og:description
+Бұл жұмыс шамамен **6–8 файл** құру + **8–10 файл** өзгерту қажет етеді. Ұзақтау болады, бірақ соңында сайт нағыз өнім деңгейінде болады.
 
-## 5. Не өзгермейді
-- Қазіргі казак тіліндегі клиникалық mock деректер (қан анализі, тамақ, дауыс, дәрі-дәрмек өзара әрекеттесуі) — сол күйде қалады
-- Бренд аты "SauBol AI" — сол
-- Барлық жұмыс frontend + бір AI серверлік маршрут; нағыз медициналық база жоқ
-
-## Күтілетін нәтиже
-8 бет (dashboard, welcome, chat, profile + 4 модуль), заманауи editorial-bento стиль, жұмыс істейтін AI дәрігер чаты, барлық ескі мазмұн сақталған және жаңа стильде.
+**Растасаңыз — жасауды бастаймын.**

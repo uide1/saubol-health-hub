@@ -9,42 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WelcomeRouteImport } from './routes/welcome'
-import { Route as TriageVoiceRouteImport } from './routes/triage-voice'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PrescriptionRxRouteImport } from './routes/prescription-rx'
-import { Route as NutritionScanRouteImport } from './routes/nutrition-scan'
-import { Route as FamilyRouteImport } from './routes/family'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedTriageVoiceRouteImport } from './routes/_authenticated/triage-voice'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPrescriptionRxRouteImport } from './routes/_authenticated/prescription-rx'
+import { Route as AuthenticatedNutritionScanRouteImport } from './routes/_authenticated/nutrition-scan'
+import { Route as AuthenticatedFamilyRouteImport } from './routes/_authenticated/family'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
-const WelcomeRoute = WelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TriageVoiceRoute = TriageVoiceRouteImport.update({
-  id: '/triage-voice',
-  path: '/triage-voice',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrescriptionRxRoute = PrescriptionRxRouteImport.update({
-  id: '/prescription-rx',
-  path: '/prescription-rx',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NutritionScanRoute = NutritionScanRouteImport.update({
-  id: '/nutrition-scan',
-  path: '/nutrition-scan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FamilyRoute = FamilyRouteImport.update({
-  id: '/family',
-  path: '/family',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -52,117 +34,138 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTriageVoiceRoute =
+  AuthenticatedTriageVoiceRouteImport.update({
+    id: '/triage-voice',
+    path: '/triage-voice',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPrescriptionRxRoute =
+  AuthenticatedPrescriptionRxRouteImport.update({
+    id: '/prescription-rx',
+    path: '/prescription-rx',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedNutritionScanRoute =
+  AuthenticatedNutritionScanRouteImport.update({
+    id: '/nutrition-scan',
+    path: '/nutrition-scan',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFamilyRoute = AuthenticatedFamilyRouteImport.update({
+  id: '/family',
+  path: '/family',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/family': typeof FamilyRoute
-  '/nutrition-scan': typeof NutritionScanRoute
-  '/prescription-rx': typeof PrescriptionRxRoute
-  '/profile': typeof ProfileRoute
-  '/triage-voice': typeof TriageVoiceRoute
-  '/welcome': typeof WelcomeRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/family': typeof AuthenticatedFamilyRoute
+  '/nutrition-scan': typeof AuthenticatedNutritionScanRoute
+  '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/triage-voice': typeof AuthenticatedTriageVoiceRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/family': typeof FamilyRoute
-  '/nutrition-scan': typeof NutritionScanRoute
-  '/prescription-rx': typeof PrescriptionRxRoute
-  '/profile': typeof ProfileRoute
-  '/triage-voice': typeof TriageVoiceRoute
-  '/welcome': typeof WelcomeRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/family': typeof AuthenticatedFamilyRoute
+  '/nutrition-scan': typeof AuthenticatedNutritionScanRoute
+  '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/triage-voice': typeof AuthenticatedTriageVoiceRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/family': typeof FamilyRoute
-  '/nutrition-scan': typeof NutritionScanRoute
-  '/prescription-rx': typeof PrescriptionRxRoute
-  '/profile': typeof ProfileRoute
-  '/triage-voice': typeof TriageVoiceRoute
-  '/welcome': typeof WelcomeRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/family': typeof AuthenticatedFamilyRoute
+  '/_authenticated/nutrition-scan': typeof AuthenticatedNutritionScanRoute
+  '/_authenticated/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/triage-voice': typeof AuthenticatedTriageVoiceRoute
+  '/api/chat': typeof ApiChatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/auth'
+    | '/dashboard'
     | '/family'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
     | '/triage-voice'
-    | '/welcome'
+    | '/api/chat'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/auth'
+    | '/dashboard'
     | '/family'
     | '/nutrition-scan'
     | '/prescription-rx'
     | '/profile'
     | '/triage-voice'
-    | '/welcome'
+    | '/api/chat'
   id:
     | '__root__'
     | '/'
-    | '/family'
-    | '/nutrition-scan'
-    | '/prescription-rx'
-    | '/profile'
-    | '/triage-voice'
-    | '/welcome'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/family'
+    | '/_authenticated/nutrition-scan'
+    | '/_authenticated/prescription-rx'
+    | '/_authenticated/profile'
+    | '/_authenticated/triage-voice'
+    | '/api/chat'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  FamilyRoute: typeof FamilyRoute
-  NutritionScanRoute: typeof NutritionScanRoute
-  PrescriptionRxRoute: typeof PrescriptionRxRoute
-  ProfileRoute: typeof ProfileRoute
-  TriageVoiceRoute: typeof TriageVoiceRoute
-  WelcomeRoute: typeof WelcomeRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/triage-voice': {
-      id: '/triage-voice'
-      path: '/triage-voice'
-      fullPath: '/triage-voice'
-      preLoaderRoute: typeof TriageVoiceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prescription-rx': {
-      id: '/prescription-rx'
-      path: '/prescription-rx'
-      fullPath: '/prescription-rx'
-      preLoaderRoute: typeof PrescriptionRxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/nutrition-scan': {
-      id: '/nutrition-scan'
-      path: '/nutrition-scan'
-      fullPath: '/nutrition-scan'
-      preLoaderRoute: typeof NutritionScanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/family': {
-      id: '/family'
-      path: '/family'
-      fullPath: '/family'
-      preLoaderRoute: typeof FamilyRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -172,17 +175,84 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/triage-voice': {
+      id: '/_authenticated/triage-voice'
+      path: '/triage-voice'
+      fullPath: '/triage-voice'
+      preLoaderRoute: typeof AuthenticatedTriageVoiceRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/prescription-rx': {
+      id: '/_authenticated/prescription-rx'
+      path: '/prescription-rx'
+      fullPath: '/prescription-rx'
+      preLoaderRoute: typeof AuthenticatedPrescriptionRxRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/nutrition-scan': {
+      id: '/_authenticated/nutrition-scan'
+      path: '/nutrition-scan'
+      fullPath: '/nutrition-scan'
+      preLoaderRoute: typeof AuthenticatedNutritionScanRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/family': {
+      id: '/_authenticated/family'
+      path: '/family'
+      fullPath: '/family'
+      preLoaderRoute: typeof AuthenticatedFamilyRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFamilyRoute: typeof AuthenticatedFamilyRoute
+  AuthenticatedNutritionScanRoute: typeof AuthenticatedNutritionScanRoute
+  AuthenticatedPrescriptionRxRoute: typeof AuthenticatedPrescriptionRxRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedTriageVoiceRoute: typeof AuthenticatedTriageVoiceRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFamilyRoute: AuthenticatedFamilyRoute,
+  AuthenticatedNutritionScanRoute: AuthenticatedNutritionScanRoute,
+  AuthenticatedPrescriptionRxRoute: AuthenticatedPrescriptionRxRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedTriageVoiceRoute: AuthenticatedTriageVoiceRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  FamilyRoute: FamilyRoute,
-  NutritionScanRoute: NutritionScanRoute,
-  PrescriptionRxRoute: PrescriptionRxRoute,
-  ProfileRoute: ProfileRoute,
-  TriageVoiceRoute: TriageVoiceRoute,
-  WelcomeRoute: WelcomeRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
