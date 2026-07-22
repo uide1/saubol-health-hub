@@ -75,20 +75,21 @@ function PrescriptionRx() {
   };
 
   const addSlot = () => {
-    const drug = window.prompt("Дәрі атауы (мысалы: Losartan 50 mg)");
+    const drug = window.prompt(L1({ kk: "Дәрі атауы (мыс.: Losartan 50 mg)", ru: "Название препарата (напр.: Losartan 50 mg)", en: "Drug name (e.g. Losartan 50 mg)" }));
     if (!drug) return;
-    const time = window.prompt("Уақыты (HH:MM)", "08:00");
-    if (!time || !/^\d{2}:\d{2}$/.test(time)) { toast.error("Уақыт форматы дұрыс емес"); return; }
-    const note = window.prompt("Ескерту (мысалы: After meal)", "After meal") ?? "";
+    const time = window.prompt(L1({ kk: "Уақыты (HH:MM)", ru: "Время (HH:MM)", en: "Time (HH:MM)" }), "08:00");
+    if (!time || !/^\d{2}:\d{2}$/.test(time)) { toast.error(L1({ kk: "Уақыт форматы дұрыс емес", ru: "Неверный формат времени", en: "Invalid time format" })); return; }
+    const note = window.prompt(L1({ kk: "Ескерту (мыс.: Тамақтан кейін)", ru: "Заметка (напр.: После еды)", en: "Note (e.g. After meal)" }), L1({ kk: "Тамақтан кейін", ru: "После еды", en: "After meal" })) ?? "";
     const id = Math.random().toString(36).slice(2, 8);
     setSchedule((s) => [...s, { id, time, drug: drug.trim(), note: note.trim(), tone: "muted" as const, taken: false }].sort((a, b) => a.time.localeCompare(b.time)));
-    toast.success(`+ ${drug} кестеге қосылды`, { description: `${time} · ескертпе орнатылды` });
+    toast.success(`+ ${drug} ${L1({ kk: "кестеге қосылды", ru: "добавлен в расписание", en: "added to schedule" })}`, { description: `${time}` });
   };
 
   const removeSlot = (id: string) => {
     setSchedule((s) => s.filter((r) => r.id !== id));
-    toast("Кестеден алынды");
+    toast(L1({ kk: "Кестеден алынды", ru: "Удалено из расписания", en: "Removed from schedule" }));
   };
+
 
   const takenCount = schedule.filter(s => s.taken).length;
 
