@@ -83,7 +83,7 @@ function FeedPage() {
                 {featured.title}
               </h2>
               <p className="mt-3 max-w-xl text-sm text-muted-foreground">{featured.body}</p>
-              <button className="mt-5 inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background">
+              <button onClick={() => toast.info(featured.title, { description: featured.body })} className="mt-5 inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background hover:scale-[1.02] transition">
                 Толық оқу →
               </button>
             </div>
