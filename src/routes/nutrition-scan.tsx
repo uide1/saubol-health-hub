@@ -201,29 +201,6 @@ function NutritionScan() {
         </div>
       </div>
 
-      {/* Alert */}
-      <div className="mb-6 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-5">
-        <div className="flex items-start gap-3">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-amber-500/30 bg-amber-500/10 text-amber-400">⚠</div>
-          <div className="flex-1">
-            <div className="text-sm font-semibold text-amber-300">
-              <L kk="Қант және натрий шектен тыс — медициналық шектеу" ru="Превышен сахар и натрий — медицинское ограничение" en="Excessive Sugar & Sodium — Medical Restriction Triggered" />
-            </div>
-            <p className="mt-1 text-xs text-amber-200/80">
-              <L
-                kk="Қант күндік шектен 168%, натрий 62% RDI — бір тағамда. Хронологияға белгіленді."
-                ru="Добавленный сахар 168% дневной нормы, натрий 62% RDI — за один приём. Отмечено в хронологии."
-                en="Added sugar 168% of daily ceiling and sodium 62% RDI in a single meal. Flagged in your medical timeline."
-              />
-            </p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Badge tone="danger">{L1({ kk: "Қант", ru: "Сахар", en: "Sugar" })} +168%</Badge>
-              <Badge tone="danger">{L1({ kk: "Натрий", ru: "Натрий", en: "Sodium" })} 1,240 mg</Badge>
-              <Badge tone="warning">{L1({ kk: "Қаныққан май", ru: "Насыщ. жиры", en: "Sat. fat" })} +55%</Badge>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* 4-square expandable grid */}
       <SectionEyebrow>

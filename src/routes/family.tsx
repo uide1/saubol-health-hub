@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Bento, Badge, Bar, Chip, SectionEyebrow, Stat } from "@/components/ui-kit";
+import { Bento, Badge, Chip, SectionEyebrow, Stat } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 
 
@@ -174,20 +174,6 @@ function FamilyPage() {
             <Stat label="Калория" value={`${kid.today.calories}`} hint="/ мақсат 1600" tone="mint" />
             <Stat label="Қант" value={`${kid.today.sugar} г`} hint="шек 25 г" tone={kid.today.sugar > 25 ? "danger" : "success"} />
             <Stat label="Су" value={`${kid.today.water} ст`} hint="/ 6 стакан" />
-          </div>
-          <div className="mt-5 space-y-3">
-            {[
-              { l: "Калория", v: Math.min(100, (kid.today.calories / 1600) * 100), t: "mint" as const },
-              { l: "Қант", v: Math.min(100, (kid.today.sugar / 25) * 100), t: kid.today.sugar > 25 ? ("danger" as const) : ("success" as const) },
-              { l: "Су", v: (kid.today.water / 6) * 100, t: "neutral" as const },
-            ].map((r) => (
-              <div key={r.l}>
-                <div className="mb-1 flex items-center justify-between text-[11px] text-muted-foreground">
-                  <span>{r.l}</span><span className="font-mono">{Math.round(r.v)}%</span>
-                </div>
-                <Bar value={r.v} tone={r.t} />
-              </div>
-            ))}
           </div>
         </Bento>
 

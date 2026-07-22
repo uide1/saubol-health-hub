@@ -144,11 +144,6 @@ function Dashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </div>
-          <div className="mt-2 grid grid-cols-3 gap-3 border-t border-border pt-3">
-            <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Орташа", ru: "Среднее", en: "Average" })}</div><div className="font-mono text-sm text-foreground">72.6</div></div>
-            <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Ең жоғары", ru: "Максимум", en: "Peak" })}</div><div className="font-mono text-sm text-[color:var(--mint)]">78</div></div>
-            <div><div className="text-[10px] uppercase text-muted-foreground">{L1({ kk: "Динамика", ru: "Динамика", en: "Trend" })}</div><div className="font-mono text-sm text-[color:var(--mint)]">+14.7%</div></div>
-          </div>
         </Bento>
 
 

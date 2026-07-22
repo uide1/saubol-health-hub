@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Bento, Badge, Chip, SectionEyebrow, Gauge } from "@/components/ui-kit";
+import { Bento, Badge, SectionEyebrow, Gauge } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
@@ -19,13 +19,9 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const [lang, setLang] = useState("kk");
-  const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
-  const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
   const [water, setWater] = useState(5); // glasses of 8
   const [mood, setMood] = useState<number | null>(3);
   const [sleep] = useState([6.2, 7.1, 5.8, 7.8, 6.9, 8.1, 7.4]);
-  const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
   const L1 = useL();
 
   const hrSeries = [
@@ -216,7 +212,7 @@ function ProfilePage() {
       </div>
 
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
         {[
           ["Бой", "165 см"], ["Салмақ", "58 кг"], ["BMI", "21.3"],
           ["ЖСС", "68 bpm"], ["АҚ", "118/76"], ["SpO₂", "98%"],
@@ -227,39 +223,6 @@ function ProfilePage() {
           </div>
         ))}
       </div>
-
-
-
-
-      {/* Preferences */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Bento>
-          <SectionEyebrow><L kk="Мақсаттар" ru="Цели" en="Goals" /></SectionEyebrow>
-          <div className="flex flex-wrap gap-1.5">
-            {["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ", "🍎 Тамақ", "🏃 Спорт"].map((g) => (
-              <button key={g} onClick={() => toggleGoal(g)}>
-                <Chip active={goals.includes(g)}>{g}</Chip>
-              </button>
-            ))}
-          </div>
-        </Bento>
-        <Bento>
-          <SectionEyebrow><L kk="Құпиялылық" ru="Приватность" en="Privacy" /></SectionEyebrow>
-          <div className="space-y-1.5 text-[12px] text-foreground">
-            {[
-              { k: "enc" as const, l: L1({ kk: "Деректер шифрлеу", ru: "Шифрование данных", en: "Data encryption" }) },
-              { k: "sos" as const, l: L1({ kk: "103-ке автотабысу", ru: "Автовызов 103", en: "Auto-dial 103" }) },
-              { k: "share" as const, l: L1({ kk: "Дәрігермен бөлісу", ru: "Делиться с врачом", en: "Share with doctor" }) },
-            ].map((r) => (
-              <button key={r.k} onClick={() => { setPrivacy(p => ({ ...p, [r.k]: !p[r.k] })); toast(`${r.l}: ${!privacy[r.k] ? L1({ kk: "Қосулы", ru: "Вкл", en: "On" }) : L1({ kk: "Өшірулі", ru: "Выкл", en: "Off" })}`); }} className="flex w-full items-center justify-between">
-                <span>{r.l}</span>
-                <Badge tone={privacy[r.k] ? "mint" : "muted"}>{privacy[r.k] ? L1({ kk: "Қосулы", ru: "Вкл", en: "On" }) : L1({ kk: "Өшірулі", ru: "Выкл", en: "Off" })}</Badge>
-              </button>
-            ))}
-          </div>
-        </Bento>
-      </div>
-
     </div>
   );
 }
