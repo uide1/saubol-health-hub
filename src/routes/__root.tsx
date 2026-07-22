@@ -11,6 +11,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
+import { Toaster } from "sonner";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
