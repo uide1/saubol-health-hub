@@ -127,14 +127,16 @@ function Dashboard() {
               <div className="font-serif text-2xl text-foreground">Денсаулық индексі <span className="italic text-[color:var(--mint)]">жоғарылап</span> келеді</div>
             </div>
             <div className="flex gap-1">
-              <Chip active>7 күн</Chip>
-              <Chip>30 күн</Chip>
-              <Chip>90 күн</Chip>
+              {(["7","30","90"] as Range[]).map((r) => (
+                <button key={r} onClick={() => setRange(r)}>
+                  <Chip active={range === r}>{r} күн</Chip>
+                </button>
+              ))}
             </div>
           </div>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={TREND} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <LineChart data={TRENDS[range]} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <XAxis dataKey="d" stroke="var(--muted-foreground)" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip
                   contentStyle={{ background: "var(--surface-2)", border: "1px solid var(--border)", borderRadius: 8, fontSize: 12 }}
