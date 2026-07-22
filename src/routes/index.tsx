@@ -20,10 +20,11 @@ const TREND = [
 ];
 
 const RECENT = [
-  { icon: "🩸", title: "Қан анализі", note: "Ferritin төмен · 3 маркер", to: "/labs" as const, tone: "warning" as const, time: "2 сағ" },
   { icon: "🍔", title: "Fried chicken burger", note: "168% қант шегі", to: "/nutrition-scan" as const, tone: "danger" as const, time: "5 сағ" },
   { icon: "🎙", title: "Дауыстық консультация", note: "Аппендицит күдігі · 103", to: "/triage-voice" as const, tone: "danger" as const, time: "Кеше" },
+  { icon: "💊", title: "Рецепт декодталды", note: "3 дәрі · 1 өзара әрекет", to: "/prescription-rx" as const, tone: "warning" as const, time: "2 күн" },
 ];
+
 
 const MEDS_TODAY = [
   { t: "08:00", n: "Paracetamol 500 mg", ok: true },
