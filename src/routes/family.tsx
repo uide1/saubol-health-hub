@@ -183,7 +183,7 @@ function FamilyPage() {
               </div>
             )}
           </div>
-          <button className="mt-4 w-full rounded-full border border-red-900/60 bg-red-950/30 py-2 text-[12px] font-medium uppercase tracking-wider text-red-300">
+          <button onClick={() => { if (window.confirm(`103-ке ${kid.name} үшін хабарласу?`)) toast.error("🚨 103 шақырылды", { description: `${kid.name} · GPS жіберілді · ETA 8 min` }); }} className="mt-4 w-full rounded-full border border-red-900/60 bg-red-950/30 py-2 text-[12px] font-medium uppercase tracking-wider text-red-300 hover:bg-red-950/50">
             🚨 SOS · 103 шақыру
           </button>
         </Bento>
