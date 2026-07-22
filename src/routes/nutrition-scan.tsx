@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useState, type ReactNode } from "react";
 import { Card, Badge, PageHeader, SectionEyebrow, Bar } from "@/components/ui-kit";
+import { useL, L } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/nutrition-scan")({
   head: () => ({
