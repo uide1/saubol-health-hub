@@ -74,17 +74,24 @@ function CalorieRing({ eaten, remaining, burned, goal }: { eaten: number; remain
       <div className="absolute inset-x-0 top-6 flex items-end justify-between px-2 text-center">
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{eaten}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Съедено</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Жеді" ru="Съедено" en="Eaten" />
+          </div>
         </div>
         <div>
           <div className="font-serif text-4xl text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Осталось</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Қалды" ru="Осталось" en="Left" />
+          </div>
         </div>
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{burned}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Сожжено</div>
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Күйдірілді" ru="Сожжено" en="Burned" />
+          </div>
         </div>
       </div>
+
     </div>
   );
 }
