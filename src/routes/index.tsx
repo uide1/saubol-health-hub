@@ -36,6 +36,43 @@ const MEDS_TODAY = [
   { t: "15:00", n: "Omeprazole 20 mg", ok: false },
 ];
 
+const VITALS = [
+  { k: "HR",    v: "68",   u: "bpm",   spark: [4,6,5,7,6,8,7,9,7,8,6,7] },
+  { k: "SpO₂",  v: "98",   u: "%",     spark: [8,8,9,8,9,9,8,9,8,9,9,8] },
+  { k: "HRV",   v: "52",   u: "ms",    spark: [3,5,4,6,5,7,6,8,7,6,7,8] },
+  { k: "Steps", v: "6 240",u: "/8k",   spark: [2,3,4,5,6,7,7,8,8,9,9,9] },
+  { k: "Sleep", v: "7ч 42",u: "min",   spark: [6,7,7,8,8,7,8,9,8,7,8,8] },
+  { k: "Water", v: "1.4",  u: "L / 2", spark: [2,3,3,4,5,5,6,6,7,7,8,8] },
+];
+
+function VitalsStrip() {
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[color:var(--mint)]/40 to-transparent" />
+      <div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-3 lg:grid-cols-6">
+        {VITALS.map((v) => (
+          <div key={v.k} className="group relative p-4">
+            <div className="flex items-baseline justify-between">
+              <div className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">{v.k}</div>
+              <div className="font-mono text-[10px] text-muted-foreground/70">{v.u}</div>
+            </div>
+            <div className="mt-1 font-serif text-2xl tabular-nums text-foreground">{v.v}</div>
+            <div className="mt-2 flex h-6 items-end gap-[3px]">
+              {v.spark.map((h, i) => (
+                <div
+                  key={i}
+                  className="spark-bar w-[3px] rounded-sm bg-[color:var(--mint)]/70"
+                  style={{ height: `${h * 10}%`, animationDelay: `${i * 60}ms` }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function Dashboard() {
   const [range, setRange] = useState<Range>("7");
   const [meds, setMeds] = useState(MEDS_TODAY);
