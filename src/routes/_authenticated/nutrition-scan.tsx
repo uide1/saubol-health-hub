@@ -56,18 +56,40 @@ function CalorieRing({ consumed, burned, goal }: { consumed: number; burned: num
   );
 }
 
-function SquareBlock({ title, emoji, children }: { title: ReactNode; emoji: string; children: ReactNode }) {
+function SquareBlock({ title, icon, tone, children }: { title: ReactNode; icon: ReactNode; tone: "mint"|"amber"|"violet"|"sky"; children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const toneMap = {
+    mint:   "from-[color:var(--mint-soft)] to-transparent border-[color:var(--mint)]/25 text-[color:var(--mint)]",
+    amber:  "from-amber-500/10 to-transparent border-amber-500/25 text-amber-400",
+    violet: "from-violet-500/10 to-transparent border-violet-500/25 text-violet-300",
+    sky:    "from-sky-500/10 to-transparent border-sky-500/25 text-sky-300",
+  }[tone];
   return (
     <>
-      <button onClick={()=>setOpen(true)} className="aspect-square rounded-2xl border border-border bg-card p-4 text-left transition hover:border-white/20">
-        <div className="text-2xl">{emoji}</div>
-        <div className="mt-2 text-[11px] font-medium text-foreground">{title}</div>
+      <button
+        onClick={()=>setOpen(true)}
+        className={`group relative aspect-square overflow-hidden rounded-2xl border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:border-white/25 ${toneMap.split(" ").slice(-2).join(" ")}`}
+      >
+        <div className={`pointer-events-none absolute inset-0 bg-gradient-to-br opacity-70 ${toneMap.split(" ").slice(0,2).join(" ")}`} />
+        <div className="relative flex h-full flex-col">
+          <div className={`text-3xl leading-none ${toneMap.split(" ").pop()}`}>{icon}</div>
+          <div className="mt-auto">
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-foreground">{title}</div>
+            <div className="mt-1 flex items-center gap-1 text-[10px] text-muted-foreground">
+              <L kk="ашу" ru="открыть" en="open" />
+              <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 17L17 7M17 7H8M17 7V16"/></svg>
+            </div>
+          </div>
+        </div>
       </button>
       {open && (
         <div onClick={()=>setOpen(false)} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur">
           <div onClick={e=>e.stopPropagation()} className="max-h-[80vh] w-full max-w-lg overflow-auto rounded-2xl border border-border bg-card p-6">
-            <div className="flex items-center gap-3"><div className="text-3xl">{emoji}</div><div className="font-serif text-2xl text-foreground">{title}</div><button onClick={()=>setOpen(false)} className="ml-auto rounded-full border border-border bg-surface px-3 py-1 text-xs">✕</button></div>
+            <div className="flex items-center gap-3">
+              <div className={`grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br ${toneMap.split(" ").slice(0,2).join(" ")} ${toneMap.split(" ").pop()} text-xl`}>{icon}</div>
+              <div className="font-serif text-2xl text-foreground">{title}</div>
+              <button onClick={()=>setOpen(false)} className="ml-auto rounded-full border border-border bg-surface px-3 py-1 text-xs">✕</button>
+            </div>
             <div className="mt-4">{children}</div>
           </div>
         </div>
@@ -123,7 +145,6 @@ function NutritionPage() {
         reader.onload = () => res(reader.result as string);
         reader.onerror = rej; reader.readAsDataURL(file);
       });
-      // upload to storage
       const path = `${profile.id}/${Date.now()}-${file.name}`;
       await supabase.storage.from("food-photos").upload(path, file);
       const r = await analyzeFoodPhoto({ data: { imageDataUrl: dataUrl, allergies: profile.allergies ?? undefined } });
@@ -143,6 +164,13 @@ function NutritionPage() {
     finally { setScanning(false); }
   };
 
+  const last = logs[0];
+  const macroPct = last ? {
+    protein: Math.min(100, Math.round((last.protein_g * 4 / Math.max(1, last.calories)) * 100)),
+    carbs: Math.min(100, Math.round((last.carbs_g * 4 / Math.max(1, last.calories)) * 100)),
+    fat: Math.min(100, Math.round((last.fat_g * 9 / Math.max(1, last.calories)) * 100)),
+  } : { protein: 25, carbs: 50, fat: 25 };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
@@ -155,7 +183,6 @@ function NutritionPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_280px]">
-        {/* Summary */}
         <Bento>
           <SectionEyebrow><L kk="Қорытынды" ru="Сводка" en="Summary" /></SectionEyebrow>
           <div className="mt-4">
@@ -182,7 +209,6 @@ function NutritionPage() {
           )}
         </Bento>
 
-        {/* Scanners */}
         <div className="flex flex-col gap-4">
           <Bento className="flex flex-col items-start gap-3">
             <div className="text-3xl">📷</div>
@@ -209,7 +235,6 @@ function NutritionPage() {
         </div>
       </div>
 
-      {/* Today's log */}
       <Bento>
         <div className="flex items-baseline justify-between">
           <SectionEyebrow><L kk="Бүгін жегендер" ru="Съедено сегодня" en="Today's log" /></SectionEyebrow>
@@ -230,34 +255,46 @@ function NutritionPage() {
         </div>
       </Bento>
 
-      {/* 4 square blocks */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <SquareBlock emoji="🧪" title={<L kk="Ингредиенттер" ru="Ингредиенты" en="Ingredients" />}>
-          <ul className="space-y-1 text-[12px] text-muted-foreground">
-            <li>• Refined wheat flour — <b>processed carb</b></li>
-            <li>• Palm oil — <b>saturated fat</b></li>
-            <li>• Sodium 1,240 mg — <b>62% RDI</b></li>
-            <li>• E211, E621 — <b>preservatives</b></li>
+        <SquareBlock tone="sky" icon="🧪" title={<L kk="Ингредиенттер" ru="Ингредиенты" en="Ingredients" />}>
+          <ul className="space-y-2 text-[13px] text-foreground">
+            <li className="flex justify-between rounded-lg border border-border bg-surface px-3 py-2"><span>Refined wheat flour</span><span className="text-muted-foreground">carb</span></li>
+            <li className="flex justify-between rounded-lg border border-border bg-surface px-3 py-2"><span>Palm oil</span><span className="text-muted-foreground">sat. fat</span></li>
+            <li className="flex justify-between rounded-lg border border-border bg-surface px-3 py-2"><span>Sodium 1,240 mg</span><span className="text-amber-400">62% RDI</span></li>
+            <li className="flex justify-between rounded-lg border border-border bg-surface px-3 py-2"><span>E211 · E621</span><span className="text-muted-foreground">preservatives</span></li>
           </ul>
         </SquareBlock>
-        <SquareBlock emoji="⚠" title={<L kk="Қауіп матрицасы" ru="Матрица рисков" en="Contraindications" />}>
-          <ul className="space-y-1 text-[12px] text-muted-foreground">
-            <li>• Type 2 Diabetes — glycemic spike expected</li>
-            <li>• Hypertension — Na exceeds ceiling</li>
-            <li>• GERD — fried, may trigger</li>
-          </ul>
+        <SquareBlock tone="amber" icon="⚠" title={<L kk="Қауіп матрицасы" ru="Матрица рисков" en="Contraindications" />}>
+          <div className="space-y-2 text-[13px]">
+            {[["Type 2 Diabetes","Glycemic spike expected","high"],["Hypertension","Sodium exceeds ceiling","high"],["GERD","Fried — may trigger reflux","med"]].map(([c,d,l])=>(
+              <div key={c} className="rounded-lg border border-border bg-surface p-3">
+                <div className="flex items-center justify-between"><span className="font-medium text-foreground">{c}</span><Badge tone={l==="high"?"warning":"muted"}>{l}</Badge></div>
+                <div className="mt-0.5 text-[11px] text-muted-foreground">{d}</div>
+              </div>
+            ))}
+          </div>
         </SquareBlock>
-        <SquareBlock emoji="🥦" title={<L kk="Аллергендер" ru="Аллергены" en="Allergens" />}>
-          <ul className="space-y-1 text-[12px] text-muted-foreground">
-            <li>• Wheat gluten — high</li>
-            <li>• Soy lecithin — trace</li>
-          </ul>
+        <SquareBlock tone="violet" icon="🥦" title={<L kk="Аллергендер" ru="Аллергены" en="Allergens" />}>
+          <div className="flex flex-wrap gap-2">
+            {[["Wheat gluten","high"],["Soy lecithin","trace"],["Sesame","possible"]].map(([n,l])=>(
+              <div key={n} className="rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] text-foreground">
+                {n} · <span className="text-muted-foreground">{l}</span>
+              </div>
+            ))}
+          </div>
         </SquareBlock>
-        <SquareBlock emoji="📊" title={<L kk="Макро тарату" ru="Макро" en="Macros" />}>
-          <div className="space-y-2 text-[12px]">
+        <SquareBlock tone="mint" icon="📊" title={<L kk="Макро тарату" ru="Макро" en="Macros" />}>
+          <div className="space-y-3 text-[13px]">
             {[
-              { l: "Protein", pct: 40 },{ l: "Carbs", pct: 82 },{ l: "Fat", pct: 68 },
-            ].map(r => (<div key={r.l}><div className="mb-1 flex justify-between text-[10px] text-muted-foreground"><span>{r.l}</span><span>{r.pct}%</span></div><Bar value={r.pct} tone="mint" /></div>))}
+              { l: "Protein", pct: macroPct.protein, color: "var(--mint)" },
+              { l: "Carbs", pct: macroPct.carbs, color: "#7dd3fc" },
+              { l: "Fat", pct: macroPct.fat, color: "#fbbf24" },
+            ].map(r => (
+              <div key={r.l}>
+                <div className="mb-1 flex justify-between text-[11px] text-muted-foreground"><span>{r.l}</span><span className="font-mono">{r.pct}%</span></div>
+                <div className="h-2 overflow-hidden rounded-full bg-border"><div style={{ width: `${r.pct}%`, background: r.color }} className="h-full" /></div>
+              </div>
+            ))}
           </div>
         </SquareBlock>
       </div>

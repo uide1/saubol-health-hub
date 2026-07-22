@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.can_view_user_data(uuid, uuid) FROM PUBLIC, anon, authenticated;

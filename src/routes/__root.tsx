@@ -16,6 +16,7 @@ import { Toaster, toast } from "sonner";
 import { LangProvider, LangSwitcher, useL, L } from "@/lib/i18n";
 import { useSession } from "@/lib/use-session";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationsProvider, NotificationsBell } from "@/lib/notifications";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -130,6 +131,7 @@ function TopNav() {
         </nav>
         <div className="ml-auto flex items-center gap-2">
           <LangSwitcher />
+          {user && <NotificationsBell />}
           <button onClick={toggle} aria-label="theme" className="grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-[13px] text-foreground">
             {theme === "dark" ? "☾" : "☀"}
           </button>
@@ -153,20 +155,22 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <LangProvider>
-        <div className="min-h-screen bg-background pt-4 text-foreground">
-          <CustomCursor />
-          <TopNav />
-          <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
-          <main className="mx-auto max-w-[1400px] px-6 py-8"><Outlet /></main>
-          <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="font-serif italic">
-                <L kk="SauBol AI · Медициналық ақпараттандыру құралы, диагноз емес." ru="SauBol AI · Инструмент медицинской информации, не диагноз." en="SauBol AI · Medical information tool, not a diagnosis." />
-              </span>
-              <span className="font-mono">© 2026 · v2.0 · Almaty</span>
-            </div>
-          </footer>
-        </div>
+        <NotificationsProvider>
+          <div className="min-h-screen bg-background pt-4 text-foreground">
+            <CustomCursor />
+            <TopNav />
+            <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
+            <main className="mx-auto max-w-[1400px] px-6 py-8"><Outlet /></main>
+            <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="font-serif italic">
+                  <L kk="SauBol AI · Медициналық ақпараттандыру құралы, диагноз емес." ru="SauBol AI · Инструмент медицинской информации, не диагноз." en="SauBol AI · Medical information tool, not a diagnosis." />
+                </span>
+                <span className="font-mono">© 2026 · v2.0 · Almaty</span>
+              </div>
+            </footer>
+          </div>
+        </NotificationsProvider>
       </LangProvider>
     </QueryClientProvider>
   );
