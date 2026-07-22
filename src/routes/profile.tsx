@@ -2,6 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Bento, Badge, Chip, SectionEyebrow, Gauge } from "@/components/ui-kit";
+import { useL, L } from "@/lib/i18n";
+
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
