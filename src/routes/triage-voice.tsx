@@ -45,6 +45,7 @@ function TriageVoice() {
   const [lang, setLang] = useState(0);
   const [dictating, setDictating] = useState(false);
   const feedRef = useRef<HTMLDivElement | null>(null);
+  const recogRef = useRef<any>(null);
   const L1 = useL();
 
 
@@ -63,26 +64,51 @@ function TriageVoice() {
   };
 
   const toggleDictation = () => {
-    if (!dictating) {
-      setDictating(true);
-      toast("🎙 Дауыс жазылуда...", { description: "Сөйлеңіз — мәтінге аударылады" });
-      setTimeout(() => {
-        setDictating(false);
-        const sample = "Голова кружится и слабость с утра";
-        setInput((s) => (s ? s + " " : "") + sample);
-        toast.success("Транскрипция дайын", { description: `+${sample.length} таңба` });
-      }, 1800);
-    } else {
+    if (dictating) {
+      recogRef.current?.stop?.();
       setDictating(false);
-      toast("⏸ Дауыс жазба тоқтатылды");
+      return;
     }
+    const SR: any = typeof window !== "undefined" && ((window as any).SpeechRecognition || (window as any).webkitSpeechRecognition);
+    if (!SR) {
+      toast.error(L1({ kk: "Дауыс тану қолжетімсіз", ru: "Распознавание речи недоступно", en: "Speech recognition unavailable" }), { description: L1({ kk: "Chrome/Edge браузерін қолданыңыз", ru: "Используйте Chrome/Edge", en: "Use Chrome or Edge" }) });
+      return;
+    }
+    const rec = new SR();
+    const langMap = ["kk-KZ", "ru-RU", "en-US"];
+    rec.lang = langMap[lang] ?? "ru-RU";
+    rec.interimResults = true;
+    rec.continuous = false;
+    let finalText = "";
+    rec.onresult = (e: any) => {
+      let interim = "";
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const r = e.results[i];
+        if (r.isFinal) finalText += r[0].transcript;
+        else interim += r[0].transcript;
+      }
+      setInput((finalText + interim).trim());
+    };
+    rec.onerror = (e: any) => {
+      setDictating(false);
+      toast.error(L1({ kk: "Дауыс қатесі", ru: "Ошибка микрофона", en: "Mic error" }), { description: e.error ?? "" });
+    };
+    rec.onend = () => {
+      setDictating(false);
+      if (finalText.trim()) toast.success(L1({ kk: "Транскрипция дайын", ru: "Транскрипция готова", en: "Transcription ready" }));
+    };
+    recogRef.current = rec;
+    setDictating(true);
+    toast(L1({ kk: "🎙 Тыңдап тұрмын...", ru: "🎙 Слушаю...", en: "🎙 Listening..." }));
+    try { rec.start(); } catch { /* already started */ }
   };
 
   const copyTranscript = () => {
     const text = turns.map(t => `[${t.time}] ${t.who === "ai" ? "SauBol" : "Пациент"}: ${t.text}`).join("\n");
     if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
-    toast.success("Транскрипт көшірілді", { description: `${turns.length} хабарлама` });
+    toast.success(L1({ kk: "Транскрипт көшірілді", ru: "Транскрипт скопирован", en: "Transcript copied" }), { description: `${turns.length} ${L1({ kk: "хабарлама", ru: "реплик", en: "turns" })}` });
   };
+
 
   return (
     <div>
