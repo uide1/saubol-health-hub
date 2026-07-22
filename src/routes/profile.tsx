@@ -19,13 +19,9 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const [lang, setLang] = useState("kk");
-  const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
-  const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
   const [water, setWater] = useState(5); // glasses of 8
   const [mood, setMood] = useState<number | null>(3);
   const [sleep] = useState([6.2, 7.1, 5.8, 7.8, 6.9, 8.1, 7.4]);
-  const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
   const L1 = useL();
 
   const hrSeries = [
