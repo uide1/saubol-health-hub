@@ -22,6 +22,8 @@ function ProfilePage() {
   const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
   const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
   const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
+  const L1 = useL();
+
 
 
   return (
