@@ -5,20 +5,22 @@ import { useSession } from "./use-session";
 export type NotificationRow = {
   id: string;
   user_id: string;
-  kind: string; // 'med_reminder' | 'friend_request' | 'info'
+  kind: string;
   title: string;
   body: string | null;
   read: boolean;
   created_at: string;
-  meta: Record<string, unknown> | null;
+  meta: unknown;
 };
+
+type PushInput = { kind: string; title: string; body?: string | null; meta?: unknown; read?: boolean };
 
 type Ctx = {
   items: NotificationRow[];
   unread: number;
   markAllRead: () => Promise<void>;
   remove: (id: string) => Promise<void>;
-  push: (n: Omit<NotificationRow, "id" | "user_id" | "created_at" | "read"> & { read?: boolean }) => Promise<void>;
+  push: (n: PushInput) => Promise<void>;
 };
 
 const NotificationsCtx = createContext<Ctx | null>(null);
@@ -41,7 +43,8 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
 
   const push: Ctx["push"] = async (n) => {
     if (!user) return;
-    await supabase.from("notifications").insert({ user_id: user.id, kind: n.kind, title: n.title, body: n.body ?? null, meta: n.meta ?? null, read: n.read ?? false });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await supabase.from("notifications").insert({ user_id: user.id, kind: n.kind, title: n.title, body: n.body ?? null, meta: (n.meta ?? null) as any, read: n.read ?? false });
   };
   const markAllRead = async () => {
     if (!user) return;
