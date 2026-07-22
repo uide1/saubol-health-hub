@@ -25,6 +25,7 @@ const INGREDIENTS = [
 ];
 
 function NutritionScan() {
+  const [logged, setLogged] = useState(false);
   return (
     <div>
       <PageHeader
@@ -33,12 +34,13 @@ function NutritionScan() {
         description="Dish: «Fried chicken burger + soda» · scanned 12:47 · GS1 barcode 4870204..."
         actions={
           <>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">📷 Photo</button>
-            <button className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">🧾 Barcode</button>
-            <button className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">Log meal</button>
+            <button onClick={() => toast.info("📷 Камера ашылуда...", { description: "Тағамды фотоға түсіріңіз" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">📷 Photo</button>
+            <button onClick={() => toast.info("🧾 Штрих-код сканері", { description: "Өнім штрих-кодына бағыттаңыз" })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">🧾 Barcode</button>
+            <button onClick={() => { setLogged(true); toast.success(logged ? "Тағам жаңартылды" : "Тағам күнделігіне жазылды ✓", { description: "680 kcal · медициналық хронологияға қосылды" }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{logged ? "Logged ✓" : "Log meal"}</button>
           </>
         }
       />
+
 
       <div className="mb-4 grid grid-cols-4 gap-3">
         <Stat label="Total Kcal" value="680 kcal" hint="34% of 2000 goal" tone="warning" />
