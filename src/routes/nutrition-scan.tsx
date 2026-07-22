@@ -54,47 +54,53 @@ const ALLERGENS = [
 function CalorieRing({ eaten, remaining, burned, goal }: { eaten: number; remaining: number; burned: number; goal: number }) {
   const pct = Math.min(100, Math.max(0, (eaten / goal) * 100));
   const r = 80;
-  const c = Math.PI * r; // half-circle circumference
+  const c = Math.PI * r;
   const offset = c - (pct / 100) * c;
   return (
-    <div className="relative mx-auto" style={{ width: 240, height: 150 }}>
-      <svg width={240} height={150} viewBox="0 0 200 120">
-        <path d="M 20 110 A 80 80 0 0 1 180 110" fill="none" stroke="var(--secondary)" strokeWidth="10" strokeLinecap="round" />
-        <path
-          d="M 20 110 A 80 80 0 0 1 180 110"
-          fill="none"
-          stroke="var(--mint)"
-          strokeWidth="10"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={offset}
-        />
-        <circle cx={20 + (160 * pct) / 100} cy={110 - Math.sin((pct / 100) * Math.PI) * 78} r="6" fill="var(--mint)" />
-      </svg>
-      <div className="absolute inset-x-0 top-6 flex items-end justify-between px-2 text-center">
+    <div className="mx-auto w-full max-w-md">
+      {/* Top: 3 stats aligned */}
+      <div className="grid grid-cols-3 items-end gap-2 text-center">
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{eaten}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Жеді" ru="Съедено" en="Eaten" />
           </div>
         </div>
         <div>
-          <div className="font-serif text-4xl text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="font-serif text-5xl leading-none text-foreground tabular-nums">{remaining.toLocaleString("ru")}</div>
+          <div className="mt-1 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Қалды" ru="Осталось" en="Left" />
           </div>
         </div>
         <div>
           <div className="font-serif text-2xl text-foreground tabular-nums">{burned}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
+          <div className="mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Күйдірілді" ru="Сожжено" en="Burned" />
           </div>
         </div>
       </div>
-
+      {/* Arc below */}
+      <div className="relative mx-auto mt-3" style={{ width: 280, height: 150 }}>
+        <svg width={280} height={150} viewBox="0 0 200 110" preserveAspectRatio="xMidYMid meet">
+          <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" stroke="var(--secondary)" strokeWidth="10" strokeLinecap="round" />
+          <path
+            d="M 20 100 A 80 80 0 0 1 180 100"
+            fill="none"
+            stroke="var(--mint)"
+            strokeWidth="10"
+            strokeLinecap="round"
+            strokeDasharray={c}
+            strokeDashoffset={offset}
+          />
+        </svg>
+        <div className="absolute inset-x-0 bottom-2 text-center text-[11px] text-muted-foreground">
+          {Math.round(pct)}% <L kk="күндік мақсаттан" ru="дневной цели" en="of daily goal" /> · {goal.toLocaleString("ru")} kcal
+        </div>
+      </div>
     </div>
   );
 }
+
 
 function Macro({ label, value, goal }: { label: string; value: number; goal: number }) {
   const pct = Math.min(100, (value / goal) * 100);
