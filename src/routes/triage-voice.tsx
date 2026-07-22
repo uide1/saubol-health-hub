@@ -281,19 +281,9 @@ function TriageVoice() {
             </div>
           </div>
 
-          <Card title={L1({ kk: "Үй жағдайында көмек", ru: "Помощь дома", en: "Home Care Guidance" })} subtitle={L1({ kk: "Жеңіл жағдайлар үшін", ru: "Только при лёгких симптомах", en: "Applicable to mild presentations only" })}>
-            <ol className="list-decimal space-y-1.5 pl-5 text-[12px] text-muted-foreground">
-              <li>Lie on your left side, knees drawn to chest.</li>
-              <li>Do not apply heat to the abdomen.</li>
-              <li>No food, drink, or painkillers before EMS.</li>
-              <li>Unlock the door for paramedic access.</li>
-              <li>Keep phone on speaker within reach.</li>
-            </ol>
-          </Card>
-
-          <Card title={L1({ kk: "Анықталған симптомдар", ru: "Обнаруженные симптомы", en: "Detected Symptom Vector" })}>
+          <Card title={L1({ kk: "Анықталған симптомдар", ru: "Обнаруженные симптомы", en: "Detected Symptoms" })}>
             <div className="flex flex-wrap gap-1.5">
-              {["RLQ pain","Rebound tenderness","Nausea","Fever 38.4°C","3h duration","No prior surgery"].map((s) => (
+              {["RLQ pain","Rebound tenderness","Nausea","Fever 38.4°C","3h duration"].map((s) => (
                 <Badge key={s} tone="muted">{s}</Badge>
               ))}
             </div>
