@@ -139,11 +139,11 @@ function NutritionScan() {
                 { n: "Quinoa bowl", k: "380 kcal" },
                 { n: "Lentil soup + bread", k: "310 kcal" },
               ].map((s) => (
-                <div key={s.n} className="rounded-md border border-border bg-surface p-3">
+                <button key={s.n} onClick={() => toast.success(`✓ ${s.n} таңдалды`, { description: `${s.k} · ұсыныс сақталды` })} className="rounded-md border border-border bg-surface p-3 text-left transition hover:border-white/20">
                   <div className="text-2xl">🥗</div>
                   <div className="mt-1 font-medium text-foreground">{s.n}</div>
                   <div className="text-muted-foreground">{s.k}</div>
-                </div>
+                </button>
               ))}
             </div>
           </Card>
