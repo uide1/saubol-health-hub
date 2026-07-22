@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Bento, Badge, Gauge, Chip, SectionEyebrow, Bar } from "@/components/ui-kit";
+import { Bento, Badge, Chip, SectionEyebrow, Bar } from "@/components/ui-kit";
+import { HealthOrb } from "@/components/health-orb";
 import { LineChart, Line, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 
 export const Route = createFileRoute("/")({
@@ -62,7 +63,9 @@ function Dashboard() {
 
         <Bento className="flex flex-col items-center justify-center text-center">
           <SectionEyebrow>Денсаулық индексі</SectionEyebrow>
-          <Gauge value={72} label="/ 100" size={180} />
+          <div className="my-2">
+            <HealthOrb value={72} size={220} label="/ 100" />
+          </div>
           <div className="mt-3 flex items-center gap-2">
             <Badge tone="mint">+4 апта сайын</Badge>
             <Badge tone="warning">1 назар</Badge>
@@ -77,13 +80,15 @@ function Dashboard() {
       <div>
         <div className="mb-3 flex items-baseline justify-between">
           <h2 className="font-serif text-2xl tracking-tight text-foreground">Модульдер</h2>
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">3 белсенді</span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">5 белсенді</span>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 lg:grid-cols-5">
           {[
-            { to: "/nutrition-scan" as const, e: "🥗", t: "Тамақ & Калория", s: "SmartNutri", d: "Фото/штрих-код, контр-индикация" },
-            { to: "/triage-voice" as const, e: "🎙", t: "Дауыстық Триаж", s: "Voice AI", d: "KZ/RU/EN дауыс, 103 диспетчер" },
-            { to: "/prescription-rx" as const, e: "💊", t: "Дәрі-дәрмек", s: "RxClarify", d: "OCR рецепт, өзара әрекеттесу" },
+            { to: "/nutrition-scan" as const, e: "🥗", t: "Тамақ", s: "SmartNutri", d: "Фото/штрих-код" },
+            { to: "/triage-voice" as const, e: "🎙", t: "Дауыс", s: "Voice AI", d: "KZ/RU/EN, 103" },
+            { to: "/prescription-rx" as const, e: "💊", t: "Дәрілер", s: "RxClarify", d: "OCR, әрекеттесу" },
+            { to: "/family" as const, e: "👨‍👩‍👧", t: "Family", s: "Balalar", d: "Ата-ана бақылауы" },
+            { to: "/feed" as const, e: "📰", t: "Feed", s: "KZ Health", d: "Тексерілген жаңалық" },
 
           ].map((m) => (
             <Link key={m.to} to={m.to} className="group">

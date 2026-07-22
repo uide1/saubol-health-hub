@@ -9,6 +9,8 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { useTheme } from "@/lib/theme";
+import { CustomCursor } from "@/components/cursor";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -84,15 +86,18 @@ function RootShell({ children }: { children: ReactNode }) {
 
 const NAV = [
   { to: "/", label: "Басты" },
+  { to: "/family", label: "Family" },
   { to: "/nutrition-scan", label: "Тамақ" },
   { to: "/triage-voice", label: "Дауыс" },
   { to: "/prescription-rx", label: "Дәрілер" },
+  { to: "/feed", label: "Feed" },
   { to: "/profile", label: "Профиль" },
 ] as const;
 
 
 function TopNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { theme, toggle } = useTheme();
   return (
     <header className="sticky top-4 z-40 mx-auto max-w-[1400px] px-6">
       <div className="flex items-center gap-4 rounded-full border border-border bg-background/70 px-4 py-2 backdrop-blur-xl">
@@ -121,6 +126,13 @@ function TopNav() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={toggle}
+            aria-label="Тақырыпты ауыстыру"
+            className="grid h-8 w-8 place-items-center rounded-full border border-border bg-surface text-[13px] text-foreground transition hover:border-white/20"
+          >
+            {theme === "dark" ? "☾" : "☀"}
+          </button>
           <div className="hidden items-center gap-2 rounded-full border border-border bg-surface px-2.5 py-1 md:flex">
             <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--mint)]" />
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Live</span>
@@ -137,6 +149,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen bg-background pt-4 text-foreground">
+        <CustomCursor />
         <TopNav />
         <main className="mx-auto max-w-[1400px] px-6 py-8">
           <Outlet />
