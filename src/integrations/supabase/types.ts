@@ -14,13 +14,183 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      family_links: {
+        Row: {
+          child_id: string
+          created_at: string
+          id: string
+          parent_id: string
+          status: string
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          id?: string
+          parent_id: string
+          status?: string
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          id?: string
+          parent_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      food_logs: {
+        Row: {
+          calories: number
+          carbs_g: number
+          created_at: string
+          fat_g: number
+          id: string
+          name: string
+          photo_path: string | null
+          protein_g: number
+          source: string
+          user_id: string
+          warning: string | null
+        }
+        Insert: {
+          calories?: number
+          carbs_g?: number
+          created_at?: string
+          fat_g?: number
+          id?: string
+          name: string
+          photo_path?: string | null
+          protein_g?: number
+          source?: string
+          user_id: string
+          warning?: string | null
+        }
+        Update: {
+          calories?: number
+          carbs_g?: number
+          created_at?: string
+          fat_g?: number
+          id?: string
+          name?: string
+          photo_path?: string | null
+          protein_g?: number
+          source?: string
+          user_id?: string
+          warning?: string | null
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      medication_logs: {
+        Row: {
+          created_at: string
+          dose: string | null
+          id: string
+          name: string
+          scheduled_time: string | null
+          taken: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          dose?: string | null
+          id?: string
+          name: string
+          scheduled_time?: string | null
+          taken?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          dose?: string | null
+          id?: string
+          name?: string
+          scheduled_time?: string | null
+          taken?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          age: number | null
+          allergies: string | null
+          avatar_url: string | null
+          blood_type: string | null
+          created_at: string
+          full_name: string | null
+          height_cm: number | null
+          id: string
+          public_id: string
+          role: string
+          updated_at: string
+          username: string
+          weight_kg: number | null
+        }
+        Insert: {
+          age?: number | null
+          allergies?: string | null
+          avatar_url?: string | null
+          blood_type?: string | null
+          created_at?: string
+          full_name?: string | null
+          height_cm?: number | null
+          id: string
+          public_id: string
+          role?: string
+          updated_at?: string
+          username: string
+          weight_kg?: number | null
+        }
+        Update: {
+          age?: number | null
+          allergies?: string | null
+          avatar_url?: string | null
+          blood_type?: string | null
+          created_at?: string
+          full_name?: string | null
+          height_cm?: number | null
+          id?: string
+          public_id?: string
+          role?: string
+          updated_at?: string
+          username?: string
+          weight_kg?: number | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_view_user_data: {
+        Args: { _target: string; _viewer: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
