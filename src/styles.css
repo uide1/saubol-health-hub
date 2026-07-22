@@ -202,3 +202,60 @@
 }
 @utility orb-rotate { animation: orb-rotate 22s linear infinite; }
 @utility orb-float  { animation: orb-float 6s ease-in-out infinite; }
+
+/* Aurora — soft rotating conic glow behind hero */
+@keyframes aurora-spin {
+  0%   { transform: rotate(0deg)   scale(1); }
+  50%  { transform: rotate(180deg) scale(1.15); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@utility aurora {
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  background:
+    conic-gradient(from 120deg at 50% 50%,
+      transparent 0deg,
+      color-mix(in oklab, var(--mint) 22%, transparent) 60deg,
+      transparent 140deg,
+      color-mix(in oklab, #7EB6FF 18%, transparent) 220deg,
+      transparent 320deg);
+  filter: blur(60px);
+  opacity: 0.55;
+  animation: aurora-spin 24s linear infinite;
+}
+
+/* Live pulse dot */
+@keyframes live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--mint) 55%, transparent); }
+  50%      { box-shadow: 0 0 0 6px transparent; }
+}
+@utility live-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: var(--mint);
+  animation: live-pulse 1.8s ease-in-out infinite;
+}
+
+/* Marquee ticker */
+@keyframes ticker-slide {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@utility ticker-track {
+  display: inline-flex;
+  gap: 3rem;
+  white-space: nowrap;
+  animation: ticker-slide 38s linear infinite;
+}
+
+/* Rising bars for vitals sparks */
+@keyframes bar-rise {
+  from { transform: scaleY(0.4); }
+  to   { transform: scaleY(1); }
+}
+@utility spark-bar {
+  transform-origin: bottom;
+  animation: bar-rise 0.9s ease-out both;
+}
