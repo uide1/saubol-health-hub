@@ -138,10 +138,6 @@ function TopNav() {
           >
             {theme === "dark" ? "☾" : "☀"}
           </button>
-          <div className="hidden items-center gap-2 rounded-full border border-border bg-surface px-2.5 py-1 md:flex">
-            <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--mint)]" />
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Live</span>
-          </div>
           <Link to="/profile" className="grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-[11px] font-medium text-foreground">АН</Link>
         </div>
       </div>
