@@ -40,45 +40,62 @@ function Dashboard() {
   const [meds, setMeds] = useState(MEDS_TODAY);
   const toggleMed = (t: string) => setMeds(s => s.map(m => m.t === t ? { ...m, ok: !m.ok } : m));
   const takenCount = meds.filter(m => m.ok).length;
+  const L1 = useL();
   return (
     <div className="space-y-6">
       {/* HERO */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.6fr_1fr]">
         <Bento className="noise relative overflow-hidden p-8">
-          <SectionEyebrow>20 шілде · Дүйсенбі · Талдықорған</SectionEyebrow>
+          <SectionEyebrow>
+            <L kk="20 шілде · Дүйсенбі · Талдықорған" ru="20 июля · Понедельник · Талдыкорган" en="July 20 · Monday · Taldykorgan" />
+          </SectionEyebrow>
           <h1 className="font-serif text-5xl leading-[1.02] tracking-tight text-foreground md:text-6xl">
-            Қайырлы таң, <span className="italic text-[color:var(--mint)]">Айнұр</span>.
+            <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
+            <span className="italic text-[color:var(--mint)]">
+              <L kk="Айнұр" ru="Айнур" en="Ainur" />
+            </span>.
             <br />
-            Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.
+            <L
+              kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.</>}
+              ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа требует внимания.</>}
+              en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
+            />
           </h1>
           <div className="mt-6 flex flex-wrap gap-2">
             <Link to="/nutrition-scan" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
-              Тамақ сканерлеу →
+              <L kk="Тамақ сканерлеу →" ru="Сканировать еду →" en="Scan food →" />
             </Link>
             <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
-              Дәрі-дәрмек
+              <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
             </Link>
             <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
-              Онбординг
+              <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
             </Link>
           </div>
           <div className="pointer-events-none absolute -bottom-20 -right-20 h-64 w-64 rounded-full bg-[color:var(--mint)]/20 blur-3xl" />
         </Bento>
 
         <Bento className="flex flex-col items-center justify-center text-center">
-          <SectionEyebrow>Денсаулық индексі</SectionEyebrow>
+          <SectionEyebrow>
+            <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
+          </SectionEyebrow>
           <div className="my-2">
             <HealthOrb value={72} size={220} label="/ 100" />
           </div>
           <div className="mt-3 flex items-center gap-2">
-            <Badge tone="mint">+4 апта сайын</Badge>
-            <Badge tone="warning">1 назар</Badge>
+            <Badge tone="mint">{L1({ kk: "+4 апта сайын", ru: "+4 за неделю", en: "+4 this week" })}</Badge>
+            <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 внимание", en: "1 flag" })}</Badge>
           </div>
           <p className="mt-3 max-w-[240px] text-[11px] text-muted-foreground">
-            Гемоглобин мен ферритинді қалпына келтірсе — индекс 85+ болады.
+            <L
+              kk="Гемоглобин мен ферритинді қалпына келтірсе — индекс 85+ болады."
+              ru="Восстановите гемоглобин и ферритин — индекс достигнет 85+."
+              en="Restore hemoglobin and ferritin — index will reach 85+."
+            />
           </p>
         </Bento>
       </div>
+
 
       {/* Trend + Meds */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.4fr_1fr]">
