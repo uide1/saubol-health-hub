@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Bento, Badge, Chip, SectionEyebrow, Gauge } from "@/components/ui-kit";
@@ -7,7 +7,7 @@ export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
       { title: "Профиль — SauBol AI" },
-      { name: "description", content: "Жеке медициналық профиль, барлық сканерлер тарихы, PDF экспорт." },
+      { name: "description", content: "Жеке медициналық профиль, PDF экспорт, тіл және құпиялылық баптаулары." },
       { property: "og:title", content: "Профиль · SauBol AI" },
       { property: "og:description", content: "Сіздің денсаулық журналыңыз бір орында." },
     ],
@@ -15,31 +15,12 @@ export const Route = createFileRoute("/profile")({
   component: ProfilePage,
 });
 
-type HistTone = "warning" | "danger" | "success" | "muted";
-const HISTORY: { date: string; type: string; title: string; note: string; tone: HistTone; to: "/nutrition-scan" | "/triage-voice" | "/prescription-rx" }[] = [
-  { date: "20 шіл", type: "food", title: "Fried chicken burger", note: "Sugar +168% · Sodium 62%", tone: "danger", to: "/nutrition-scan" },
-  { date: "19 шіл", type: "voice", title: "Аудио триаж — ішке ауырсыну", note: "Аппендицит күдігі · 103", tone: "danger", to: "/triage-voice" },
-  { date: "18 шіл", type: "rx", title: "Рецепт Rx-2026-0472", note: "7 дәрі-дәрмек · 2 өзара әсер", tone: "warning", to: "/prescription-rx" },
-  { date: "17 шіл", type: "food", title: "Quinoa bowl", note: "Дұрыс тамақтану", tone: "success", to: "/nutrition-scan" },
-  { date: "10 шіл", type: "rx", title: "Vitamin D3 4000 IU", note: "Ұзақ мерзімді курс", tone: "muted", to: "/prescription-rx" },
-  { date: "05 шіл", type: "voice", title: "Бас ауруы сұхбаты", note: "Мигрень белгілері", tone: "muted", to: "/triage-voice" },
-];
-
-const TABS = [
-  { k: "all", l: "Барлығы", n: 6 },
-  { k: "food", l: "Тамақ", n: 2 },
-  { k: "voice", l: "Дауыс", n: 2 },
-  { k: "rx", l: "Дәрі", n: 2 },
-];
-
-
 function ProfilePage() {
-  const [tab, setTab] = useState("all");
   const [lang, setLang] = useState("kk");
   const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
   const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
-  const filtered = tab === "all" ? HISTORY : HISTORY.filter((h) => h.type === tab);
   const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
+
 
   return (
     <div className="space-y-6">
