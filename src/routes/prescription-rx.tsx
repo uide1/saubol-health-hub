@@ -158,8 +158,8 @@ function PrescriptionRx() {
                   <div className="font-semibold text-red-200">Rapid</div>
                 </div>
               </div>
-              <button className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
-                Replace with safer alternative
+              <button onClick={() => { setReplaced(true); setCurrent((s) => s.filter(x => !x.startsWith("Ibuprofen")).concat(replaced ? [] : ["Paracetamol 500 mg (safe)"])); toast.success("✓ Ibuprofen → Paracetamol", { description: "Қауіпсіз балама енгізілді, өзара әрекет жойылды" }); }} className="mt-3 w-full rounded-md bg-red-600 py-2 text-sm font-semibold text-white hover:bg-red-500">
+                {replaced ? "Ауыстырылды ✓" : "Replace with safer alternative"}
               </button>
             </div>
           </div>
