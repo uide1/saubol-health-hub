@@ -1,0 +1,114 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Bento, Badge, Chip, SectionEyebrow, Gauge } from "@/components/ui-kit";
+import { useL, L } from "@/lib/i18n";
+
+
+export const Route = createFileRoute("/profile")({
+  head: () => ({
+    meta: [
+      { title: "Профиль — SauBol AI" },
+      { name: "description", content: "Жеке медициналық профиль, PDF экспорт, тіл және құпиялылық баптаулары." },
+      { property: "og:title", content: "Профиль · SauBol AI" },
+      { property: "og:description", content: "Сіздің денсаулық журналыңыз бір орында." },
+    ],
+  }),
+  component: ProfilePage,
+});
+
+function ProfilePage() {
+  const [lang, setLang] = useState("kk");
+  const [goals, setGoals] = useState<string[]>(["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ"]);
+  const [privacy, setPrivacy] = useState({ enc: true, sos: true, share: false });
+  const toggleGoal = (g: string) => setGoals(s => s.includes(g) ? s.filter(x => x !== g) : [...s, g]);
+  const L1 = useL();
+
+
+
+  return (
+    <div className="space-y-6">
+      {/* Profile hero */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
+        <Bento className="noise flex items-center gap-6 p-8">
+          <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[color:var(--mint)] to-emerald-800 font-serif text-4xl text-background">
+            АН
+          </div>
+          <div className="flex-1">
+            <SectionEyebrow><L kk="Пациент профилі · SB-24817" ru="Профиль пациента · SB-24817" en="Patient profile · SB-24817" /></SectionEyebrow>
+            <h1 className="font-serif text-4xl leading-tight tracking-tight text-foreground">Айнұр Нұрланова</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              <L kk="32 жас · Талдықорған · II (A+) қан тобы · SauBol-да 4 ай" ru="32 года · Талдыкорган · группа крови II (A+) · в SauBol 4 месяца" en="32 y.o. · Taldykorgan · blood type A+ · 4 months on SauBol" />
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Badge tone="mint">Premium</Badge>
+              <Badge tone="warning"><L kk="Пенициллинге аллергия" ru="Аллергия на пенициллин" en="Penicillin allergy" /></Badge>
+              <Badge tone="muted"><L kk="Анемия · курста" ru="Анемия · курс лечения" en="Anemia · in treatment" /></Badge>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2">
+            <button onClick={() => toast.info(L1({ kk: "Өңдеу режимі жақында", ru: "Режим редактирования скоро", en: "Edit mode coming soon" }))} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-foreground"><L kk="Өңдеу" ru="Изменить" en="Edit" /></button>
+            <button onClick={() => toast.success(L1({ kk: "📄 PDF дайындалуда...", ru: "📄 PDF готовится...", en: "📄 Preparing PDF..." }))} className="rounded-full bg-foreground px-4 py-2 text-xs text-background"><L kk="PDF экспорт" ru="Экспорт PDF" en="Export PDF" /></button>
+          </div>
+        </Bento>
+
+        <Bento className="flex items-center gap-4">
+          <Gauge value={72} label={L1({ kk: "Индекс", ru: "Индекс", en: "Index" })} size={120} />
+          <div className="flex-1 space-y-1.5">
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Бүгін" ru="Сегодня" en="Today" /></span><span className="font-mono text-foreground">72</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Апта" ru="Неделя" en="Week" /></span><span className="font-mono text-[color:var(--mint)]">+4</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Ай" ru="Месяц" en="Month" /></span><span className="font-mono text-[color:var(--mint)]">+11</span></div>
+            <div className="flex justify-between text-[11px]"><span className="text-muted-foreground"><L kk="Барлық сканер" ru="Всего сканов" en="Total scans" /></span><span className="font-mono text-foreground">47</span></div>
+          </div>
+        </Bento>
+      </div>
+
+
+      {/* Body metrics */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-6">
+        {[
+          ["Бой", "165 см"], ["Салмақ", "58 кг"], ["BMI", "21.3"],
+          ["ЖСС", "68 bpm"], ["АҚ", "118/76"], ["SpO₂", "98%"],
+        ].map(([l, v]) => (
+          <div key={l} className="rounded-xl border border-border bg-surface p-3">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">{l}</div>
+            <div className="mt-1 font-mono text-lg text-foreground">{v}</div>
+          </div>
+        ))}
+      </div>
+
+
+
+
+      {/* Preferences */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Bento>
+          <SectionEyebrow><L kk="Мақсаттар" ru="Цели" en="Goals" /></SectionEyebrow>
+          <div className="flex flex-wrap gap-1.5">
+            {["🩸 Анемия", "💤 Ұйқы", "⚖️ Салмақ", "🍎 Тамақ", "🏃 Спорт"].map((g) => (
+              <button key={g} onClick={() => toggleGoal(g)}>
+                <Chip active={goals.includes(g)}>{g}</Chip>
+              </button>
+            ))}
+          </div>
+        </Bento>
+        <Bento>
+          <SectionEyebrow><L kk="Құпиялылық" ru="Приватность" en="Privacy" /></SectionEyebrow>
+          <div className="space-y-1.5 text-[12px] text-foreground">
+            {[
+              { k: "enc" as const, l: L1({ kk: "Деректер шифрлеу", ru: "Шифрование данных", en: "Data encryption" }) },
+              { k: "sos" as const, l: L1({ kk: "103-ке автотабысу", ru: "Автовызов 103", en: "Auto-dial 103" }) },
+              { k: "share" as const, l: L1({ kk: "Дәрігермен бөлісу", ru: "Делиться с врачом", en: "Share with doctor" }) },
+            ].map((r) => (
+              <button key={r.k} onClick={() => { setPrivacy(p => ({ ...p, [r.k]: !p[r.k] })); toast(`${r.l}: ${!privacy[r.k] ? L1({ kk: "Қосулы", ru: "Вкл", en: "On" }) : L1({ kk: "Өшірулі", ru: "Выкл", en: "Off" })}`); }} className="flex w-full items-center justify-between">
+                <span>{r.l}</span>
+                <Badge tone={privacy[r.k] ? "mint" : "muted"}>{privacy[r.k] ? L1({ kk: "Қосулы", ru: "Вкл", en: "On" }) : L1({ kk: "Өшірулі", ru: "Выкл", en: "Off" })}</Badge>
+              </button>
+            ))}
+          </div>
+        </Bento>
+      </div>
+
+    </div>
+  );
+}
