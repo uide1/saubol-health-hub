@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Bento, Badge, Chip, SectionEyebrow } from "@/components/ui-kit";
 
 export const Route = createFileRoute("/feed")({
