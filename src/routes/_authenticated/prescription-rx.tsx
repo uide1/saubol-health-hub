@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge, PageHeader, SectionEyebrow } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { useMyProfile } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { scanPrescriptionPhoto } from "@/lib/meds-scan.functions";
+
 
 export const Route = createFileRoute("/_authenticated/prescription-rx")({
   head: () => ({
@@ -27,6 +30,11 @@ function PrescriptionRx() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [remindersOn, setRemindersOn] = useState(false);
   const remindedRef = useRef<Set<string>>(new Set());
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+  const scanFn = useServerFn(scanPrescriptionPhoto);
+
 
   // Load family (self + accepted children)
   useEffect(() => {
@@ -163,6 +171,49 @@ function PrescriptionRx() {
     loadSlots();
   };
 
+  const fileToDataUrl = (file: File) => new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result));
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(file);
+  });
+
+  const handleScanFile = async (file: File | null | undefined) => {
+    if (!file || !canEdit || !activePerson) return;
+    if (file.size > 12 * 1024 * 1024) {
+      toast.error(L1({ kk: "Сурет тым үлкен (12MB max)", ru: "Слишком большое фото (макс 12MB)", en: "Image too large (12MB max)" }));
+      return;
+    }
+    setScanning(true);
+    const tid = toast.loading(L1({ kk: "AI суретті талдап жатыр…", ru: "AI распознаёт фото…", en: "AI is reading the photo…" }));
+    try {
+      const dataUrl = await fileToDataUrl(file);
+      const res = await scanFn({ data: { imageDataUrl: dataUrl, targetUserId: activePerson } });
+      toast.dismiss(tid);
+      if (res.inserted === 0) {
+        toast.error(L1({ kk: "Дәрі табылмады", ru: "Лекарства не распознаны", en: "No medications found" }));
+      } else {
+        toast.success(
+          L1({
+            kk: `+${res.inserted} дәрі қосылды`,
+            ru: `+${res.inserted} лекарств добавлено`,
+            en: `+${res.inserted} medications added`,
+          }),
+          { description: res.items.slice(0, 3).map((i) => `${i.time} · ${i.name}`).join(" · ") },
+        );
+        loadSlots();
+      }
+    } catch (e: any) {
+      toast.dismiss(tid);
+      toast.error(e?.message || "Scan failed");
+    } finally {
+      setScanning(false);
+      if (cameraInputRef.current) cameraInputRef.current.value = "";
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    }
+  };
+
+
   const takenCount = slots.filter(s => s.taken).length;
 
   return (
@@ -215,13 +266,47 @@ function PrescriptionRx() {
               {takenCount} <span className="text-muted-foreground">/ {slots.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {canEdit ? (
-              <button onClick={addSlot} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">+ <L kk="Дәрі қосу" ru="Добавить" en="Add drug" /></button>
+              <>
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => handleScanFile(e.target.files?.[0])}
+                />
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleScanFile(e.target.files?.[0])}
+                />
+                <button
+                  onClick={() => cameraInputRef.current?.click()}
+                  disabled={scanning}
+                  className="rounded-full border border-[color:var(--mint)]/40 bg-[color:var(--mint-soft)] px-4 py-2 text-xs font-medium text-foreground transition hover:border-[color:var(--mint)]/70 disabled:opacity-50"
+                  title={L1({ kk: "Камерадан суретке түсіру", ru: "Сфотографировать камерой", en: "Take a photo" })}
+                >
+                  📷 <L kk="Суретке түсіру" ru="Сфотографировать" en="Take photo" />
+                </button>
+                <button
+                  onClick={() => galleryInputRef.current?.click()}
+                  disabled={scanning}
+                  className="rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:border-white/20 disabled:opacity-50"
+                  title={L1({ kk: "Құрылғыдан сурет таңдау", ru: "Выбрать файл", en: "Upload from device" })}
+                >
+                  🖼️ <L kk="Файлдан" ru="Из файла" en="From file" />
+                </button>
+                <button onClick={addSlot} disabled={scanning} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background disabled:opacity-50">+ <L kk="Қолмен" ru="Вручную" en="Manual" /></button>
+              </>
             ) : (
               <span className="text-[11px] text-muted-foreground"><L kk="Тек көру" ru="Только просмотр" en="View only" /></span>
             )}
           </div>
+
         </div>
 
         {/* 24-hour timeline */}
