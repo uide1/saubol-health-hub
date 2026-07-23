@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useMyProfile, resolveAvatarUrl } from "@/lib/auth";
 import { PageHeader } from "@/components/ui-kit";
 import { L, useL } from "@/lib/i18n";
+import { useServerFn } from "@tanstack/react-start";
+import { findUser } from "@/lib/find-user.functions";
 
 export const Route = createFileRoute("/_authenticated/connections")({
   head: () => ({
@@ -28,6 +30,7 @@ type LinkRow = { kind: "family" | "friend"; role: "parent" | "child" | "friend";
 function ConnectionsPage() {
   const { user, profile } = useMyProfile();
   const L1 = useL();
+  const findUserFn = useServerFn(findUser);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Row[]>([]);
   const [links, setLinks] = useState<LinkRow[]>([]);
@@ -74,9 +77,15 @@ function ConnectionsPage() {
     e.preventDefault();
     if (!query.trim()) return;
     setBusy(true);
-    const { data, error } = await supabase.rpc("find_user", { _query: query.trim() });
+    let data: any[] = [];
+    try {
+      data = await findUserFn({ data: { query: query.trim() } });
+    } catch (err: any) {
+      setBusy(false);
+      toast.error(err?.message ?? "Search failed");
+      return;
+    }
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
     const filtered = (data ?? []).filter((r: any) => r.id !== user?.id);
     setResults(filtered);
     if (filtered.length === 0) toast(L1({ kk: "Ешкім табылмады", ru: "Никого не найдено", en: "No users found" }));
