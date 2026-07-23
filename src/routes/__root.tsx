@@ -135,6 +135,7 @@ function TopNav() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <NotificationBell />
           <LangSwitcher />
           <button
             onClick={toggle}
