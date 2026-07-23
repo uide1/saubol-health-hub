@@ -13,6 +13,7 @@ import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
 import { Toaster } from "sonner";
 import { LangProvider, LangSwitcher, useL, L } from "@/lib/i18n";
+import { NotificationBell } from "@/components/notification-bell";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -134,6 +135,7 @@ function TopNav() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <NotificationBell />
           <LangSwitcher />
           <button
             onClick={toggle}
