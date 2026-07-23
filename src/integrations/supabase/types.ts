@@ -253,7 +253,7 @@ export type Database = {
           height_cm?: number | null
           id: string
           last_name?: string | null
-          public_id: string
+          public_id?: string
           role?: string
           updated_at?: string
           username: string
