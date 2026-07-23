@@ -22,9 +22,22 @@ function sendMessage(chatId: number, text: string) {
   });
 }
 
+function getAlmatyTimeString() {
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Almaty",
+  });
+  const parts = formatter.formatToParts(new Date());
+  const hour = parts.find((p) => p.type === "hour")!.value;
+  const minute = parts.find((p) => p.type === "minute")!.value;
+  return `${hour}:${minute}`;
+}
+
 async function checkMedications() {
-  const now = new Date();
-  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const currentTime = getAlmatyTimeString();
+
 
   const { data: meds, error } = await supabase.from("medication_schedules").select("*");
   if (error) {
