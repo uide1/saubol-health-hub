@@ -26,6 +26,7 @@ function ProfilePage() {
   const L1 = useL();
   const [editOpen, setEditOpen] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     resolveAvatarUrl(profile?.avatar_url).then(setAvatar);
@@ -34,6 +35,23 @@ function ProfilePage() {
   const signOut = async () => {
     await supabase.auth.signOut();
     window.location.href = "/auth";
+  };
+
+  const onPickAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !profile) return;
+    if (file.size > 3 * 1024 * 1024) { toast.error(L1({ kk: "Файл 3МБ-дан аспау керек", ru: "Файл до 3МБ", en: "Max 3MB" })); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${profile.id}/avatar-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) { setUploading(false); toast.error(upErr.message); return; }
+    const { error: dbErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("id", profile.id);
+    setUploading(false);
+    if (dbErr) { toast.error(dbErr.message); return; }
+    toast.success(L1({ kk: "Аватар жаңартылды", ru: "Аватар обновлён", en: "Avatar updated" }));
+    refetch();
+    e.target.value = "";
   };
 
   if (!profile) {
@@ -50,9 +68,13 @@ function ProfilePage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
         <Bento className="noise relative flex items-center gap-6 overflow-hidden p-8">
           <div className="aurora opacity-20" />
-          <div className="relative grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[color:var(--mint)] to-emerald-800 font-serif text-4xl text-background">
+          <label className="group relative grid h-24 w-24 shrink-0 cursor-pointer place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[color:var(--mint)] to-emerald-800 font-serif text-4xl text-background" title={L1({ kk: "Фотоны ауыстыру", ru: "Сменить фото", en: "Change photo" })}>
             {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : initials}
-          </div>
+            <span className="absolute inset-0 grid place-items-center bg-black/50 text-[10px] uppercase tracking-widest text-white opacity-0 transition group-hover:opacity-100">
+              {uploading ? "…" : <L kk="Өзгерту" ru="Сменить" en="Change" />}
+            </span>
+            <input type="file" accept="image/*" className="hidden" onChange={onPickAvatar} disabled={uploading} />
+          </label>
           <div className="relative flex-1 min-w-0">
             <SectionEyebrow>
               <L kk="Пациент профилі" ru="Профиль пациента" en="Patient profile" /> · <span className="font-mono">{profile.public_id}</span>
