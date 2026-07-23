@@ -104,6 +104,7 @@ function TopNav() {
   const NAV = [
     { to: "/", label: L1({ kk: "Басты", ru: "Главная", en: "Home" }), icon: "◉" },
     { to: "/triage-voice", label: L1({ kk: "Дауыс", ru: "Чат", en: "Chat" }), icon: "◐" },
+    { to: "/scanner", label: L1({ kk: "Сканер", ru: "Сканер", en: "Scanner" }), icon: "◉" },
     { to: "/prescription-rx", label: L1({ kk: "Дәрілер", ru: "Лекарства", en: "Meds" }), icon: "◈" },
     { to: "/connections", label: L1({ kk: "Отбасы", ru: "Семья", en: "Family" }), icon: "◇" },
     { to: "/profile", label: L1({ kk: "Профиль", ru: "Профиль", en: "Profile" }), icon: "◎" },

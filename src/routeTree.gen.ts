@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedTriageVoiceRouteImport } from './routes/_authenticated/triage-voice'
+import { Route as AuthenticatedScannerRouteImport } from './routes/_authenticated/scanner'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedPrescriptionRxRouteImport } from './routes/_authenticated/prescription-rx'
 import { Route as AuthenticatedConnectionsRouteImport } from './routes/_authenticated/connections'
@@ -37,6 +38,11 @@ const AuthenticatedTriageVoiceRoute =
     path: '/triage-voice',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedScannerRoute = AuthenticatedScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/connections': typeof AuthenticatedConnectionsRoute
   '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/scanner': typeof AuthenticatedScannerRoute
   '/triage-voice': typeof AuthenticatedTriageVoiceRoute
 }
 export interface FileRoutesByTo {
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/connections': typeof AuthenticatedConnectionsRoute
   '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
   '/profile': typeof AuthenticatedProfileRoute
+  '/scanner': typeof AuthenticatedScannerRoute
   '/triage-voice': typeof AuthenticatedTriageVoiceRoute
   '/': typeof AuthenticatedIndexRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/_authenticated/connections': typeof AuthenticatedConnectionsRoute
   '/_authenticated/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/scanner': typeof AuthenticatedScannerRoute
   '/_authenticated/triage-voice': typeof AuthenticatedTriageVoiceRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/connections'
     | '/prescription-rx'
     | '/profile'
+    | '/scanner'
     | '/triage-voice'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/connections'
     | '/prescription-rx'
     | '/profile'
+    | '/scanner'
     | '/triage-voice'
     | '/'
   id:
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/connections'
     | '/_authenticated/prescription-rx'
     | '/_authenticated/profile'
+    | '/_authenticated/scanner'
     | '/_authenticated/triage-voice'
     | '/_authenticated/'
   fileRoutesById: FileRoutesById
@@ -144,6 +156,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTriageVoiceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/scanner': {
+      id: '/_authenticated/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof AuthenticatedScannerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -172,6 +191,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedConnectionsRoute: typeof AuthenticatedConnectionsRoute
   AuthenticatedPrescriptionRxRoute: typeof AuthenticatedPrescriptionRxRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedScannerRoute: typeof AuthenticatedScannerRoute
   AuthenticatedTriageVoiceRoute: typeof AuthenticatedTriageVoiceRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
@@ -180,6 +200,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedConnectionsRoute: AuthenticatedConnectionsRoute,
   AuthenticatedPrescriptionRxRoute: AuthenticatedPrescriptionRxRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedScannerRoute: AuthenticatedScannerRoute,
   AuthenticatedTriageVoiceRoute: AuthenticatedTriageVoiceRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
