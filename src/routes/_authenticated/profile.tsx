@@ -349,13 +349,16 @@ function TelegramLink({ profileId, chatId, linkCode, onChange }: { profileId: st
               en={<>Send this command to the bot on Telegram: <span className="font-mono text-foreground">/start {linkCode}</span></>}
             />
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={copy} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">
               <L kk="Кодты көшіру" ru="Скопировать код" en="Copy code" />
             </button>
             <button onClick={generate} disabled={busy} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50">
               <L kk="Жаңа код" ru="Новый код" en="New code" />
             </button>
+            <a href="https://web.telegram.org/k/#@saubolcare_bot" target="_blank" rel="noreferrer" className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground">
+              <L kk="Ботты ашу" ru="Открыть бота" en="Open bot" />
+            </a>
           </div>
         </div>
       ) : (
