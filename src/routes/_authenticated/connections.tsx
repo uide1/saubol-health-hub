@@ -108,6 +108,22 @@ function ConnectionsPage() {
   };
   const addChild = async (other: Row) => {
     if (!user) return;
+    if ((profile?.age ?? 0) > 0 && (profile?.age ?? 0) < 18) {
+      toast.error(L1({
+        kk: "18 жасқа толмаған қолданушы бала қоса алмайды",
+        ru: "Пользователи младше 18 не могут добавлять детей",
+        en: "Users under 18 cannot add a child",
+      }));
+      return;
+    }
+    if (!profile?.age) {
+      toast.error(L1({
+        kk: "Профильде жасыңызды көрсетіңіз",
+        ru: "Укажите возраст в профиле",
+        en: "Set your age in profile first",
+      }));
+      return;
+    }
     const { error } = await supabase.from("family_links").insert({ parent_id: user.id, child_id: other.id, status: "pending" });
     if (error) { toast.error(error.message); return; }
     await supabase.from("notifications").insert({
