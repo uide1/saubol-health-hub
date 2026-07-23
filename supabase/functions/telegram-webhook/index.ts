@@ -161,23 +161,15 @@ async function handleFall(chatId: number) {
   const user = await requireUser(chatId);
   if (!user) return;
 
-  const { data: alert, error } = await supabase
+  const { error } = await supabase
     .from("fall_alerts")
-    .insert({ user_id: user.id, status: "pending" })
-    .select()
-    .single();
+    .insert({ user_id: user.id, status: "pending" });
 
-  if (error || !alert) {
+  if (error) {
     await sendMessage(chatId, "Не получилось создать алерт. Попробуй ещё раз.");
-    return;
   }
-
-  await sendMessage(
-    chatId,
-    "🆘 Похоже на падение! Ты в порядке?\n\nЕсли не ответишь в течение примерно минуты, мы свяжемся с твоим экстренным контактом.",
-    { reply_markup: alertKeyboard(alert.id) }
-  );
 }
+
 
 async function handleCallback(callbackQuery: any) {
   const chatId = callbackQuery.message.chat.id;
