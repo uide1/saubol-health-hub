@@ -36,42 +36,86 @@ const MEDS_TODAY = [
   { t: "15:00", n: "Omeprazole 20 mg", ok: false },
 ];
 
-const VITALS = [
-  { k: "HR",    v: "68",   u: "bpm",   spark: [4,6,5,7,6,8,7,9,7,8,6,7] },
-  { k: "SpO₂",  v: "98",   u: "%",     spark: [8,8,9,8,9,9,8,9,8,9,9,8] },
-  { k: "HRV",   v: "52",   u: "ms",    spark: [3,5,4,6,5,7,6,8,7,6,7,8] },
-  { k: "Steps", v: "6 240",u: "/8k",   spark: [2,3,4,5,6,7,7,8,8,9,9,9] },
-  { k: "Sleep", v: "7ч 42",u: "min",   spark: [6,7,7,8,8,7,8,9,8,7,8,8] },
-  { k: "Water", v: "1.4",  u: "L / 2", spark: [2,3,3,4,5,5,6,6,7,7,8,8] },
+type FamilyMember = {
+  id: string;
+  name: string;
+  role: "child" | "parent";
+  emoji: string;
+  status: "ok" | "watch" | "alert";
+  water: { cur: number; goal: number };
+  sleep: { h: number; goal: number };
+  meds: { taken: number; total: number };
+  steps: number;
+  mood: string;
+  last: string;
+};
+
+const FAMILY: FamilyMember[] = [
+  { id: "aidos",  name: "Айдос",  role: "child",  emoji: "🧒", status: "ok",    water: { cur: 5, goal: 6 }, sleep: { h: 9.2, goal: 10 }, meds: { taken: 1, total: 2 }, steps: 7420, mood: "😊", last: "мектепте" },
+  { id: "aruzhan",name: "Аружан", role: "child",  emoji: "👧", status: "watch", water: { cur: 3, goal: 6 }, sleep: { h: 8.5, goal: 10 }, meds: { taken: 1, total: 3 }, steps: 2110, mood: "🥱", last: "температура 37.6°" },
+  { id: "dias",   name: "Диас",   role: "child",  emoji: "🧑", status: "ok",    water: { cur: 8, goal: 8 }, sleep: { h: 7.4, goal: 9  }, meds: { taken: 0, total: 0 }, steps: 12480,mood: "💪", last: "спорт секциясы" },
+  { id: "mama",   name: "Анара",  role: "parent", emoji: "👩", status: "ok",    water: { cur: 6, goal: 8 }, sleep: { h: 7.1, goal: 8  }, meds: { taken: 2, total: 2 }, steps: 5320, mood: "🙂", last: "офисте" },
 ];
 
-function VitalsStrip() {
+function FamilyStrip() {
+  const L1 = useL();
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[color:var(--mint)]/40 to-transparent" />
-      <div className="grid grid-cols-2 divide-x divide-border sm:grid-cols-3 lg:grid-cols-6">
-        {VITALS.map((v) => (
-          <div key={v.k} className="group relative p-4">
-            <div className="flex items-baseline justify-between">
-              <div className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">{v.k}</div>
-              <div className="font-mono text-[10px] text-muted-foreground/70">{v.u}</div>
+      <div className="flex items-baseline justify-between px-5 pt-4">
+        <div className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
+          <L kk="Отбасы · тікелей" ru="Семья · онлайн" en="Family · live" />
+        </div>
+        <div className="text-[10px] text-muted-foreground">{FAMILY.length} · {L1({ kk: "жақындар", ru: "близких", en: "members" })}</div>
+      </div>
+      <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
+        {FAMILY.map((p) => {
+          const dot = p.status === "ok" ? "bg-[color:var(--mint)]" : p.status === "watch" ? "bg-amber-400" : "bg-rose-400";
+          const waterPct = Math.round((p.water.cur / p.water.goal) * 100);
+          const sleepPct = Math.round((p.sleep.h / p.sleep.goal) * 100);
+          return (
+            <div key={p.id} className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary text-xl">
+                  {p.emoji}
+                  <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${dot} ring-2 ring-card`} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-1.5">
+                    <div className="truncate font-serif text-base text-foreground">{p.name}</div>
+                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                      {p.role === "child" ? L1({ kk: "бала", ru: "ребёнок", en: "child" }) : L1({ kk: "ата-ана", ru: "родитель", en: "parent" })}
+                    </span>
+                  </div>
+                  <div className="truncate text-[10px] text-muted-foreground">{p.mood} · {p.last}</div>
+                </div>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[10px]">
+                <div>
+                  <div className="flex justify-between text-muted-foreground"><span>💧 {L1({ kk: "Су", ru: "Вода", en: "Water" })}</span><span className="tabular-nums text-foreground">{p.water.cur}/{p.water.goal}</span></div>
+                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-[#7cb8ff]" style={{ width: `${Math.min(100,waterPct)}%` }} /></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-muted-foreground"><span>😴 {L1({ kk: "Ұйқы", ru: "Сон", en: "Sleep" })}</span><span className="tabular-nums text-foreground">{p.sleep.h}ч</span></div>
+                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-[color:var(--mint)]" style={{ width: `${Math.min(100,sleepPct)}%` }} /></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-muted-foreground"><span>💊 {L1({ kk: "Дәрі", ru: "Лек-ва", en: "Meds" })}</span><span className="tabular-nums text-foreground">{p.meds.taken}/{p.meds.total || "—"}</span></div>
+                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-foreground/70" style={{ width: `${p.meds.total ? (p.meds.taken/p.meds.total)*100 : 100}%` }} /></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-muted-foreground"><span>🚶 {L1({ kk: "Қадам", ru: "Шаги", en: "Steps" })}</span><span className="tabular-nums text-foreground">{p.steps.toLocaleString()}</span></div>
+                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-amber-400/80" style={{ width: `${Math.min(100, (p.steps/10000)*100)}%` }} /></div>
+                </div>
+              </div>
             </div>
-            <div className="mt-1 font-serif text-2xl tabular-nums text-foreground">{v.v}</div>
-            <div className="mt-2 flex h-6 items-end gap-[3px]">
-              {v.spark.map((h, i) => (
-                <div
-                  key={i}
-                  className="spark-bar w-[3px] rounded-sm bg-[color:var(--mint)]/70"
-                  style={{ height: `${h * 10}%`, animationDelay: `${i * 60}ms` }}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 }
+
 
 function Dashboard() {
   const [range, setRange] = useState<Range>("7");
@@ -108,12 +152,13 @@ function Dashboard() {
               />
             </h1>
             <div className="mt-6 flex flex-wrap gap-2">
-              <Link to="/nutrition-scan" className="group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
-                <L kk="Тамақ сканерлеу →" ru="Сканировать еду →" en="Scan food →" />
+              <Link to="/triage-voice" className="group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
+                <L kk="Чат ашу →" ru="Открыть чат →" en="Open chat →" />
               </Link>
               <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
                 <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
               </Link>
+
               <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
                 <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
               </Link>
@@ -133,7 +178,7 @@ function Dashboard() {
       </Bento>
 
       {/* Editorial vitals strip */}
-      <VitalsStrip />
+      <FamilyStrip />
 
 
 

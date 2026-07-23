@@ -17,23 +17,52 @@ export const Route = createFileRoute("/prescription-rx")({
 
 type Slot = { id: string; time: string; drug: string; note: string; tone: "success" | "warning" | "muted"; taken: boolean };
 
-const INITIAL_SCHEDULE: Slot[] = [
-  { id: "1", time: "08:00", drug: "Paracetamol 500 mg", note: "After breakfast", tone: "muted", taken: true },
-  { id: "2", time: "09:00", drug: "Ferrous bisglycinate 25 mg", note: "With vitamin C", tone: "success", taken: true },
-  { id: "3", time: "13:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
-  { id: "4", time: "15:00", drug: "Omeprazole 20 mg", note: "Before lunch", tone: "warning", taken: false },
-  { id: "5", time: "19:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
-  { id: "6", time: "21:00", drug: "Vitamin D3 4000 IU", note: "With fats", tone: "success", taken: false },
-  { id: "7", time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted", taken: false },
+const SCHEDULES: Record<string, Slot[]> = {
+  me: [
+    { id: "m1", time: "08:00", drug: "Paracetamol 500 mg", note: "After breakfast", tone: "muted", taken: true },
+    { id: "m2", time: "09:00", drug: "Ferrous bisglycinate 25 mg", note: "With vitamin C", tone: "success", taken: true },
+    { id: "m3", time: "13:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
+    { id: "m4", time: "15:00", drug: "Omeprazole 20 mg", note: "Before lunch", tone: "warning", taken: false },
+    { id: "m5", time: "19:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
+    { id: "m6", time: "21:00", drug: "Vitamin D3 4000 IU", note: "With fats", tone: "success", taken: false },
+    { id: "m7", time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted", taken: false },
+  ],
+  aidos: [
+    { id: "a1", time: "08:00", drug: "Витамин D 400 IU", note: "Таңғы астан кейін", tone: "success", taken: true },
+    { id: "a2", time: "20:00", drug: "Ferrum syrup 5 ml", note: "Кешкі астан кейін", tone: "muted", taken: false },
+  ],
+  aruzhan: [
+    { id: "r1", time: "09:00", drug: "Nurofen susp. 5 ml", note: "Температура >37.5°", tone: "warning", taken: true },
+    { id: "r2", time: "15:00", drug: "Nurofen susp. 5 ml", note: "6 сағ сайын", tone: "warning", taken: false },
+    { id: "r3", time: "21:00", drug: "Probiotic drops", note: "Ұйықтар алдында", tone: "success", taken: false },
+  ],
+  dias: [
+    { id: "d1", time: "07:30", drug: "Multivit teen", note: "Таңғы астан кейін", tone: "success", taken: true },
+  ],
+};
+
+type Person = { id: string; name: string; emoji: string; role: string };
+const PEOPLE: Person[] = [
+  { id: "me",      name: "Мен",    emoji: "👤", role: "Ata-ana" },
+  { id: "aidos",   name: "Айдос",  emoji: "🧒", role: "8 жас" },
+  { id: "aruzhan", name: "Аружан", emoji: "👧", role: "4 жас" },
+  { id: "dias",    name: "Диас",   emoji: "🧑", role: "14 жас" },
 ];
 
+
 function PrescriptionRx() {
-  const [schedule, setSchedule] = useState<Slot[]>(INITIAL_SCHEDULE);
+  const [activePerson, setActivePerson] = useState<string>("me");
+  const [schedules, setSchedules] = useState<Record<string, Slot[]>>(SCHEDULES);
   const [synced, setSynced] = useState(false);
   const [remindersOn, setRemindersOn] = useState(false);
   const remindedRef = useRef<Set<string>>(new Set());
   const L1 = useL();
 
+  const schedule = schedules[activePerson] ?? [];
+  const activePersonMeta = PEOPLE.find((p) => p.id === activePerson)!;
+  const setSchedule = (updater: (s: Slot[]) => Slot[]) => {
+    setSchedules((all) => ({ ...all, [activePerson]: updater(all[activePerson] ?? []) }));
+  };
 
   // Reminder engine — checks every 30s whether any dose is due within 5 min
   useEffect(() => {
@@ -47,9 +76,9 @@ function PrescriptionRx() {
         const diff = (target.getTime() - now.getTime()) / 60000;
         if (diff <= 5 && diff >= -1) {
           remindedRef.current.add(s.id);
-          toast(`⏰ Дәрі уақыты — ${s.drug}`, { description: `${s.time} · ${s.note}`, duration: 8000 });
+          toast(`⏰ ${activePersonMeta.name} · ${s.drug}`, { description: `${s.time} · ${s.note}`, duration: 8000 });
           if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-            new Notification("SauBol · Дәрі-дәрмек ескертпесі", { body: `${s.time} — ${s.drug}\n${s.note}` });
+            new Notification(`SauBol · ${activePersonMeta.name}`, { body: `${s.time} — ${s.drug}\n${s.note}` });
           }
         }
       });
@@ -57,38 +86,36 @@ function PrescriptionRx() {
     tick();
     const id = setInterval(tick, 30000);
     return () => clearInterval(id);
-  }, [remindersOn, schedule]);
+  }, [remindersOn, schedule, activePersonMeta]);
 
   const enableReminders = async () => {
     if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") {
-        await Notification.requestPermission();
-      }
+      if (Notification.permission === "default") await Notification.requestPermission();
     }
     setRemindersOn(true);
     remindedRef.current.clear();
     toast.success("🔔 Ескертпелер қосылды", { description: "Дәрі уақыты жақындағанда хабарлама келеді" });
   };
 
-  const toggleTaken = (id: string) => {
-    setSchedule((s) => s.map((r) => r.id === id ? { ...r, taken: !r.taken } : r));
-  };
+  const toggleTaken = (id: string) => setSchedule((s) => s.map((r) => r.id === id ? { ...r, taken: !r.taken } : r));
 
   const addSlot = () => {
-    const drug = window.prompt(L1({ kk: "Дәрі атауы (мыс.: Losartan 50 mg)", ru: "Название препарата (напр.: Losartan 50 mg)", en: "Drug name (e.g. Losartan 50 mg)" }));
+    const drug = window.prompt(L1({ kk: "Дәрі атауы", ru: "Название препарата", en: "Drug name" }));
     if (!drug) return;
     const time = window.prompt(L1({ kk: "Уақыты (HH:MM)", ru: "Время (HH:MM)", en: "Time (HH:MM)" }), "08:00");
     if (!time || !/^\d{2}:\d{2}$/.test(time)) { toast.error(L1({ kk: "Уақыт форматы дұрыс емес", ru: "Неверный формат времени", en: "Invalid time format" })); return; }
-    const note = window.prompt(L1({ kk: "Ескерту (мыс.: Тамақтан кейін)", ru: "Заметка (напр.: После еды)", en: "Note (e.g. After meal)" }), L1({ kk: "Тамақтан кейін", ru: "После еды", en: "After meal" })) ?? "";
+    const note = window.prompt(L1({ kk: "Ескерту", ru: "Заметка", en: "Note" }), L1({ kk: "Тамақтан кейін", ru: "После еды", en: "After meal" })) ?? "";
     const id = Math.random().toString(36).slice(2, 8);
     setSchedule((s) => [...s, { id, time, drug: drug.trim(), note: note.trim(), tone: "muted" as const, taken: false }].sort((a, b) => a.time.localeCompare(b.time)));
-    toast.success(`+ ${drug} ${L1({ kk: "кестеге қосылды", ru: "добавлен в расписание", en: "added to schedule" })}`, { description: `${time}` });
+    toast.success(`+ ${drug} · ${activePersonMeta.name}`, { description: `${time}` });
   };
 
   const removeSlot = (id: string) => {
     setSchedule((s) => s.filter((r) => r.id !== id));
     toast(L1({ kk: "Кестеден алынды", ru: "Удалено из расписания", en: "Removed from schedule" }));
   };
+
+
 
 
   const takenCount = schedule.filter(s => s.taken).length;
@@ -112,11 +139,40 @@ function PrescriptionRx() {
         }
       />
 
+      {/* Person selector — parent sees own timetable by default, can switch to any child */}
+      <div className="mb-4 rounded-2xl border border-border bg-card p-3">
+        <div className="mb-2 flex items-baseline justify-between px-1">
+          <SectionEyebrow><L kk="Кестені кімге көрсету" ru="Чей график показать" en="Whose schedule" /></SectionEyebrow>
+          <span className="text-[10px] text-muted-foreground">{PEOPLE.length} · {L1({ kk: "профиль", ru: "профилей", en: "profiles" })}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PEOPLE.map((p) => {
+            const active = p.id === activePerson;
+            const items = schedules[p.id] ?? [];
+            const taken = items.filter((s) => s.taken).length;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setActivePerson(p.id)}
+                className={`flex items-center gap-3 rounded-2xl border px-3 py-2 text-left transition ${active ? "border-[color:var(--mint)]/50 bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-white/15"}`}
+              >
+                <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-lg">{p.emoji}</div>
+                <div>
+                  <div className="text-[13px] font-medium text-foreground leading-tight">{p.name}</div>
+                  <div className="text-[10px] text-muted-foreground">{p.role} · {taken}/{items.length} <L kk="қаб." ru="прин." en="tk." /></div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* BIG timetable — full width, hero */}
+
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <SectionEyebrow><L kk="Күнделікті кесте · Asia/Almaty" ru="Дневное расписание · Asia/Almaty" en="Daily schedule · Asia/Almaty" /></SectionEyebrow>
+            <SectionEyebrow><L kk="Күнделікті кесте" ru="Дневное расписание" en="Daily schedule" /> · <span className="text-foreground">{activePersonMeta.emoji} {activePersonMeta.name}</span></SectionEyebrow>
             <div className="font-serif text-3xl text-foreground">
               {takenCount} <span className="text-muted-foreground">/ {schedule.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
             </div>
