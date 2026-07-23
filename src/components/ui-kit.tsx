@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useRef, type MouseEvent, type ReactNode } from "react";
 
 export function Card({ children, className = "", title, subtitle, right }: { children: ReactNode; className?: string; title?: string; subtitle?: string; right?: ReactNode }) {
   return (
@@ -76,11 +76,22 @@ export function PageHeader({ eyebrow, title, description, actions }: { eyebrow: 
   );
 }
 
-/* ============ NEW ============ */
-
+/* ============ Bento with mouse-tracked spotlight ============ */
 export function Bento({ children, className = "", accent = false }: { children: ReactNode; className?: string; accent?: boolean }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const onMove = (e: MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  };
   return (
-    <div className={`group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition hover:border-white/15 ${accent ? "bg-gradient-to-br from-[color:var(--mint-soft)] to-transparent" : ""} ${className}`}>
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      className={`bento group relative overflow-hidden rounded-2xl border border-border bg-card p-5 transition duration-300 hover:border-white/20 ${accent ? "bg-gradient-to-br from-[color:var(--mint-soft)] to-transparent" : ""} ${className}`}
+    >
       {children}
     </div>
   );
@@ -88,7 +99,7 @@ export function Bento({ children, className = "", accent = false }: { children: 
 
 export function Chip({ children, active = false }: { children: ReactNode; active?: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium ${active ? "border-[color:var(--mint)]/40 bg-[color:var(--mint-soft)] text-[color:var(--mint)]" : "border-border bg-surface text-muted-foreground"}`}>
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium transition ${active ? "border-[color:var(--mint)]/40 bg-[color:var(--mint-soft)] text-[color:var(--mint)]" : "border-border bg-surface text-muted-foreground hover:text-foreground"}`}>
       {children}
     </span>
   );
