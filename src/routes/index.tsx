@@ -178,7 +178,7 @@ function Dashboard() {
       </Bento>
 
       {/* Editorial vitals strip */}
-      <VitalsStrip />
+      <FamilyStrip />
 
 
 
