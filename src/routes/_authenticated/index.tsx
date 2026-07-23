@@ -185,9 +185,7 @@ function Dashboard() {
             </div>
             <h1 className="font-serif text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
               <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
-              <span className="italic text-[color:var(--mint)]">
-                <L kk="Айнұр" ru="Айнур" en="Ainur" />
-              </span>.
+              <span className="italic text-[color:var(--mint)]">{displayName}</span>.
               <br />
               <L
                 kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі<br />назар аударуды талап етеді.</>}
