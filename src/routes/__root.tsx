@@ -11,6 +11,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
+import { CommandPalette } from "@/components/command-palette";
 import { Toaster } from "sonner";
 import { LangProvider, LangSwitcher, useL, L } from "@/lib/i18n";
 
@@ -130,6 +131,13 @@ function TopNav() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="hidden items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-[10px] text-muted-foreground transition hover:text-foreground md:inline-flex"
+            title="Command palette"
+          >
+            <span>⌘</span><span>K</span>
+          </button>
           <LangSwitcher />
           <button
             onClick={toggle}
