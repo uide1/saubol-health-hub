@@ -52,13 +52,13 @@ function ConnectionsPage() {
     (f.data ?? []).forEach((r: any) => {
       const oid = r.user_id === user.id ? r.friend_id : r.user_id;
       const other = byId.get(oid);
-      if (other) out.push({ kind: "friend", role: "friend", status: r.status, other });
+      if (other) out.push({ kind: "friend", role: "friend", status: r.status, iRequested: r.user_id === user.id, other });
     });
     (fam.data ?? []).forEach((r: any) => {
       const iAmParent = r.parent_id === user.id;
       const oid = iAmParent ? r.child_id : r.parent_id;
       const other = byId.get(oid);
-      if (other) out.push({ kind: "family", role: iAmParent ? "child" : "parent", status: r.status, other });
+      if (other) out.push({ kind: "family", role: iAmParent ? "child" : "parent", status: r.status, iRequested: iAmParent, other });
     });
     setLinks(out);
     // resolve avatars
