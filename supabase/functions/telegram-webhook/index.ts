@@ -225,8 +225,17 @@ async function notifyCaregivers(userId: string, _alertId: string, reason: string
   }
 }
 
+const WEBHOOK_SECRET = Deno.env.get("TELEGRAM_WEBHOOK_SECRET") ?? "";
+
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("ok");
+
+  if (WEBHOOK_SECRET) {
+    const provided = req.headers.get("x-telegram-bot-api-secret-token") ?? "";
+    if (provided !== WEBHOOK_SECRET) {
+      return new Response("unauthorized", { status: 401 });
+    }
+  }
 
   const update = await req.json();
 
