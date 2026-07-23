@@ -38,27 +38,57 @@ const MEDS_TODAY = [
   { t: "15:00", n: "Omeprazole 20 mg", ok: false },
 ];
 
-type FamilyMember = {
+type FamilyChild = {
   id: string;
   name: string;
-  role: "child" | "parent";
   emoji: string;
-  status: "ok" | "watch" | "alert";
-  water: { cur: number; goal: number };
-  sleep: { h: number; goal: number };
-  meds: { taken: number; total: number };
-  steps: number;
-  mood: string;
-  last: string;
+  medsTaken: number;
+  medsTotal: number;
 };
-
-const FAMILY: FamilyMember[] = [
-  { id: "aidos",  name: "Айдос",  role: "child",  emoji: "🧒", status: "ok",    water: { cur: 5, goal: 6 }, sleep: { h: 9.2, goal: 10 }, meds: { taken: 1, total: 2 }, steps: 7420, mood: "😊", last: "мектепте" },
-  { id: "aruzhan",name: "Аружан", role: "child",  emoji: "👧", status: "watch", water: { cur: 3, goal: 6 }, sleep: { h: 8.5, goal: 10 }, meds: { taken: 1, total: 3 }, steps: 2110, mood: "🥱", last: "температура 37.6°" },
-];
 
 function FamilyStrip() {
   const L1 = useL();
+  const { user } = useMyProfile();
+  const [children, setChildren] = useState<FamilyChild[] | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: links } = await supabase
+        .from("family_links")
+        .select("child_id,status")
+        .eq("parent_id", user.id)
+        .eq("status", "accepted");
+      const ids = (links ?? []).map((l: any) => l.child_id);
+      if (ids.length === 0) { setChildren([]); return; }
+      const [{ data: profs }, { data: meds }] = await Promise.all([
+        supabase.from("profiles").select("id,first_name,full_name,username").in("id", ids),
+        supabase.from("medication_schedules").select("user_id,taken").in("user_id", ids),
+      ]);
+      const byId = new Map<string, any>((profs ?? []).map((p: any) => [p.id, p]));
+      const counts = new Map<string, { t: number; ok: number }>();
+      (meds ?? []).forEach((m: any) => {
+        const c = counts.get(m.user_id) ?? { t: 0, ok: 0 };
+        c.t += 1; if (m.taken) c.ok += 1;
+        counts.set(m.user_id, c);
+      });
+      const emojis = ["🧒","👧","🧑","👦","👶"];
+      setChildren(ids.map((id, i) => {
+        const p = byId.get(id);
+        const c = counts.get(id) ?? { t: 0, ok: 0 };
+        return {
+          id,
+          name: p?.first_name || p?.full_name || p?.username || "—",
+          emoji: emojis[i % emojis.length],
+          medsTaken: c.ok,
+          medsTotal: c.t,
+        };
+      }));
+    })();
+  }, [user?.id]);
+
+  const list = children ?? [];
+
   return (
     <div className="relative overflow-hidden rounded-2xl border border-border bg-card">
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[color:var(--mint)]/40 to-transparent" />
@@ -66,52 +96,64 @@ function FamilyStrip() {
         <div className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
           <L kk="Отбасы · тікелей" ru="Семья · онлайн" en="Family · live" />
         </div>
-        <div className="text-[10px] text-muted-foreground">{FAMILY.length} · {L1({ kk: "жақындар", ru: "близких", en: "members" })}</div>
+        <div className="text-[10px] text-muted-foreground">{list.length} · {L1({ kk: "балалар", ru: "детей", en: "children" })}</div>
       </div>
-      <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
-        {FAMILY.map((p) => {
-          const dot = p.status === "ok" ? "bg-[color:var(--mint)]" : p.status === "watch" ? "bg-amber-400" : "bg-rose-400";
-          const waterPct = Math.round((p.water.cur / p.water.goal) * 100);
-          const sleepPct = Math.round((p.sleep.h / p.sleep.goal) * 100);
-          return (
-            <div key={p.id} className="p-4">
-              <div className="flex items-center gap-3">
-                <div className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary text-xl">
-                  {p.emoji}
-                  <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${dot} ring-2 ring-card`} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-1.5">
-                    <div className="truncate font-serif text-base text-foreground">{p.name}</div>
-                    <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
-                      {p.role === "child" ? L1({ kk: "бала", ru: "ребёнок", en: "child" }) : L1({ kk: "ата-ана", ru: "родитель", en: "parent" })}
-                    </span>
+      {list.length === 0 ? (
+        <div className="p-6 text-center text-xs text-muted-foreground">
+          <L kk="Балаңызды қосыңыз — " ru="Добавьте ребёнка — " en="Add a child — " />
+          <Link to="/connections" className="text-[color:var(--mint)] underline">
+            <L kk="Байланыстар" ru="Связи" en="Connections" />
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 divide-y divide-border sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
+          {list.map((p) => {
+            const medsPct = p.medsTotal ? (p.medsTaken / p.medsTotal) * 100 : 0;
+            const waterCur = 4, waterGoal = 6;
+            const sleep = 8.5, sleepGoal = 10;
+            const steps = 5200;
+            return (
+              <div key={p.id} className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary text-xl">
+                    {p.emoji}
+                    <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[color:var(--mint)] ring-2 ring-card" />
                   </div>
-                  <div className="truncate text-[10px] text-muted-foreground">{p.mood} · {p.last}</div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-1.5">
+                      <div className="truncate font-serif text-base text-foreground">{p.name}</div>
+                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground">
+                        {L1({ kk: "бала", ru: "ребёнок", en: "child" })}
+                      </span>
+                    </div>
+                    <div className="truncate text-[10px] text-muted-foreground">
+                      💊 {p.medsTaken}/{p.medsTotal || "—"} · {L1({ kk: "бүгін", ru: "сегодня", en: "today" })}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[10px]">
+                  <div>
+                    <div className="flex justify-between text-muted-foreground"><span>💧 {L1({ kk: "Су", ru: "Вода", en: "Water" })}</span><span className="tabular-nums text-foreground">{waterCur}/{waterGoal}</span></div>
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-[#7cb8ff]" style={{ width: `${(waterCur/waterGoal)*100}%` }} /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-muted-foreground"><span>😴 {L1({ kk: "Ұйқы", ru: "Сон", en: "Sleep" })}</span><span className="tabular-nums text-foreground">{sleep}ч</span></div>
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-[color:var(--mint)]" style={{ width: `${(sleep/sleepGoal)*100}%` }} /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-muted-foreground"><span>💊 {L1({ kk: "Дәрі", ru: "Лек-ва", en: "Meds" })}</span><span className="tabular-nums text-foreground">{p.medsTaken}/{p.medsTotal || "—"}</span></div>
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-foreground/70" style={{ width: `${medsPct}%` }} /></div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-muted-foreground"><span>🚶 {L1({ kk: "Қадам", ru: "Шаги", en: "Steps" })}</span><span className="tabular-nums text-foreground">{steps.toLocaleString()}</span></div>
+                    <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-amber-400/80" style={{ width: `${(steps/10000)*100}%` }} /></div>
+                  </div>
                 </div>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[10px]">
-                <div>
-                  <div className="flex justify-between text-muted-foreground"><span>💧 {L1({ kk: "Су", ru: "Вода", en: "Water" })}</span><span className="tabular-nums text-foreground">{p.water.cur}/{p.water.goal}</span></div>
-                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-[#7cb8ff]" style={{ width: `${Math.min(100,waterPct)}%` }} /></div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-muted-foreground"><span>😴 {L1({ kk: "Ұйқы", ru: "Сон", en: "Sleep" })}</span><span className="tabular-nums text-foreground">{p.sleep.h}ч</span></div>
-                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-[color:var(--mint)]" style={{ width: `${Math.min(100,sleepPct)}%` }} /></div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-muted-foreground"><span>💊 {L1({ kk: "Дәрі", ru: "Лек-ва", en: "Meds" })}</span><span className="tabular-nums text-foreground">{p.meds.taken}/{p.meds.total || "—"}</span></div>
-                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-foreground/70" style={{ width: `${p.meds.total ? (p.meds.taken/p.meds.total)*100 : 100}%` }} /></div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-muted-foreground"><span>🚶 {L1({ kk: "Қадам", ru: "Шаги", en: "Steps" })}</span><span className="tabular-nums text-foreground">{p.steps.toLocaleString()}</span></div>
-                  <div className="mt-1 h-1 overflow-hidden rounded-full bg-white/5"><div className="h-full rounded-full bg-amber-400/80" style={{ width: `${Math.min(100, (p.steps/10000)*100)}%` }} /></div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
