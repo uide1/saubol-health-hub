@@ -172,8 +172,8 @@ function Dashboard() {
                 <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
               </span>
               <div className="flex flex-wrap gap-1.5">
-                <Badge tone="mint" className="text-[10px]">{L1({ kk: "+4", ru: "+4", en: "+4" })}</Badge>
-                <Badge tone="warning" className="text-[10px]">{L1({ kk: "1 назар", ru: "1 флаг", en: "1 flag" })}</Badge>
+                <Badge tone="mint">{L1({ kk: "+4", ru: "+4", en: "+4" })}</Badge>
+                <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 флаг", en: "1 flag" })}</Badge>
               </div>
             </div>
           </div>
