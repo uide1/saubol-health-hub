@@ -142,9 +142,9 @@ function ConnectionsPage() {
       />
 
       {/* Search hero */}
-      <div className="relative overflow-hidden rounded-3xl border border-border bg-card p-6">
+      <div className="noise relative overflow-hidden rounded-3xl border border-border bg-card p-6">
+        <div className="aurora opacity-25" />
         <div className="relative">
-
           <div className="mb-3 text-[10px] uppercase tracking-widest text-muted-foreground">
             <L kk="Адамды табу" ru="Найти человека" en="Find someone" />
           </div>

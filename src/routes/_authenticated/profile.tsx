@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Bento, Badge, SectionEyebrow, PageHeader } from "@/components/ui-kit";
+import { Bento, Badge, SectionEyebrow } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { useMyProfile, resolveAvatarUrl } from "@/lib/auth";
 import { ProfileFormModal } from "@/components/profile-form-modal";
 import { supabase } from "@/integrations/supabase/client";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
-
 
 export const Route = createFileRoute("/_authenticated/profile")({
 
@@ -48,18 +47,31 @@ function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        eyebrow={<><L kk="Пациент профилі" ru="Профиль пациента" en="Patient profile" /> · <span className="font-mono">{profile.public_id}</span></>}
-        title={profile.full_name ?? profile.username ?? user?.email}
-        description={
-          <>
-            @{profile.username}
-            {profile.age && <> · {profile.age} {L1({ kk: "жас", ru: "лет", en: "y.o." })}</>}
-            {profile.blood_type && <> · {profile.blood_type}</>}
-          </>
-        }
-        actions={
-          <>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_320px]">
+        <Bento className="noise relative flex items-center gap-6 overflow-hidden p-8">
+          <div className="aurora opacity-20" />
+          <div className="relative grid h-24 w-24 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[color:var(--mint)] to-emerald-800 font-serif text-4xl text-background">
+            {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : initials}
+          </div>
+          <div className="relative flex-1 min-w-0">
+            <SectionEyebrow>
+              <L kk="Пациент профилі" ru="Профиль пациента" en="Patient profile" /> · <span className="font-mono">{profile.public_id}</span>
+            </SectionEyebrow>
+            <h1 className="font-serif text-4xl leading-tight tracking-tight text-foreground">
+              {profile.full_name ?? profile.username ?? user?.email}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              @{profile.username}
+              {profile.age && <> · {profile.age} {L1({ kk: "жас", ru: "лет", en: "y.o." })}</>}
+              {profile.blood_type && <> · {profile.blood_type}</>}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {profile.allergies && <Badge tone="warning">⚠ {profile.allergies}</Badge>}
+              {bmi && <Badge tone="muted">BMI {bmi}</Badge>}
+              <Badge tone="mint">SauBol</Badge>
+            </div>
+          </div>
+          <div className="relative flex flex-col gap-2">
             <button onClick={() => setEditOpen(true)} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">
               <L kk="Өңдеу" ru="Изменить" en="Edit" />
             </button>
@@ -69,33 +81,16 @@ function ProfilePage() {
             <button onClick={signOut} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground">
               <L kk="Шығу" ru="Выйти" en="Sign out" />
             </button>
-          </>
-        }
-      />
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[auto_1fr_auto]">
-        <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5">
-          <div className="grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[color:var(--mint)] to-emerald-800 font-serif text-3xl text-background">
-            {avatar ? <img src={avatar} alt="" className="h-full w-full object-cover" /> : initials}
           </div>
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">SauBol ID</div>
-            <div className="mt-0.5 font-mono text-sm text-foreground">{profile.public_id}</div>
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {profile.allergies && <Badge tone="warning">⚠ {profile.allergies}</Badge>}
-              {bmi && <Badge tone="muted">BMI {bmi}</Badge>}
-            </div>
-          </div>
-        </div>
+        </Bento>
 
-        <div className="grid grid-cols-2 gap-3 rounded-2xl border border-border bg-card p-5 sm:grid-cols-4">
+        <Bento className="grid grid-cols-2 gap-3 p-5">
           <Metric label={L1({ kk: "Бой", ru: "Рост", en: "Height" })} value={profile.height_cm ? `${profile.height_cm}` : "—"} unit="cm" />
           <Metric label={L1({ kk: "Салмақ", ru: "Вес", en: "Weight" })} value={profile.weight_kg ? `${profile.weight_kg}` : "—"} unit="kg" />
           <Metric label={L1({ kk: "Жас", ru: "Возраст", en: "Age" })} value={profile.age?.toString() ?? "—"} unit={L1({ kk: "ж", ru: "лет", en: "y" })} />
           <Metric label="BMI" value={bmi ?? "—"} unit="" />
-        </div>
+        </Bento>
       </div>
-
 
       <HealthWidgets />
 
