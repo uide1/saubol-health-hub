@@ -53,8 +53,6 @@ type FamilyMember = {
 const FAMILY: FamilyMember[] = [
   { id: "aidos",  name: "Айдос",  role: "child",  emoji: "🧒", status: "ok",    water: { cur: 5, goal: 6 }, sleep: { h: 9.2, goal: 10 }, meds: { taken: 1, total: 2 }, steps: 7420, mood: "😊", last: "мектепте" },
   { id: "aruzhan",name: "Аружан", role: "child",  emoji: "👧", status: "watch", water: { cur: 3, goal: 6 }, sleep: { h: 8.5, goal: 10 }, meds: { taken: 1, total: 3 }, steps: 2110, mood: "🥱", last: "температура 37.6°" },
-  { id: "dias",   name: "Диас",   role: "child",  emoji: "🧑", status: "ok",    water: { cur: 8, goal: 8 }, sleep: { h: 7.4, goal: 9  }, meds: { taken: 0, total: 0 }, steps: 12480,mood: "💪", last: "спорт секциясы" },
-  { id: "mama",   name: "Анара",  role: "parent", emoji: "👩", status: "ok",    water: { cur: 6, goal: 8 }, sleep: { h: 7.1, goal: 8  }, meds: { taken: 2, total: 2 }, steps: 5320, mood: "🙂", last: "офисте" },
 ];
 
 function FamilyStrip() {
@@ -146,9 +144,9 @@ function Dashboard() {
               </span>.
               <br />
               <L
-                kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.</>}
-                ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа требует внимания.</>}
-                en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
+                kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі<br />назар аударуды талап етеді.</>}
+                ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа<br />требует внимания.</>}
+                en={<>Health is <span className="italic">good</span> today, but iron levels<br />need attention.</>}
               />
             </h1>
             <div className="mt-4 flex flex-wrap gap-2">
