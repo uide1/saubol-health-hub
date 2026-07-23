@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Bento, Badge, Chip, SectionEyebrow, Bar } from "@/components/ui-kit";
 import { HealthOrb } from "@/components/health-orb";
 import { AreaChart, Area, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 import { toast } from "sonner";
 import { useL, L } from "@/lib/i18n";
+import { useMyProfile } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 
 
