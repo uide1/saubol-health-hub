@@ -144,9 +144,9 @@ function Dashboard() {
               </span>.
               <br />
               <L
-                kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.</>}
-                ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа требует внимания.</>}
-                en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
+                kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі<br />назар аударуды талап етеді.</>}
+                ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа<br />требует внимания.</>}
+                en={<>Health is <span className="italic">good</span> today, but iron levels<br />need attention.</>}
               />
             </h1>
             <div className="mt-4 flex flex-wrap gap-2">
