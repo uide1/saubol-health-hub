@@ -96,12 +96,11 @@ function TopNav() {
   const L1 = useL();
   const NAV = [
     { to: "/", label: L1({ kk: "Басты", ru: "Главная", en: "Home" }) },
-    { to: "/family", label: L1({ kk: "Отбасы", ru: "Семья", en: "Family" }) },
-    { to: "/nutrition-scan", label: L1({ kk: "Тамақ", ru: "Питание", en: "Nutrition" }) },
     { to: "/triage-voice", label: L1({ kk: "Дауыс", ru: "Голос", en: "Voice" }) },
     { to: "/prescription-rx", label: L1({ kk: "Дәрілер", ru: "Лекарства", en: "Meds" }) },
     { to: "/profile", label: L1({ kk: "Профиль", ru: "Профиль", en: "Profile" }) },
   ] as const;
+
   return (
     <header className="sticky top-4 z-40 mx-auto max-w-[1400px] px-6">
       <div className="flex items-center gap-4 rounded-full border border-border bg-background/70 px-4 py-2 backdrop-blur-xl">
