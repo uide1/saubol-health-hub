@@ -114,6 +114,8 @@ function ProfilePage() {
         </Bento>
       </div>
 
+      <TelegramLink profileId={profile.id} chatId={profile.telegram_chat_id} linkCode={profile.telegram_link_code} onChange={refetch} />
+
       <HealthWidgets />
 
       <ProfileFormModal mode="edit" open={editOpen} profile={profile} onClose={() => setEditOpen(false)} onSaved={refetch} />
@@ -283,5 +285,89 @@ function Metric({ label, value, unit }: { label: string; value: string; unit: st
         {unit && <span className="text-[11px] text-muted-foreground">{unit}</span>}
       </div>
     </div>
+  );
+}
+
+function genCode(len = 6) {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const arr = new Uint32Array(len);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, (n) => alphabet[n % alphabet.length]).join("");
+}
+
+function TelegramLink({ profileId, chatId, linkCode, onChange }: { profileId: string; chatId: number | null; linkCode: string | null; onChange: () => void }) {
+  const L1 = useL();
+  const [busy, setBusy] = useState(false);
+  const linked = chatId !== null && chatId !== undefined;
+
+  const generate = async () => {
+    setBusy(true);
+    const code = genCode(6);
+    const { error } = await supabase.from("profiles").update({ telegram_link_code: code }).eq("id", profileId);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    onChange();
+  };
+
+  const unlink = async () => {
+    setBusy(true);
+    const { error } = await supabase.from("profiles").update({ telegram_chat_id: null, telegram_link_code: null }).eq("id", profileId);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success(L1({ kk: "Telegram ажыратылды", ru: "Telegram отвязан", en: "Telegram unlinked" }));
+    onChange();
+  };
+
+  const copy = () => {
+    if (!linkCode) return;
+    navigator.clipboard.writeText(linkCode);
+    toast.success(L1({ kk: "Код көшірілді", ru: "Код скопирован", en: "Code copied" }));
+  };
+
+  return (
+    <Bento className="p-6">
+      <SectionEyebrow>Telegram</SectionEyebrow>
+      {linked ? (
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <span className="font-serif text-2xl text-foreground">✅ <L kk="Telegram байланған" ru="Telegram привязан" en="Telegram linked" /></span>
+            <Badge tone="mint">chat #{chatId}</Badge>
+          </div>
+          <button onClick={unlink} disabled={busy} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50">
+            <L kk="Ажырату" ru="Отвязать" en="Unlink" />
+          </button>
+        </div>
+      ) : linkCode ? (
+        <div className="mt-3 flex flex-col items-start gap-4">
+          <div className="rounded-2xl border border-border bg-surface px-8 py-6">
+            <div className="font-mono text-5xl tracking-[0.4em] text-foreground tabular-nums">{linkCode}</div>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            <L
+              kk={<>Telegram-ботқа команданы жіберіңіз: <span className="font-mono text-foreground">/start {linkCode}</span></>}
+              ru={<>Отправьте боту в Telegram команду: <span className="font-mono text-foreground">/start {linkCode}</span></>}
+              en={<>Send this command to the bot on Telegram: <span className="font-mono text-foreground">/start {linkCode}</span></>}
+            />
+          </p>
+          <div className="flex gap-2">
+            <button onClick={copy} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">
+              <L kk="Кодты көшіру" ru="Скопировать код" en="Copy code" />
+            </button>
+            <button onClick={generate} disabled={busy} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50">
+              <L kk="Жаңа код" ru="Новый код" en="New code" />
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground">
+            <L kk="Telegram-боты арқылы дәрі-дәрмекті және құлау дабылын басқарыңыз." ru="Управляйте лекарствами и оповещениями о падении через Telegram-бот." en="Manage medications and fall alerts via Telegram bot." />
+          </p>
+          <button onClick={generate} disabled={busy} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background disabled:opacity-50">
+            <L kk="Telegram байлау" ru="Привязать Telegram" en="Link Telegram" />
+          </button>
+        </div>
+      )}
+    </Bento>
   );
 }

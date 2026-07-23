@@ -30,9 +30,11 @@ export type ProfileRow = {
   allergies: string | null;
   avatar_url: string | null;
   role: string | null;
+  telegram_chat_id: number | null;
+  telegram_link_code: string | null;
 };
 
-const COLS = "id,username,public_id,full_name,first_name,last_name,age,height_cm,weight_kg,blood_type,allergies,avatar_url,role";
+const COLS = "id,username,public_id,full_name,first_name,last_name,age,height_cm,weight_kg,blood_type,allergies,avatar_url,role,telegram_chat_id,telegram_link_code";
 
 export function useMyProfile() {
   const { user, loading } = useSession();
