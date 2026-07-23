@@ -23,7 +23,7 @@ type Row = {
   public_id: string | null;
   avatar_url: string | null;
 };
-type LinkRow = { kind: "family" | "friend"; role: "parent" | "child" | "friend"; status: string; other: Row };
+type LinkRow = { kind: "family" | "friend"; role: "parent" | "child" | "friend"; status: string; iRequested: boolean; other: Row };
 
 function ConnectionsPage() {
   const { user, profile } = useMyProfile();
@@ -52,13 +52,13 @@ function ConnectionsPage() {
     (f.data ?? []).forEach((r: any) => {
       const oid = r.user_id === user.id ? r.friend_id : r.user_id;
       const other = byId.get(oid);
-      if (other) out.push({ kind: "friend", role: "friend", status: r.status, other });
+      if (other) out.push({ kind: "friend", role: "friend", status: r.status, iRequested: r.user_id === user.id, other });
     });
     (fam.data ?? []).forEach((r: any) => {
       const iAmParent = r.parent_id === user.id;
       const oid = iAmParent ? r.child_id : r.parent_id;
       const other = byId.get(oid);
-      if (other) out.push({ kind: "family", role: iAmParent ? "child" : "parent", status: r.status, other });
+      if (other) out.push({ kind: "family", role: iAmParent ? "child" : "parent", status: r.status, iRequested: iAmParent, other });
     });
     setLinks(out);
     // resolve avatars
@@ -102,7 +102,7 @@ function ConnectionsPage() {
     if (!user) return;
     const tbl = l.kind === "family" ? "family_links" : "friendships";
     const filter = l.kind === "family"
-      ? { parent_id: l.role === "child" ? user.id : l.other.id, child_id: l.role === "child" ? l.other.id : user.id }
+      ? { parent_id: l.other.id, child_id: user.id }
       : { user_id: l.other.id, friend_id: user.id };
     const { error } = await supabase.from(tbl).update({ status: "accepted" }).match(filter as any);
     if (error) toast.error(error.message);
@@ -185,7 +185,7 @@ function ConnectionsPage() {
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {pending.map((l, i) => (
-              <PersonCard key={i} link={l} onAccept={accept} onRemove={remove} avatarUrl={avatars[l.other.id]} />
+              <PersonCard key={i} link={l} onAccept={l.iRequested ? undefined : accept} onRemove={remove} avatarUrl={avatars[l.other.id]} />
             ))}
           </div>
         </div>

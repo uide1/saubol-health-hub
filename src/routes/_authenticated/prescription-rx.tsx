@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge, PageHeader, SectionEyebrow } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
-
+import { useMyProfile } from "@/lib/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/prescription-rx")({
   head: () => ({
@@ -15,70 +16,106 @@ export const Route = createFileRoute("/_authenticated/prescription-rx")({
   component: PrescriptionRx,
 });
 
-type Slot = { id: string; time: string; drug: string; note: string; tone: "success" | "warning" | "muted"; taken: boolean };
-
-const SCHEDULES: Record<string, Slot[]> = {
-  me: [
-    { id: "m1", time: "08:00", drug: "Paracetamol 500 mg", note: "After breakfast", tone: "muted", taken: true },
-    { id: "m2", time: "09:00", drug: "Ferrous bisglycinate 25 mg", note: "With vitamin C", tone: "success", taken: true },
-    { id: "m3", time: "13:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
-    { id: "m4", time: "15:00", drug: "Omeprazole 20 mg", note: "Before lunch", tone: "warning", taken: false },
-    { id: "m5", time: "19:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
-    { id: "m6", time: "21:00", drug: "Vitamin D3 4000 IU", note: "With fats", tone: "success", taken: false },
-    { id: "m7", time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted", taken: false },
-  ],
-  aidos: [
-    { id: "a1", time: "08:00", drug: "Витамин D 400 IU", note: "Таңғы астан кейін", tone: "success", taken: true },
-    { id: "a2", time: "20:00", drug: "Ferrum syrup 5 ml", note: "Кешкі астан кейін", tone: "muted", taken: false },
-  ],
-  aruzhan: [
-    { id: "r1", time: "09:00", drug: "Nurofen susp. 5 ml", note: "Температура >37.5°", tone: "warning", taken: true },
-    { id: "r2", time: "15:00", drug: "Nurofen susp. 5 ml", note: "6 сағ сайын", tone: "warning", taken: false },
-    { id: "r3", time: "21:00", drug: "Probiotic drops", note: "Ұйықтар алдында", tone: "success", taken: false },
-  ],
-  dias: [
-    { id: "d1", time: "07:30", drug: "Multivit teen", note: "Таңғы астан кейін", tone: "success", taken: true },
-  ],
-};
-
-type Person = { id: string; name: string; emoji: string; role: string };
-const PEOPLE: Person[] = [
-  { id: "me",      name: "Мен",    emoji: "👤", role: "Ata-ana" },
-  { id: "aidos",   name: "Айдос",  emoji: "🧒", role: "8 жас" },
-  { id: "aruzhan", name: "Аружан", emoji: "👧", role: "4 жас" },
-  { id: "dias",    name: "Диас",   emoji: "🧑", role: "14 жас" },
-];
-
+type Slot = { id: string; time: string; name: string; note: string | null; taken: boolean };
+type Person = { id: string; name: string; emoji: string; role: string; isMe: boolean };
 
 function PrescriptionRx() {
-  const [activePerson, setActivePerson] = useState<string>("me");
-  const [schedules, setSchedules] = useState<Record<string, Slot[]>>(SCHEDULES);
-  const [synced, setSynced] = useState(false);
+  const L1 = useL();
+  const { user, profile } = useMyProfile();
+  const [people, setPeople] = useState<Person[]>([]);
+  const [activePerson, setActivePerson] = useState<string>("");
+  const [slots, setSlots] = useState<Slot[]>([]);
   const [remindersOn, setRemindersOn] = useState(false);
   const remindedRef = useRef<Set<string>>(new Set());
-  const L1 = useL();
 
-  const schedule = schedules[activePerson] ?? [];
-  const activePersonMeta = PEOPLE.find((p) => p.id === activePerson)!;
-  const setSchedule = (updater: (s: Slot[]) => Slot[]) => {
-    setSchedules((all) => ({ ...all, [activePerson]: updater(all[activePerson] ?? []) }));
-  };
+  // Load family (self + accepted children)
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: links } = await supabase
+        .from("family_links")
+        .select("child_id,parent_id,status")
+        .eq("status", "accepted")
+        .or(`parent_id.eq.${user.id},child_id.eq.${user.id}`);
+      const relIds = new Set<string>();
+      (links ?? []).forEach((l: any) => {
+        if (l.parent_id === user.id) relIds.add(l.child_id);
+        else relIds.add(l.parent_id);
+      });
+      const otherIds = Array.from(relIds);
+      let others: any[] = [];
+      if (otherIds.length) {
+        const { data } = await supabase
+          .from("profiles").select("id,first_name,full_name,username,age")
+          .in("id", otherIds);
+        others = data ?? [];
+      }
+      const emojis = ["🧒","👧","🧑","👦","👶"];
+      const meP: Person = {
+        id: user.id,
+        name: profile?.first_name || profile?.username || L1({ kk: "Мен", ru: "Я", en: "Me" }),
+        emoji: "👤",
+        role: L1({ kk: "Мен", ru: "Я", en: "Me" }),
+        isMe: true,
+      };
+      const parentIds = new Set((links ?? []).filter((l: any) => l.child_id === user.id).map((l: any) => l.parent_id));
+      const list: Person[] = [meP, ...others.map((p: any, i: number) => ({
+        id: p.id,
+        name: p.first_name || p.full_name || p.username || "—",
+        emoji: parentIds.has(p.id) ? "👤" : emojis[i % emojis.length],
+        role: parentIds.has(p.id)
+          ? L1({ kk: "ата-ана", ru: "родитель", en: "parent" })
+          : (p.age ? `${p.age} ${L1({ kk: "жас", ru: "лет", en: "y.o." })}` : L1({ kk: "бала", ru: "ребёнок", en: "child" })),
+        isMe: false,
+      }))];
+      setPeople(list);
+      if (!activePerson) setActivePerson(user.id);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, profile?.first_name]);
 
-  // Reminder engine — checks every 30s whether any dose is due within 5 min
+  // Load meds for active person
+  const loadSlots = useCallback(async () => {
+    if (!activePerson) return;
+    const { data, error } = await supabase
+      .from("medication_schedules")
+      .select("id,name,time,note,taken")
+      .eq("user_id", activePerson)
+      .order("time", { ascending: true });
+    if (error) { toast.error(error.message); return; }
+    setSlots((data ?? []) as Slot[]);
+  }, [activePerson]);
+  useEffect(() => { loadSlots(); }, [loadSlots]);
+
+  // Realtime updates for the currently viewed person
+  useEffect(() => {
+    if (!activePerson) return;
+    const ch = supabase
+      .channel(`meds-${activePerson}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "medication_schedules", filter: `user_id=eq.${activePerson}` }, () => loadSlots())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [activePerson, loadSlots]);
+
+  const activePersonMeta = useMemo(() => people.find((p) => p.id === activePerson), [people, activePerson]);
+  const isChildOfMine = activePersonMeta && !activePersonMeta.isMe && activePersonMeta.role !== L1({ kk: "ата-ана", ru: "родитель", en: "parent" });
+  const canEdit = !!activePersonMeta && (activePersonMeta.isMe || isChildOfMine);
+
+  // Reminders
   useEffect(() => {
     if (!remindersOn) return;
     const tick = () => {
       const now = new Date();
-      schedule.forEach((s) => {
+      slots.forEach((s) => {
         if (s.taken || remindedRef.current.has(s.id)) return;
         const [h, m] = s.time.split(":").map(Number);
         const target = new Date(); target.setHours(h, m, 0, 0);
         const diff = (target.getTime() - now.getTime()) / 60000;
         if (diff <= 5 && diff >= -1) {
           remindedRef.current.add(s.id);
-          toast(`⏰ ${activePersonMeta.name} · ${s.drug}`, { description: `${s.time} · ${s.note}`, duration: 8000 });
+          toast(`⏰ ${activePersonMeta?.name} · ${s.name}`, { description: `${s.time} · ${s.note ?? ""}`, duration: 8000 });
           if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
-            new Notification(`SauBol · ${activePersonMeta.name}`, { body: `${s.time} — ${s.drug}\n${s.note}` });
+            new Notification(`SauBol · ${activePersonMeta?.name}`, { body: `${s.time} — ${s.name}\n${s.note ?? ""}` });
           }
         }
       });
@@ -86,70 +123,72 @@ function PrescriptionRx() {
     tick();
     const id = setInterval(tick, 30000);
     return () => clearInterval(id);
-  }, [remindersOn, schedule, activePersonMeta]);
+  }, [remindersOn, slots, activePersonMeta]);
 
   const enableReminders = async () => {
-    if (typeof window !== "undefined" && "Notification" in window) {
-      if (Notification.permission === "default") await Notification.requestPermission();
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
+      await Notification.requestPermission();
     }
     setRemindersOn(true);
     remindedRef.current.clear();
-    toast.success("🔔 Ескертпелер қосылды", { description: "Дәрі уақыты жақындағанда хабарлама келеді" });
+    toast.success("🔔 " + L1({ kk: "Ескертпелер қосылды", ru: "Напоминания включены", en: "Reminders on" }));
   };
 
-  const toggleTaken = (id: string) => setSchedule((s) => s.map((r) => r.id === id ? { ...r, taken: !r.taken } : r));
+  const toggleTaken = async (s: Slot) => {
+    setSlots((all) => all.map((r) => r.id === s.id ? { ...r, taken: !r.taken } : r));
+    const { error } = await supabase.from("medication_schedules").update({ taken: !s.taken }).eq("id", s.id);
+    if (error) { toast.error(error.message); loadSlots(); }
+  };
 
-  const addSlot = () => {
-    const drug = window.prompt(L1({ kk: "Дәрі атауы", ru: "Название препарата", en: "Drug name" }));
-    if (!drug) return;
+  const addSlot = async () => {
+    if (!canEdit || !activePerson) return;
+    const name = window.prompt(L1({ kk: "Дәрі атауы", ru: "Название препарата", en: "Drug name" }));
+    if (!name) return;
     const time = window.prompt(L1({ kk: "Уақыты (HH:MM)", ru: "Время (HH:MM)", en: "Time (HH:MM)" }), "08:00");
-    if (!time || !/^\d{2}:\d{2}$/.test(time)) { toast.error(L1({ kk: "Уақыт форматы дұрыс емес", ru: "Неверный формат времени", en: "Invalid time format" })); return; }
-    const note = window.prompt(L1({ kk: "Ескерту", ru: "Заметка", en: "Note" }), L1({ kk: "Тамақтан кейін", ru: "После еды", en: "After meal" })) ?? "";
-    const id = Math.random().toString(36).slice(2, 8);
-    setSchedule((s) => [...s, { id, time, drug: drug.trim(), note: note.trim(), tone: "muted" as const, taken: false }].sort((a, b) => a.time.localeCompare(b.time)));
-    toast.success(`+ ${drug} · ${activePersonMeta.name}`, { description: `${time}` });
+    if (!time || !/^\d{2}:\d{2}$/.test(time)) { toast.error(L1({ kk: "Уақыт форматы дұрыс емес", ru: "Неверный формат", en: "Invalid time" })); return; }
+    const note = window.prompt(L1({ kk: "Ескерту", ru: "Заметка", en: "Note" }), "") ?? "";
+    const { error } = await supabase.from("medication_schedules").insert({
+      user_id: activePerson, name: name.trim(), time, note: note.trim() || null, taken: false,
+    });
+    if (error) { toast.error(error.message); return; }
+    toast.success(`+ ${name} · ${activePersonMeta?.name}`, { description: time });
+    loadSlots();
   };
 
-  const removeSlot = (id: string) => {
-    setSchedule((s) => s.filter((r) => r.id !== id));
-    toast(L1({ kk: "Кестеден алынды", ru: "Удалено из расписания", en: "Removed from schedule" }));
+  const removeSlot = async (s: Slot) => {
+    if (!canEdit) return;
+    const { error } = await supabase.from("medication_schedules").delete().eq("id", s.id);
+    if (error) { toast.error(error.message); return; }
+    toast(L1({ kk: "Кестеден алынды", ru: "Удалено", en: "Removed" }));
+    loadSlots();
   };
 
-
-
-
-  const takenCount = schedule.filter(s => s.taken).length;
+  const takenCount = slots.filter(s => s.taken).length;
 
   return (
     <div>
       <PageHeader
-        eyebrow={<L kk="RxClarify · Рецепт № 2026-0472" ru="RxClarify · Рецепт № 2026-0472" en="RxClarify · Rx № 2026-0472" />}
-        title={<L kk="Рецепт декодері және қауіпсіздік" ru="Декодер рецептов и безопасность" en="Prescription Decoder & Safety" />}
-        description={<L kk="Қолжазба танылды · фармацевт-расталған кесте · ақылды ескертпелер" ru="Почерк распознан · график, проверенный фармацевтом · умные напоминания" en="Handwriting decoded · pharmacist-verified schedule · smart reminders" />}
+        eyebrow={<L kk="RxClarify" ru="RxClarify" en="RxClarify" />}
+        title={<L kk="Дәрі-дәрмек кестесі" ru="График лекарств" en="Medication schedule" />}
+        description={<L kk="Отбасы · ортақ кесте · ақылды ескертпелер" ru="Семья · общий график · умные напоминания" en="Family · shared schedule · smart reminders" />}
         actions={
           <>
-            <button onClick={() => toast.info(L1({ kk: "📸 Рецепт суретін жүктеңіз", ru: "📸 Загрузите фото рецепта", en: "📸 Upload prescription photo" }), { description: L1({ kk: "OCR модельі жазуды тануға дайын", ru: "OCR готов распознать текст", en: "OCR model ready to decode" }) })} className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground">
-              <L kk="Фото жүктеу" ru="Загрузить фото" en="Upload photo" />
-            </button>
-            <button onClick={remindersOn ? () => { setRemindersOn(false); toast(L1({ kk: "🔕 Ескертпелер өшірілді", ru: "🔕 Напоминания выключены", en: "🔕 Reminders off" })); } : enableReminders} className={`rounded-md px-3 py-1.5 text-xs font-medium ${remindersOn ? "bg-[color:var(--mint)] text-background" : "border border-border bg-surface text-foreground"}`}>
+            <button onClick={remindersOn ? () => { setRemindersOn(false); toast(L1({ kk: "🔕 Өшірілді", ru: "🔕 Выключено", en: "🔕 Off" })); } : enableReminders} className={`rounded-md px-3 py-1.5 text-xs font-medium ${remindersOn ? "bg-[color:var(--mint)] text-background" : "border border-border bg-surface text-foreground"}`}>
               {remindersOn ? <>🔔 <L kk="Ескертпелер қосулы" ru="Напоминания вкл" en="Reminders ON" /></> : <>🔕 <L kk="Ескертпелерді қосу" ru="Включить напоминания" en="Enable reminders" /></>}
             </button>
-            <button onClick={() => { setSynced(true); toast.success(synced ? L1({ kk: "Apple Health-пен қайта синхрондалды", ru: "Пересинхронизировано с Apple Health", en: "Re-synced with Apple Health" }) : L1({ kk: "✓ Apple Health-ке синхрондалды", ru: "✓ Синхронизировано с Apple Health", en: "✓ Synced to Apple Health" }), { description: `${schedule.length} ${L1({ kk: "дәрі-дәрмек экспортталды", ru: "препаратов экспортировано", en: "meds exported" })}` }); }} className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground">{synced ? <>Synced ✓</> : <L kk="Apple Health-ке синхрондау" ru="Синхронизировать с Apple Health" en="Sync to Apple Health" />}</button>
           </>
         }
       />
 
-      {/* Person selector — parent sees own timetable by default, can switch to any child */}
+      {/* Person selector */}
       <div className="mb-4 rounded-2xl border border-border bg-card p-3">
         <div className="mb-2 flex items-baseline justify-between px-1">
-          <SectionEyebrow><L kk="Кестені кімге көрсету" ru="Чей график показать" en="Whose schedule" /></SectionEyebrow>
-          <span className="text-[10px] text-muted-foreground">{PEOPLE.length} · {L1({ kk: "профиль", ru: "профилей", en: "profiles" })}</span>
+          <SectionEyebrow><L kk="Кестені кімге көрсету" ru="Чей график" en="Whose schedule" /></SectionEyebrow>
+          <span className="text-[10px] text-muted-foreground">{people.length} · {L1({ kk: "профиль", ru: "профилей", en: "profiles" })}</span>
         </div>
         <div className="flex flex-wrap gap-2">
-          {PEOPLE.map((p) => {
+          {people.map((p) => {
             const active = p.id === activePerson;
-            const items = schedules[p.id] ?? [];
-            const taken = items.filter((s) => s.taken).length;
             return (
               <button
                 key={p.id}
@@ -159,7 +198,7 @@ function PrescriptionRx() {
                 <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-lg">{p.emoji}</div>
                 <div>
                   <div className="text-[13px] font-medium text-foreground leading-tight">{p.name}</div>
-                  <div className="text-[10px] text-muted-foreground">{p.role} · {taken}/{items.length} <L kk="қаб." ru="прин." en="tk." /></div>
+                  <div className="text-[10px] text-muted-foreground">{p.role}</div>
                 </div>
               </button>
             );
@@ -167,22 +206,23 @@ function PrescriptionRx() {
         </div>
       </div>
 
-      {/* BIG timetable — full width, hero */}
-
+      {/* BIG timetable */}
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <SectionEyebrow><L kk="Күнделікті кесте" ru="Дневное расписание" en="Daily schedule" /> · <span className="text-foreground">{activePersonMeta.emoji} {activePersonMeta.name}</span></SectionEyebrow>
+            <SectionEyebrow><L kk="Күнделікті кесте" ru="Дневное расписание" en="Daily schedule" /> · <span className="text-foreground">{activePersonMeta?.emoji} {activePersonMeta?.name}</span></SectionEyebrow>
             <div className="font-serif text-3xl text-foreground">
-              {takenCount} <span className="text-muted-foreground">/ {schedule.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
+              {takenCount} <span className="text-muted-foreground">/ {slots.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="text-[11px] text-muted-foreground"><L kk="Ұстанымдылық 92% · апта" ru="Приверженность 92% · неделя" en="Adherence 92% · week" /></div>
-            <button onClick={addSlot} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">+ <L kk="Дәрі қосу" ru="Добавить препарат" en="Add drug" /></button>
+            {canEdit ? (
+              <button onClick={addSlot} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">+ <L kk="Дәрі қосу" ru="Добавить" en="Add drug" /></button>
+            ) : (
+              <span className="text-[11px] text-muted-foreground"><L kk="Тек көру" ru="Только просмотр" en="View only" /></span>
+            )}
           </div>
         </div>
-
 
         {/* 24-hour timeline */}
         <div className="relative mb-6">
@@ -192,20 +232,19 @@ function PrescriptionRx() {
             ))}
           </div>
           <div className="relative mt-1 h-24 rounded-lg border border-border bg-gradient-to-b from-surface to-background overflow-hidden">
-            {/* meal windows */}
             {[[7,9],[12,14],[18,20]].map(([a,b], i) => (
               <div key={i} className="absolute top-0 h-full bg-[color:var(--mint)]/5" style={{ left: `${(a/24)*100}%`, width: `${((b-a)/24)*100}%` }} />
             ))}
-            {schedule.map((s) => {
+            {slots.map((s) => {
               const [hh, mm] = s.time.split(":").map(Number);
               const left = ((hh + mm / 60) / 24) * 100;
-              const color = s.taken ? "bg-[color:var(--mint)]" : s.tone === "warning" ? "bg-amber-400" : "bg-foreground";
+              const color = s.taken ? "bg-[color:var(--mint)]" : "bg-foreground";
               return (
                 <div key={s.id} className="absolute top-0 h-full group" style={{ left: `${left}%` }}>
                   <div className={`h-full w-[3px] ${color} opacity-90`} />
                   <div className={`absolute top-1 -translate-x-1/2 rounded-full ${color} h-2.5 w-2.5 border-2 border-card`} />
                   <div className="pointer-events-none absolute top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-card px-2 py-1 text-[10px] text-foreground opacity-0 shadow-lg transition group-hover:opacity-100">
-                    {s.time} · {s.drug}
+                    {s.time} · {s.name}
                   </div>
                 </div>
               );
@@ -214,26 +253,33 @@ function PrescriptionRx() {
         </div>
 
         {/* Slot cards */}
-        <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-          {schedule.map((s) => (
-            <div key={s.id} className={`group flex items-center gap-3 rounded-xl border p-3 transition ${s.taken ? "border-[color:var(--mint)]/30 bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-white/15"}`}>
-              <button onClick={() => toggleTaken(s.id)} className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 transition ${s.taken ? "border-[color:var(--mint)] bg-[color:var(--mint)] text-background" : "border-border bg-background text-muted-foreground hover:border-[color:var(--mint)]/50"}`}>
-                {s.taken ? "✓" : "○"}
-              </button>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline gap-2">
-                  <div className="font-mono text-sm font-semibold text-foreground tabular-nums">{s.time}</div>
-                  <Badge tone={s.tone}>{s.tone === "success" ? "Safe" : s.tone === "warning" ? "Watch" : "Ok"}</Badge>
+        {slots.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border p-8 text-center text-xs text-muted-foreground">
+            <L kk="Кесте бос. Дәрі қосыңыз." ru="Расписание пусто. Добавьте препарат." en="Schedule empty. Add a drug." />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+            {slots.map((s) => (
+              <div key={s.id} className={`group flex items-center gap-3 rounded-xl border p-3 transition ${s.taken ? "border-[color:var(--mint)]/30 bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-white/15"}`}>
+                <button onClick={() => canEdit && toggleTaken(s)} disabled={!canEdit} className={`grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 transition ${s.taken ? "border-[color:var(--mint)] bg-[color:var(--mint)] text-background" : "border-border bg-background text-muted-foreground hover:border-[color:var(--mint)]/50"} disabled:opacity-40`}>
+                  {s.taken ? "✓" : "○"}
+                </button>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2">
+                    <div className="font-mono text-sm font-semibold text-foreground tabular-nums">{s.time}</div>
+                    <Badge tone={s.taken ? "mint" : "muted"}>{s.taken ? "✓" : "Ok"}</Badge>
+                  </div>
+                  <div className="truncate text-[13px] font-medium text-foreground">{s.name}</div>
+                  {s.note && <div className="truncate text-[11px] text-muted-foreground">{s.note}</div>}
                 </div>
-                <div className="truncate text-[13px] font-medium text-foreground">{s.drug}</div>
-                <div className="truncate text-[11px] text-muted-foreground">{s.note}</div>
+                {canEdit && (
+                  <button onClick={() => removeSlot(s)} className="text-muted-foreground opacity-0 transition hover:text-rose-400 group-hover:opacity-100">×</button>
+                )}
               </div>
-              <button onClick={() => removeSlot(s.id)} className="text-muted-foreground opacity-0 transition hover:text-rose-400 group-hover:opacity-100">×</button>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
-
     </div>
   );
 }
