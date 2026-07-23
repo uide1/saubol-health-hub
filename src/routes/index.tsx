@@ -152,12 +152,13 @@ function Dashboard() {
               />
             </h1>
             <div className="mt-6 flex flex-wrap gap-2">
-              <Link to="/nutrition-scan" className="group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
-                <L kk="Тамақ сканерлеу →" ru="Сканировать еду →" en="Scan food →" />
+              <Link to="/triage-voice" className="group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
+                <L kk="Чат ашу →" ru="Открыть чат →" en="Open chat →" />
               </Link>
               <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
                 <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
               </Link>
+
               <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
                 <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
               </Link>
