@@ -165,6 +165,8 @@ function Dashboard() {
   const toggleMed = (t: string) => setMeds(s => s.map(m => m.t === t ? { ...m, ok: !m.ok } : m));
   const takenCount = meds.filter(m => m.ok).length;
   const L1 = useL();
+  const { profile } = useMyProfile();
+  const displayName = profile?.first_name || profile?.username || "";
   return (
     <div className="space-y-6">
       {/* Merged HERO with HealthOrb + aurora */}
