@@ -17,15 +17,38 @@ export const Route = createFileRoute("/prescription-rx")({
 
 type Slot = { id: string; time: string; drug: string; note: string; tone: "success" | "warning" | "muted"; taken: boolean };
 
-const INITIAL_SCHEDULE: Slot[] = [
-  { id: "1", time: "08:00", drug: "Paracetamol 500 mg", note: "After breakfast", tone: "muted", taken: true },
-  { id: "2", time: "09:00", drug: "Ferrous bisglycinate 25 mg", note: "With vitamin C", tone: "success", taken: true },
-  { id: "3", time: "13:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
-  { id: "4", time: "15:00", drug: "Omeprazole 20 mg", note: "Before lunch", tone: "warning", taken: false },
-  { id: "5", time: "19:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
-  { id: "6", time: "21:00", drug: "Vitamin D3 4000 IU", note: "With fats", tone: "success", taken: false },
-  { id: "7", time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted", taken: false },
+const SCHEDULES: Record<string, Slot[]> = {
+  me: [
+    { id: "m1", time: "08:00", drug: "Paracetamol 500 mg", note: "After breakfast", tone: "muted", taken: true },
+    { id: "m2", time: "09:00", drug: "Ferrous bisglycinate 25 mg", note: "With vitamin C", tone: "success", taken: true },
+    { id: "m3", time: "13:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
+    { id: "m4", time: "15:00", drug: "Omeprazole 20 mg", note: "Before lunch", tone: "warning", taken: false },
+    { id: "m5", time: "19:00", drug: "Amoxicillin 500 mg", note: "With meal", tone: "muted", taken: false },
+    { id: "m6", time: "21:00", drug: "Vitamin D3 4000 IU", note: "With fats", tone: "success", taken: false },
+    { id: "m7", time: "22:30", drug: "Melatonin 3 mg", note: "Before sleep", tone: "muted", taken: false },
+  ],
+  aidos: [
+    { id: "a1", time: "08:00", drug: "Витамин D 400 IU", note: "Таңғы астан кейін", tone: "success", taken: true },
+    { id: "a2", time: "20:00", drug: "Ferrum syrup 5 ml", note: "Кешкі астан кейін", tone: "muted", taken: false },
+  ],
+  aruzhan: [
+    { id: "r1", time: "09:00", drug: "Nurofen susp. 5 ml", note: "Температура >37.5°", tone: "warning", taken: true },
+    { id: "r2", time: "15:00", drug: "Nurofen susp. 5 ml", note: "6 сағ сайын", tone: "warning", taken: false },
+    { id: "r3", time: "21:00", drug: "Probiotic drops", note: "Ұйықтар алдында", tone: "success", taken: false },
+  ],
+  dias: [
+    { id: "d1", time: "07:30", drug: "Multivit teen", note: "Таңғы астан кейін", tone: "success", taken: true },
+  ],
+};
+
+type Person = { id: string; name: string; emoji: string; role: string };
+const PEOPLE: Person[] = [
+  { id: "me",      name: "Мен",    emoji: "👤", role: "Ata-ana" },
+  { id: "aidos",   name: "Айдос",  emoji: "🧒", role: "8 жас" },
+  { id: "aruzhan", name: "Аружан", emoji: "👧", role: "4 жас" },
+  { id: "dias",    name: "Диас",   emoji: "🧑", role: "14 жас" },
 ];
+
 
 function PrescriptionRx() {
   const [schedule, setSchedule] = useState<Slot[]>(INITIAL_SCHEDULE);
