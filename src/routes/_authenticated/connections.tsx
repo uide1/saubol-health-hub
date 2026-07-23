@@ -23,7 +23,7 @@ type Row = {
   public_id: string | null;
   avatar_url: string | null;
 };
-type LinkRow = { kind: "family" | "friend"; role: "parent" | "child" | "friend"; status: string; other: Row };
+type LinkRow = { kind: "family" | "friend"; role: "parent" | "child" | "friend"; status: string; iRequested: boolean; other: Row };
 
 function ConnectionsPage() {
   const { user, profile } = useMyProfile();
