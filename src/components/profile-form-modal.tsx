@@ -76,11 +76,11 @@ export function ProfileFormModal({
     }
     setBusy(true);
     const uname = username.trim().toLowerCase().replace(/[^a-z0-9_]/g, "_");
-    const patch: Partial<ProfileRow> = {
+    const patch = {
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       full_name: `${firstName.trim()} ${lastName.trim()}`.trim(),
-      username: uname || profile.username,
+      username: uname || profile.username || profile.id,
       age: Number(age),
       height_cm: heightCm ? Number(heightCm) : null,
       weight_kg: weightKg ? Number(weightKg) : null,
