@@ -9,133 +9,111 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WelcomeRouteImport } from './routes/welcome'
-import { Route as TriageVoiceRouteImport } from './routes/triage-voice'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PrescriptionRxRouteImport } from './routes/prescription-rx'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedTriageVoiceRouteImport } from './routes/_authenticated/triage-voice'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedPrescriptionRxRouteImport } from './routes/_authenticated/prescription-rx'
 
-const WelcomeRoute = WelcomeRouteImport.update({
-  id: '/welcome',
-  path: '/welcome',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TriageVoiceRoute = TriageVoiceRouteImport.update({
-  id: '/triage-voice',
-  path: '/triage-voice',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrescriptionRxRoute = PrescriptionRxRouteImport.update({
-  id: '/prescription-rx',
-  path: '/prescription-rx',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedTriageVoiceRoute =
+  AuthenticatedTriageVoiceRouteImport.update({
+    id: '/_authenticated/triage-voice',
+    path: '/triage-voice',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/_authenticated/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedPrescriptionRxRoute =
+  AuthenticatedPrescriptionRxRouteImport.update({
+    id: '/_authenticated/prescription-rx',
+    path: '/prescription-rx',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/prescription-rx': typeof PrescriptionRxRoute
-  '/profile': typeof ProfileRoute
-  '/triage-voice': typeof TriageVoiceRoute
-  '/welcome': typeof WelcomeRoute
+  '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/triage-voice': typeof AuthenticatedTriageVoiceRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/prescription-rx': typeof PrescriptionRxRoute
-  '/profile': typeof ProfileRoute
-  '/triage-voice': typeof TriageVoiceRoute
-  '/welcome': typeof WelcomeRoute
+  '/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/triage-voice': typeof AuthenticatedTriageVoiceRoute
+  '/': typeof AuthenticatedIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/prescription-rx': typeof PrescriptionRxRoute
-  '/profile': typeof ProfileRoute
-  '/triage-voice': typeof TriageVoiceRoute
-  '/welcome': typeof WelcomeRoute
+  '/_authenticated/prescription-rx': typeof AuthenticatedPrescriptionRxRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/triage-voice': typeof AuthenticatedTriageVoiceRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/prescription-rx'
-    | '/profile'
-    | '/triage-voice'
-    | '/welcome'
+  fullPaths: '/prescription-rx' | '/profile' | '/triage-voice' | '/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/prescription-rx' | '/profile' | '/triage-voice' | '/welcome'
+  to: '/prescription-rx' | '/profile' | '/triage-voice' | '/'
   id:
     | '__root__'
-    | '/'
-    | '/prescription-rx'
-    | '/profile'
-    | '/triage-voice'
-    | '/welcome'
+    | '/_authenticated/prescription-rx'
+    | '/_authenticated/profile'
+    | '/_authenticated/triage-voice'
+    | '/_authenticated/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  PrescriptionRxRoute: typeof PrescriptionRxRoute
-  ProfileRoute: typeof ProfileRoute
-  TriageVoiceRoute: typeof TriageVoiceRoute
-  WelcomeRoute: typeof WelcomeRoute
+  AuthenticatedPrescriptionRxRoute: typeof AuthenticatedPrescriptionRxRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedTriageVoiceRoute: typeof AuthenticatedTriageVoiceRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/welcome': {
-      id: '/welcome'
-      path: '/welcome'
-      fullPath: '/welcome'
-      preLoaderRoute: typeof WelcomeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/triage-voice': {
-      id: '/triage-voice'
-      path: '/triage-voice'
-      fullPath: '/triage-voice'
-      preLoaderRoute: typeof TriageVoiceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prescription-rx': {
-      id: '/prescription-rx'
-      path: '/prescription-rx'
-      fullPath: '/prescription-rx'
-      preLoaderRoute: typeof PrescriptionRxRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/triage-voice': {
+      id: '/_authenticated/triage-voice'
+      path: '/triage-voice'
+      fullPath: '/triage-voice'
+      preLoaderRoute: typeof AuthenticatedTriageVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/prescription-rx': {
+      id: '/_authenticated/prescription-rx'
+      path: '/prescription-rx'
+      fullPath: '/prescription-rx'
+      preLoaderRoute: typeof AuthenticatedPrescriptionRxRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  PrescriptionRxRoute: PrescriptionRxRoute,
-  ProfileRoute: ProfileRoute,
-  TriageVoiceRoute: TriageVoiceRoute,
-  WelcomeRoute: WelcomeRoute,
+  AuthenticatedPrescriptionRxRoute: AuthenticatedPrescriptionRxRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedTriageVoiceRoute: AuthenticatedTriageVoiceRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

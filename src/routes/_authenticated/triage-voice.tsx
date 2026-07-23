@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { triageChat } from "@/lib/triage-ai.functions";
 
-export const Route = createFileRoute("/triage-voice")({
+export const Route = createFileRoute("/_authenticated/triage-voice")({
   head: () => ({
     meta: [
       { title: "Дауыс — Family Chat & AI Doctor · SauBol" },

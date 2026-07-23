@@ -5,7 +5,7 @@ import { Badge, PageHeader, SectionEyebrow } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 
 
-export const Route = createFileRoute("/prescription-rx")({
+export const Route = createFileRoute("/_authenticated/prescription-rx")({
   head: () => ({
     meta: [
       { title: "Дәрілер — RxClarify · SauBol" },
