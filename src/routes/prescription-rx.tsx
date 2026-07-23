@@ -139,7 +139,36 @@ function PrescriptionRx() {
         }
       />
 
+      {/* Person selector — parent sees own timetable by default, can switch to any child */}
+      <div className="mb-4 rounded-2xl border border-border bg-card p-3">
+        <div className="mb-2 flex items-baseline justify-between px-1">
+          <SectionEyebrow><L kk="Кестені кімге көрсету" ru="Чей график показать" en="Whose schedule" /></SectionEyebrow>
+          <span className="text-[10px] text-muted-foreground">{PEOPLE.length} · {L1({ kk: "профиль", ru: "профилей", en: "profiles" })}</span>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {PEOPLE.map((p) => {
+            const active = p.id === activePerson;
+            const items = schedules[p.id] ?? [];
+            const taken = items.filter((s) => s.taken).length;
+            return (
+              <button
+                key={p.id}
+                onClick={() => setActivePerson(p.id)}
+                className={`flex items-center gap-3 rounded-2xl border px-3 py-2 text-left transition ${active ? "border-[color:var(--mint)]/50 bg-[color:var(--mint-soft)]" : "border-border bg-surface hover:border-white/15"}`}
+              >
+                <div className="grid h-9 w-9 place-items-center rounded-full bg-secondary text-lg">{p.emoji}</div>
+                <div>
+                  <div className="text-[13px] font-medium text-foreground leading-tight">{p.name}</div>
+                  <div className="text-[10px] text-muted-foreground">{p.role} · {taken}/{items.length} <L kk="қаб." ru="прин." en="tk." /></div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* BIG timetable — full width, hero */}
+
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
           <div>
