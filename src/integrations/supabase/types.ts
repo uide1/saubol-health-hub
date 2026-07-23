@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      fall_alerts: {
+        Row: {
+          created_at: string
+          escalated: boolean
+          escalated_at: string | null
+          id: string
+          responded_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          escalated?: boolean
+          escalated_at?: string | null
+          id?: string
+          responded_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          escalated?: boolean
+          escalated_at?: string | null
+          id?: string
+          responded_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       family_links: {
         Row: {
           child_id: string
@@ -238,6 +268,8 @@ export type Database = {
           last_name: string | null
           public_id: string
           role: string
+          telegram_chat_id: number | null
+          telegram_link_code: string | null
           updated_at: string
           username: string
           weight_kg: number | null
@@ -255,6 +287,8 @@ export type Database = {
           last_name?: string | null
           public_id?: string
           role?: string
+          telegram_chat_id?: number | null
+          telegram_link_code?: string | null
           updated_at?: string
           username: string
           weight_kg?: number | null
@@ -272,6 +306,8 @@ export type Database = {
           last_name?: string | null
           public_id?: string
           role?: string
+          telegram_chat_id?: number | null
+          telegram_link_code?: string | null
           updated_at?: string
           username?: string
           weight_kg?: number | null
