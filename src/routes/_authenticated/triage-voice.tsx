@@ -293,6 +293,7 @@ function VoiceMessenger() {
                   {g.items.map((c) => {
                     const isActive = c.id === activeId;
                     const ring = c.kind === "ai" ? "ring-[color:var(--mint)]/50" : "ring-white/10";
+                    const badge = unread[c.id] ?? 0;
                     return (
                       <button key={c.id} onClick={() => setActiveId(c.id)}
                         className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${isActive ? "bg-[color:var(--mint-soft)] border border-[color:var(--mint)]/40" : "border border-transparent hover:bg-surface"}`}>
@@ -304,6 +305,11 @@ function VoiceMessenger() {
                           <div className="truncate font-serif text-[15px] text-foreground">{c.name}</div>
                           <div className="truncate text-[11px] text-muted-foreground">{c.status}</div>
                         </div>
+                        {badge > 0 && !isActive && (
+                          <span className="ml-auto grid h-5 min-w-5 place-items-center rounded-full bg-[color:var(--mint)] px-1.5 text-[10px] font-bold text-background shadow-[0_0_10px_rgba(52,211,153,0.6)]">
+                            {badge > 9 ? "9+" : badge}
+                          </span>
+                        )}
                       </button>
                     );
                   })}
