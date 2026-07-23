@@ -291,17 +291,6 @@ export type Database = {
         Args: { _target: string; _viewer: string }
         Returns: boolean
       }
-      find_user: {
-        Args: { _query: string }
-        Returns: {
-          avatar_url: string
-          full_name: string
-          id: string
-          public_id: string
-          role: string
-          username: string
-        }[]
-      }
     }
     Enums: {
       [_ in never]: never
