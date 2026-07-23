@@ -283,6 +283,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_manage_user_data: {
+        Args: { _manager: string; _target: string }
+        Returns: boolean
+      }
       can_view_user_data: {
         Args: { _target: string; _viewer: string }
         Returns: boolean
