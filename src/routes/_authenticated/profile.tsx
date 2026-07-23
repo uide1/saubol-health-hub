@@ -114,6 +114,8 @@ function ProfilePage() {
         </Bento>
       </div>
 
+      <TelegramLink profileId={profile.id} chatId={profile.telegram_chat_id} linkCode={profile.telegram_link_code} onChange={refetch} />
+
       <HealthWidgets />
 
       <ProfileFormModal mode="edit" open={editOpen} profile={profile} onClose={() => setEditOpen(false)} onSaved={refetch} />
