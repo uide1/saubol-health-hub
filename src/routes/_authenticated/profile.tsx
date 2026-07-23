@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Bento, Badge, SectionEyebrow } from "@/components/ui-kit";
+import { Bento, Badge, SectionEyebrow, PageHeader } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { useMyProfile, resolveAvatarUrl } from "@/lib/auth";
 import { ProfileFormModal } from "@/components/profile-form-modal";
 import { supabase } from "@/integrations/supabase/client";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+
 
 export const Route = createFileRoute("/_authenticated/profile")({
 
