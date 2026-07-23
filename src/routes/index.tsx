@@ -126,11 +126,11 @@ function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Merged HERO with HealthOrb + aurora */}
-      <Bento className="relative overflow-hidden p-8">
+      <Bento className="relative overflow-hidden p-6">
         <div className="aurora" />
-        <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[1.5fr_auto]">
+        <div className="relative grid grid-cols-1 items-center gap-6 lg:grid-cols-[1.5fr_auto]">
           <div>
-            <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 backdrop-blur">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 backdrop-blur">
               <span className="live-dot" />
               <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                 <L kk="Тікелей · " ru="В эфире · " en="Live · " />
@@ -139,7 +139,7 @@ function Dashboard() {
                 </span>
               </span>
             </div>
-            <h1 className="font-serif text-5xl leading-[1.02] tracking-tight text-foreground md:text-6xl">
+            <h1 className="font-serif text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
               <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
               <span className="italic text-[color:var(--mint)]">
                 <L kk="Айнұр" ru="Айнур" en="Ainur" />
@@ -151,7 +151,7 @@ function Dashboard() {
                 en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
               />
             </h1>
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-4 flex flex-wrap gap-2">
               <Link to="/triage-voice" className="group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
                 <L kk="Чат ашу →" ru="Открыть чат →" en="Open chat →" />
               </Link>
@@ -168,8 +168,8 @@ function Dashboard() {
             <SectionEyebrow>
               <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
             </SectionEyebrow>
-            <HealthOrb value={72} size={200} label="/ 100" />
-            <div className="mt-3 flex items-center gap-2">
+            <HealthOrb value={72} size={160} label="/ 100" />
+            <div className="mt-2 flex items-center gap-2">
               <Badge tone="mint">{L1({ kk: "+4 апта сайын", ru: "+4 за неделю", en: "+4 this week" })}</Badge>
               <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 внимание", en: "1 flag" })}</Badge>
             </div>
