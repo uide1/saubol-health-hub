@@ -126,11 +126,11 @@ function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Merged HERO with HealthOrb + aurora */}
-      <Bento className="relative overflow-hidden p-6">
+      <Bento className="relative overflow-hidden p-4">
         <div className="aurora" />
-        <div className="relative grid grid-cols-1 items-center gap-6 lg:grid-cols-[1.5fr_auto]">
-          <div>
-            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 backdrop-blur">
+        <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-2.5 py-1 backdrop-blur">
               <span className="live-dot" />
               <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                 <L kk="Тікелей · " ru="В эфире · " en="Live · " />
@@ -139,39 +139,42 @@ function Dashboard() {
                 </span>
               </span>
             </div>
-            <h1 className="font-serif text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
+            <h1 className="font-serif text-2xl leading-tight tracking-tight text-foreground md:text-3xl">
               <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
               <span className="italic text-[color:var(--mint)]">
                 <L kk="Айнұр" ru="Айнур" en="Ainur" />
               </span>.
-              <br />
-              <L
-                kk={<>Бүгін денсаулық <span className="italic">жақсы</span>, бірақ темір деңгейі назар аударуды талап етеді.</>}
-                ru={<>Сегодня здоровье <span className="italic">хорошее</span>, но уровень железа требует внимания.</>}
-                en={<>Health is <span className="italic">good</span> today, but iron levels need attention.</>}
-              />
+              <span className="hidden md:inline">
+                {" "}
+                <L
+                  kk={<>Бүгін денсаулық <span className="italic">жақсы</span>.</>}
+                  ru={<>Сегодня здоровье <span className="italic">хорошее</span>.</>}
+                  en={<>Health is <span className="italic">good</span> today.</>}
+                />
+              </span>
             </h1>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link to="/triage-voice" className="group/btn relative inline-flex items-center gap-2 overflow-hidden rounded-full bg-[color:var(--mint)] px-4 py-2 text-sm font-medium text-background transition hover:scale-[1.02]">
-                <L kk="Чат ашу →" ru="Открыть чат →" en="Open chat →" />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link to="/triage-voice" className="inline-flex items-center gap-2 rounded-full bg-[color:var(--mint)] px-3 py-1.5 text-xs font-medium text-background transition hover:scale-[1.02]">
+                <L kk="Чат →" ru="Чат →" en="Chat →" />
               </Link>
-              <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
-                <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
+              <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1.5 text-xs text-foreground">
+                <L kk="Дәрілер" ru="Лекарства" en="Meds" />
               </Link>
-
-              <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
+              <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1.5 text-xs text-muted-foreground">
                 <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
               </Link>
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <SectionEyebrow>
-              <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
-            </SectionEyebrow>
-            <HealthOrb value={72} size={160} label="/ 100" />
-            <div className="mt-2 flex items-center gap-2">
-              <Badge tone="mint">{L1({ kk: "+4 апта сайын", ru: "+4 за неделю", en: "+4 this week" })}</Badge>
-              <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 внимание", en: "1 flag" })}</Badge>
+          <div className="flex items-center gap-3 lg:pl-4">
+            <HealthOrb value={72} size={84} label="/100" />
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                <L kk="Денсаулық индексі" ru="Индекс здоровья" en="Health index" />
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                <Badge tone="mint">{L1({ kk: "+4", ru: "+4", en: "+4" })}</Badge>
+                <Badge tone="warning">{L1({ kk: "1 назар", ru: "1 флаг", en: "1 flag" })}</Badge>
+              </div>
             </div>
           </div>
         </div>
