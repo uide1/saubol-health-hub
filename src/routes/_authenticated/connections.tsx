@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useMyProfile } from "@/lib/auth";
+import { useMyProfile, resolveAvatarUrl } from "@/lib/auth";
 import { PageHeader } from "@/components/ui-kit";
 import { L, useL } from "@/lib/i18n";
 
@@ -32,6 +32,7 @@ function ConnectionsPage() {
   const [results, setResults] = useState<Row[]>([]);
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [busy, setBusy] = useState(false);
+  const [avatars, setAvatars] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -60,6 +61,11 @@ function ConnectionsPage() {
       if (other) out.push({ kind: "family", role: iAmParent ? "child" : "parent", status: r.status, other });
     });
     setLinks(out);
+    // resolve avatars
+    const entries = await Promise.all(
+      (profs ?? []).map(async (p: any) => [p.id, await resolveAvatarUrl(p.avatar_url)] as const),
+    );
+    setAvatars(Object.fromEntries(entries.filter(([, u]) => !!u)) as Record<string, string>);
   }, [user?.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -81,6 +87,7 @@ function ConnectionsPage() {
     const { error } = await supabase.from("friendships").insert({ user_id: user.id, friend_id: other.id, status: "pending" });
     if (error) { toast.error(error.message); return; }
     toast.success(L1({ kk: "Сұраныс жіберілді", ru: "Запрос отправлен", en: "Request sent" }));
+    setResults(results.filter((r) => r.id !== other.id));
     load();
   };
   const addChild = async (other: Row) => {
@@ -88,6 +95,7 @@ function ConnectionsPage() {
     const { error } = await supabase.from("family_links").insert({ parent_id: user.id, child_id: other.id, status: "pending" });
     if (error) { toast.error(error.message); return; }
     toast.success(L1({ kk: "Сұраныс жіберілді", ru: "Запрос отправлен", en: "Request sent" }));
+    setResults(results.filter((r) => r.id !== other.id));
     load();
   };
   const accept = async (l: LinkRow) => {
@@ -97,7 +105,8 @@ function ConnectionsPage() {
       ? { parent_id: l.role === "child" ? user.id : l.other.id, child_id: l.role === "child" ? l.other.id : user.id }
       : { user_id: l.other.id, friend_id: user.id };
     const { error } = await supabase.from(tbl).update({ status: "accepted" }).match(filter as any);
-    if (error) toast.error(error.message); else load();
+    if (error) toast.error(error.message);
+    else { toast.success(L1({ kk: "Қабылданды", ru: "Принято", en: "Accepted" })); load(); }
   };
   const remove = async (l: LinkRow) => {
     if (!user) return;
@@ -112,75 +121,152 @@ function ConnectionsPage() {
 
   const family = links.filter((l) => l.kind === "family");
   const friends = links.filter((l) => l.kind === "friend");
+  const incoming = links.filter((l) => l.status === "pending" && (
+    (l.kind === "family" && l.role === "parent") || false
+  ));
+  // pending requests where I need to accept: for friends the other party sent invite (l with pending, where user is friend_id) — we need to detect based on stored rows. Simpler: show accept on any pending row here — accept endpoint is safe (RLS).
+  const pending = links.filter((l) => l.status === "pending");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <PageHeader
         eyebrow={<L kk="Байланыстар" ru="Связи" en="Connections" />}
         title={<L kk="Отбасы және достар" ru="Семья и друзья" en="Family & friends" />}
         description={<L kk="Public ID немесе username бойынша қосыңыз" ru="Добавляйте по Public ID или username" en="Add by Public ID or username" />}
         actions={profile?.public_id ? (
-          <div className="rounded-full border border-border bg-surface px-3 py-1.5 text-xs">
-            <span className="text-muted-foreground"><L kk="Сіздің ID" ru="Ваш ID" en="Your ID" />: </span>
-            <button onClick={() => { navigator.clipboard.writeText(profile.public_id!); toast.success("Copied"); }} className="font-mono font-medium text-foreground">{profile.public_id}</button>
-          </div>
+          <button onClick={() => { navigator.clipboard.writeText(profile.public_id!); toast.success("Copied"); }} className="rounded-full border border-border bg-surface px-4 py-2 text-xs">
+            <span className="text-muted-foreground"><L kk="Сіздің ID" ru="Ваш ID" en="Your ID" />:</span>
+            <span className="ml-2 font-mono font-medium text-foreground">{profile.public_id}</span>
+          </button>
         ) : null}
       />
 
-      <div className="rounded-3xl border border-border bg-card p-5">
-        <form onSubmit={search} className="flex gap-2">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={L1({ kk: "SB-XXXXXX немесе username", ru: "SB-XXXXXX или username", en: "SB-XXXXXX or username" })} className="flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground outline-none focus:border-white/20" />
-          <button disabled={busy} className="rounded-full bg-foreground px-5 text-sm font-medium text-background disabled:opacity-50"><L kk="Іздеу" ru="Найти" en="Search" /></button>
-        </form>
-        {results.length > 0 && (
-          <div className="mt-4 space-y-2">
-            {results.map((r) => (
-              <div key={r.id} className="flex items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-foreground">{r.full_name ?? r.username}</div>
-                  <div className="text-[11px] text-muted-foreground">@{r.username} · <span className="font-mono">{r.public_id}</span></div>
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => addFriend(r)} className="rounded-full border border-border px-3 py-1 text-xs text-foreground hover:border-white/20"><L kk="+ Дос" ru="+ Друг" en="+ Friend" /></button>
-                  <button onClick={() => addChild(r)} className="rounded-full border border-border px-3 py-1 text-xs text-foreground hover:border-white/20"><L kk="+ Бала" ru="+ Ребёнок" en="+ Child" /></button>
-                </div>
-              </div>
-            ))}
+      {/* Search hero */}
+      <div className="noise relative overflow-hidden rounded-3xl border border-border bg-card p-6">
+        <div className="aurora opacity-25" />
+        <div className="relative">
+          <div className="mb-3 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Адамды табу" ru="Найти человека" en="Find someone" />
           </div>
-        )}
+          <form onSubmit={search} className="flex flex-wrap gap-2">
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={L1({ kk: "SB-XXXXXX немесе username", ru: "SB-XXXXXX или username", en: "SB-XXXXXX or username" })} className="min-w-[240px] flex-1 rounded-full border border-border bg-surface px-5 py-2.5 text-sm text-foreground outline-none focus:border-white/20" />
+            <button disabled={busy} className="rounded-full bg-foreground px-6 py-2.5 text-sm font-medium text-background disabled:opacity-50">
+              {busy ? "…" : <L kk="Іздеу" ru="Найти" en="Search" />}
+            </button>
+          </form>
+          {results.length > 0 && (
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {results.map((r) => (
+                <div key={r.id} className="flex items-center gap-3 rounded-2xl border border-border bg-surface/80 p-3 backdrop-blur">
+                  <Avatar row={r} size={40} />
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-sm font-medium text-foreground">{r.full_name ?? r.username}</div>
+                    <div className="truncate text-[11px] text-muted-foreground">@{r.username} · <span className="font-mono">{r.public_id}</span></div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <button onClick={() => addFriend(r)} className="rounded-full bg-foreground px-3 py-1 text-[11px] font-medium text-background">
+                      <L kk="+ Дос" ru="+ Друг" en="+ Friend" />
+                    </button>
+                    <button onClick={() => addChild(r)} className="rounded-full border border-border px-3 py-1 text-[11px] text-foreground hover:border-white/20">
+                      <L kk="+ Бала" ru="+ Ребёнок" en="+ Child" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Panel title={L1({ kk: "Отбасы", ru: "Семья", en: "Family" })} items={family} onAccept={accept} onRemove={remove} emptyText={L1({ kk: "Әлі отбасы жоқ", ru: "Пока нет семьи", en: "No family yet" })} me={user?.id ?? ""} />
-        <Panel title={L1({ kk: "Достар", ru: "Друзья", en: "Friends" })} items={friends} onAccept={accept} onRemove={remove} emptyText={L1({ kk: "Әлі достар жоқ", ru: "Пока нет друзей", en: "No friends yet" })} me={user?.id ?? ""} />
+      {pending.length > 0 && (
+        <div>
+          <div className="mb-3 text-[10px] uppercase tracking-widest text-muted-foreground">
+            <L kk="Күтіп тұр" ru="Ожидают" en="Pending" />
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {pending.map((l, i) => (
+              <PersonCard key={i} link={l} onAccept={accept} onRemove={remove} avatarUrl={avatars[l.other.id]} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section
+          title={L1({ kk: "Отбасы", ru: "Семья", en: "Family" })}
+          icon="👨‍👩‍👧"
+          items={family.filter((l) => l.status === "accepted")}
+          empty={L1({ kk: "Балаңызды/ата-анаңызды жоғарыдан қосыңыз", ru: "Добавьте ребёнка/родителя выше", en: "Add a child or parent above" })}
+          onRemove={remove}
+          avatars={avatars}
+        />
+        <Section
+          title={L1({ kk: "Достар", ru: "Друзья", en: "Friends" })}
+          icon="🤝"
+          items={friends.filter((l) => l.status === "accepted")}
+          empty={L1({ kk: "Достарыңызды жоғарыдан қосыңыз", ru: "Добавьте друзей выше", en: "Add friends above" })}
+          onRemove={remove}
+          avatars={avatars}
+        />
       </div>
     </div>
   );
 }
 
-function Panel({ title, items, onAccept, onRemove, emptyText, me }: {
-  title: string; items: LinkRow[]; onAccept: (l: LinkRow) => void; onRemove: (l: LinkRow) => void; emptyText: string; me: string;
+function Section({ title, icon, items, empty, onRemove, avatars }: {
+  title: string; icon: string; items: LinkRow[]; empty: string; onRemove: (l: LinkRow) => void; avatars: Record<string, string>;
 }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
-      <div className="mb-3 text-[10px] uppercase tracking-widest text-muted-foreground">{title}</div>
-      {items.length === 0 && <div className="text-sm text-muted-foreground">{emptyText}</div>}
-      <div className="space-y-2">
-        {items.map((l, i) => (
-          <div key={i} className="flex items-center justify-between rounded-2xl border border-border bg-surface px-4 py-3">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-medium text-foreground">{l.other.full_name ?? l.other.username}</div>
-              <div className="text-[11px] text-muted-foreground">
-                {l.kind === "family" ? (l.role === "child" ? "👶 Child" : "👤 Parent") : "🤝 Friend"} · {l.status}
-              </div>
-            </div>
-            <div className="flex gap-2">
-              {l.status === "pending" && <button onClick={() => onAccept(l)} className="rounded-full bg-[color:var(--mint)] px-3 py-1 text-xs font-medium text-background">Accept</button>}
-              <button onClick={() => onRemove(l)} className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground">✕</button>
-            </div>
-          </div>
-        ))}
+      <div className="mb-4 flex items-center gap-2">
+        <span className="text-lg">{icon}</span>
+        <span className="text-[10px] uppercase tracking-widest text-muted-foreground">{title}</span>
+        <span className="ml-auto rounded-full border border-border bg-surface px-2 py-0.5 font-mono text-[10px] text-muted-foreground">{items.length}</span>
       </div>
+      {items.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">{empty}</div>
+      ) : (
+        <div className="space-y-2">
+          {items.map((l, i) => (
+            <PersonCard key={i} link={l} onRemove={onRemove} avatarUrl={avatars[l.other.id]} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PersonCard({ link, onAccept, onRemove, avatarUrl }: {
+  link: LinkRow; onAccept?: (l: LinkRow) => void; onRemove: (l: LinkRow) => void; avatarUrl?: string;
+}) {
+  const roleLabel = link.kind === "family"
+    ? (link.role === "child" ? "👶 Child" : "👤 Parent")
+    : "🤝 Friend";
+  return (
+    <div className="group flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 transition hover:border-white/20">
+      <Avatar row={link.other} url={avatarUrl} size={40} />
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium text-foreground">{link.other.full_name ?? link.other.username}</div>
+        <div className="truncate text-[11px] text-muted-foreground">
+          {roleLabel} · <span className="font-mono">{link.other.public_id}</span>
+          {link.status === "pending" && <span className="ml-1 text-amber-400">· pending</span>}
+        </div>
+      </div>
+      <div className="flex gap-1 opacity-70 transition group-hover:opacity-100">
+        {link.status === "pending" && onAccept && (
+          <button onClick={() => onAccept(link)} className="rounded-full bg-[color:var(--mint)] px-3 py-1 text-[11px] font-medium text-background">✓</button>
+        )}
+        <button onClick={() => onRemove(link)} className="grid h-7 w-7 place-items-center rounded-full border border-border text-muted-foreground hover:text-foreground" title="Remove">✕</button>
+      </div>
+    </div>
+  );
+}
+
+function Avatar({ row, url, size = 40 }: { row: Row; url?: string | null; size?: number }) {
+  const initials = (row.full_name ?? row.username ?? "?").slice(0, 2).toUpperCase();
+  return (
+    <div style={{ width: size, height: size }} className="grid shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[color:var(--mint)]/60 to-emerald-900 text-xs font-semibold text-background">
+      {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : initials}
     </div>
   );
 }
