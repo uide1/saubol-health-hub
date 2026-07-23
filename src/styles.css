@@ -300,3 +300,61 @@
   }
 }
 
+/* ─── Bento spotlight (mouse-tracked) ─── */
+.bento::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(
+    360px circle at var(--mx, 50%) var(--my, 50%),
+    color-mix(in oklab, var(--mint) 12%, transparent),
+    transparent 60%
+  );
+  z-index: 0;
+}
+.bento:hover::before { opacity: 1; }
+.bento > * { position: relative; z-index: 1; }
+
+/* ─── Ambient app background ─── */
+.ambient-bg {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+}
+.ambient-bg::before, .ambient-bg::after {
+  content: ""; position: absolute; border-radius: 999px; filter: blur(120px); opacity: 0.32;
+}
+.ambient-bg::before {
+  top: -20%; left: -10%; width: 55vw; height: 55vw;
+  background: radial-gradient(circle, color-mix(in oklab, var(--mint) 40%, transparent), transparent 70%);
+  animation: aurora-spin 40s linear infinite;
+}
+.ambient-bg::after {
+  bottom: -25%; right: -15%; width: 60vw; height: 60vw;
+  background: radial-gradient(circle, color-mix(in oklab, #7EB6FF 30%, transparent), transparent 70%);
+  animation: aurora-spin 55s linear infinite reverse;
+}
+.ambient-grid {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--foreground) 4%, transparent) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 20%, black 30%, transparent 75%);
+}
+
+/* ─── Page transition ─── */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-in { animation: page-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ─── Glass surface ─── */
+@utility glass {
+  background: color-mix(in oklab, var(--card) 70%, transparent);
+  backdrop-filter: blur(20px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
