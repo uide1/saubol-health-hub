@@ -102,7 +102,7 @@ function ConnectionsPage() {
     if (!user) return;
     const tbl = l.kind === "family" ? "family_links" : "friendships";
     const filter = l.kind === "family"
-      ? { parent_id: l.role === "child" ? user.id : l.other.id, child_id: l.role === "child" ? l.other.id : user.id }
+      ? { parent_id: l.other.id, child_id: user.id }
       : { user_id: l.other.id, friend_id: user.id };
     const { error } = await supabase.from(tbl).update({ status: "accepted" }).match(filter as any);
     if (error) toast.error(error.message);
