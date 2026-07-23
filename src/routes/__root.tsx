@@ -18,7 +18,6 @@ import { UserAvatar } from "@/components/user-avatar";
 import { useMyProfile } from "@/lib/auth";
 
 import appCss from "../styles.css?url";
-import saubolLogo from "@/assets/saubol-logo.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -117,7 +116,9 @@ function TopNav() {
     <header className="sticky top-2 z-40 mx-auto max-w-[1400px] px-3 sm:top-4 sm:px-6">
       <div className="flex items-center gap-2 rounded-full border border-border bg-background/70 px-2.5 py-2 backdrop-blur-xl sm:gap-4 sm:px-4">
         <Link to="/" className="flex items-center gap-2 pl-1 pr-1 sm:pr-2">
-          <img src={saubolLogo.url} alt="SauBol" className="h-8 w-8 rounded-full object-cover" />
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-mint text-sm font-semibold text-background">
+            S
+          </div>
           <div className="hidden items-baseline gap-1 sm:flex">
             <span className="font-serif text-lg leading-none tracking-tight text-foreground">SauBol</span>
             <span className="text-[9px] font-medium uppercase tracking-[0.18em] text-muted-foreground">AI</span>
