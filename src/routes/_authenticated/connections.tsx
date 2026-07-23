@@ -86,6 +86,13 @@ function ConnectionsPage() {
     if (!user) return;
     const { error } = await supabase.from("friendships").insert({ user_id: user.id, friend_id: other.id, status: "pending" });
     if (error) { toast.error(error.message); return; }
+    await supabase.from("notifications").insert({
+      user_id: other.id,
+      kind: "friend_request",
+      title: L1({ kk: "Жаңа дос сұранысы", ru: "Новый запрос в друзья", en: "New friend request" }),
+      body: (profile?.full_name ?? profile?.username ?? "Someone") + (L1({ kk: " сізге дос болғысы келеді", ru: " хочет добавить вас в друзья", en: " wants to be your friend" })),
+      meta: { from_user_id: user.id },
+    });
     toast.success(L1({ kk: "Сұраныс жіберілді", ru: "Запрос отправлен", en: "Request sent" }));
     setResults(results.filter((r) => r.id !== other.id));
     load();
@@ -94,6 +101,13 @@ function ConnectionsPage() {
     if (!user) return;
     const { error } = await supabase.from("family_links").insert({ parent_id: user.id, child_id: other.id, status: "pending" });
     if (error) { toast.error(error.message); return; }
+    await supabase.from("notifications").insert({
+      user_id: other.id,
+      kind: "family_request",
+      title: L1({ kk: "Отбасы шақыруы", ru: "Приглашение в семью", en: "Family invitation" }),
+      body: (profile?.full_name ?? profile?.username ?? "Someone") + (L1({ kk: " сізді отбасына қосқысы келеді", ru: " хочет добавить вас в семью", en: " wants to add you to family" })),
+      meta: { from_user_id: user.id },
+    });
     toast.success(L1({ kk: "Сұраныс жіберілді", ru: "Запрос отправлен", en: "Request sent" }));
     setResults(results.filter((r) => r.id !== other.id));
     load();
@@ -106,7 +120,17 @@ function ConnectionsPage() {
       : { user_id: l.other.id, friend_id: user.id };
     const { error } = await supabase.from(tbl).update({ status: "accepted" }).match(filter as any);
     if (error) toast.error(error.message);
-    else { toast.success(L1({ kk: "Қабылданды", ru: "Принято", en: "Accepted" })); load(); }
+    else {
+      await supabase.from("notifications").insert({
+        user_id: l.other.id,
+        kind: l.kind === "family" ? "family_accepted" : "friend_accepted",
+        title: L1({ kk: "Сұраныс қабылданды", ru: "Запрос принят", en: "Request accepted" }),
+        body: (profile?.full_name ?? profile?.username ?? "") + (L1({ kk: " сіздің сұранысыңызды қабылдады", ru: " принял(а) ваш запрос", en: " accepted your request" })),
+        meta: { from_user_id: user.id },
+      });
+      toast.success(L1({ kk: "Қабылданды", ru: "Принято", en: "Accepted" }));
+      load();
+    }
   };
   const remove = async (l: LinkRow) => {
     if (!user) return;
