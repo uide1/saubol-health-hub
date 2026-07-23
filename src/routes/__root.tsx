@@ -190,18 +190,28 @@ function AuthMenu() {
   );
 }
 
+function RouteAwareMain() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <main key={pathname} className="page-in mx-auto max-w-[1400px] px-6 py-8">
+      <Outlet />
+    </main>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
       <LangProvider>
-        <div className="min-h-screen bg-background pt-4 text-foreground">
+        <div className="relative min-h-screen bg-background pt-4 text-foreground">
+          <div className="ambient-bg" />
+          <div className="ambient-grid" />
           <CustomCursor />
+          <CommandPalette />
           <TopNav />
           <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
-          <main className="mx-auto max-w-[1400px] px-6 py-8">
-            <Outlet />
-          </main>
+          <RouteAwareMain />
           <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-serif italic">
@@ -211,7 +221,7 @@ function RootComponent() {
                   en="SauBol AI · Medical information tool, not a diagnosis."
                 />
               </span>
-              <span className="font-mono">© 2026 · v1.4.2 · Almaty</span>
+              <span className="font-mono">© 2026 · v1.5 · Almaty · ⌘K</span>
             </div>
           </footer>
         </div>
