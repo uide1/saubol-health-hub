@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.trigger_notify_fall_alert() FROM PUBLIC, anon, authenticated;
