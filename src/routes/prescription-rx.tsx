@@ -172,7 +172,7 @@ function PrescriptionRx() {
       <div className="mb-6 rounded-2xl border border-border bg-card p-6">
         <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <SectionEyebrow><L kk="Күнделікті кесте · Asia/Almaty" ru="Дневное расписание · Asia/Almaty" en="Daily schedule · Asia/Almaty" /></SectionEyebrow>
+            <SectionEyebrow><L kk="Күнделікті кесте" ru="Дневное расписание" en="Daily schedule" /> · <span className="text-foreground">{activePersonMeta.emoji} {activePersonMeta.name}</span></SectionEyebrow>
             <div className="font-serif text-3xl text-foreground">
               {takenCount} <span className="text-muted-foreground">/ {schedule.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
             </div>
