@@ -121,6 +121,18 @@ function Dashboard() {
   const toggleMed = (t: string) => setMeds(s => s.map(m => m.t === t ? { ...m, ok: !m.ok } : m));
   const takenCount = meds.filter(m => m.ok).length;
   const L1 = useL();
+  const hour = new Date().getHours();
+  const greet = hour < 6
+    ? L1({ kk: "Жақсы түн", ru: "Доброй ночи", en: "Good night" })
+    : hour < 12
+    ? L1({ kk: "Қайырлы таң", ru: "Доброе утро", en: "Good morning" })
+    : hour < 18
+    ? L1({ kk: "Қайырлы күн", ru: "Добрый день", en: "Good afternoon" })
+    : L1({ kk: "Қайырлы кеш", ru: "Добрый вечер", en: "Good evening" });
+  const dateStr = new Date().toLocaleDateString(
+    L1({ kk: "kk-KZ", ru: "ru-RU", en: "en-US" }),
+    { day: "numeric", month: "long", weekday: "long" }
+  );
   return (
     <div className="space-y-6">
       {/* Merged HERO with HealthOrb + aurora */}
@@ -132,13 +144,11 @@ function Dashboard() {
               <span className="live-dot" />
               <span className="text-[10px] font-medium uppercase tracking-[0.22em] text-muted-foreground">
                 <L kk="Тікелей · " ru="В эфире · " en="Live · " />
-                <span className="text-foreground">
-                  <L kk="20 шілде · Талдықорған" ru="20 июля · Талдыкорган" en="July 20 · Taldykorgan" />
-                </span>
+                <span className="text-foreground capitalize">{dateStr}</span>
               </span>
             </div>
             <h1 className="font-serif text-3xl leading-tight tracking-tight text-foreground md:text-4xl">
-              <L kk="Қайырлы таң, " ru="Доброе утро, " en="Good morning, " />
+              {greet},{" "}
               <span className="italic text-[color:var(--mint)]">
                 <L kk="Айнұр" ru="Айнур" en="Ainur" />
               </span>.
@@ -156,10 +166,13 @@ function Dashboard() {
               <Link to="/prescription-rx" className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-foreground">
                 <L kk="Дәрі-дәрмек" ru="Лекарства" en="Medications" />
               </Link>
-
-              <Link to="/welcome" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm text-muted-foreground">
-                <L kk="Онбординг" ru="Онбординг" en="Onboarding" />
-              </Link>
+              <button
+                onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface/70 px-3 py-2 text-xs text-muted-foreground backdrop-blur transition hover:text-foreground"
+              >
+                <L kk="Тез бұйрық" ru="Быстрая команда" en="Quick command" />
+                <span className="font-mono text-[10px]">⌘K</span>
+              </button>
             </div>
           </div>
           <div className="flex flex-col items-center">

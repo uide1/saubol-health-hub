@@ -11,6 +11,7 @@ import {
 import { useEffect, useState, type ReactNode } from "react";
 import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
+import { CommandPalette } from "@/components/command-palette";
 import { Toaster } from "sonner";
 import { LangProvider, LangSwitcher, useL, L } from "@/lib/i18n";
 
@@ -130,6 +131,13 @@ function TopNav() {
           })}
         </nav>
         <div className="ml-auto flex items-center gap-2">
+          <button
+            onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}
+            className="hidden items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 py-1 text-[10px] text-muted-foreground transition hover:text-foreground md:inline-flex"
+            title="Command palette"
+          >
+            <span>⌘</span><span>K</span>
+          </button>
           <LangSwitcher />
           <button
             onClick={toggle}
@@ -182,18 +190,28 @@ function AuthMenu() {
   );
 }
 
+function RouteAwareMain() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  return (
+    <main key={pathname} className="page-in mx-auto max-w-[1400px] px-6 py-8">
+      <Outlet />
+    </main>
+  );
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
       <LangProvider>
-        <div className="min-h-screen bg-background pt-4 text-foreground">
+        <div className="relative min-h-screen bg-background pt-4 text-foreground">
+          <div className="ambient-bg" />
+          <div className="ambient-grid" />
           <CustomCursor />
+          <CommandPalette />
           <TopNav />
           <Toaster theme="system" position="top-right" toastOptions={{ style: { background: "var(--card)", color: "var(--foreground)", border: "1px solid var(--border)" } }} />
-          <main className="mx-auto max-w-[1400px] px-6 py-8">
-            <Outlet />
-          </main>
+          <RouteAwareMain />
           <footer className="mx-auto max-w-[1400px] border-t border-border px-6 py-8 text-[11px] text-muted-foreground">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="font-serif italic">
@@ -203,7 +221,7 @@ function RootComponent() {
                   en="SauBol AI · Medical information tool, not a diagnosis."
                 />
               </span>
-              <span className="font-mono">© 2026 · v1.4.2 · Almaty</span>
+              <span className="font-mono">© 2026 · v1.5 · Almaty · ⌘K</span>
             </div>
           </footer>
         </div>
