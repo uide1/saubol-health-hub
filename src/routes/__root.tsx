@@ -18,6 +18,7 @@ import { UserAvatar } from "@/components/user-avatar";
 import { useMyProfile } from "@/lib/auth";
 
 import appCss from "../styles.css?url";
+import saubolLogo from "@/assets/saubol-logo.png.asset.json";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
