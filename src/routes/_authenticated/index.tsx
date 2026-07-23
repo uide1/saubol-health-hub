@@ -8,7 +8,7 @@ import { useL, L } from "@/lib/i18n";
 
 
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "SauBol AI — Сіздің денсаулық көмекшіңіз" },

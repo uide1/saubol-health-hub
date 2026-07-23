@@ -6,7 +6,7 @@ import { useL, L } from "@/lib/i18n";
 import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 
-export const Route = createFileRoute("/profile")({
+export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "Профиль — SauBol AI" },

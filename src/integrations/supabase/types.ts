@@ -164,6 +164,33 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -259,6 +286,17 @@ export type Database = {
       can_view_user_data: {
         Args: { _target: string; _viewer: string }
         Returns: boolean
+      }
+      find_user: {
+        Args: { _query: string }
+        Returns: {
+          avatar_url: string
+          full_name: string
+          id: string
+          public_id: string
+          role: string
+          username: string
+        }[]
       }
     }
     Enums: {

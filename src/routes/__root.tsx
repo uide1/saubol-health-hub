@@ -8,7 +8,7 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useTheme } from "@/lib/theme";
 import { CustomCursor } from "@/components/cursor";
 import { Toaster } from "sonner";
@@ -98,6 +98,7 @@ function TopNav() {
     { to: "/", label: L1({ kk: "Басты", ru: "Главная", en: "Home" }) },
     { to: "/triage-voice", label: L1({ kk: "Дауыс", ru: "Голос", en: "Voice" }) },
     { to: "/prescription-rx", label: L1({ kk: "Дәрілер", ru: "Лекарства", en: "Meds" }) },
+    { to: "/connections", label: L1({ kk: "Отбасы", ru: "Семья", en: "Family" }) },
     { to: "/profile", label: L1({ kk: "Профиль", ru: "Профиль", en: "Profile" }) },
   ] as const;
 
@@ -137,10 +138,47 @@ function TopNav() {
           >
             {theme === "dark" ? "☾" : "☀"}
           </button>
-          <Link to="/profile" className="grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-[11px] font-medium text-foreground">АН</Link>
+          <AuthMenu />
         </div>
       </div>
     </header>
+  );
+}
+
+function AuthMenu() {
+  const [email, setEmail] = useState<string | null>(null);
+  const [initial, setInitial] = useState("?");
+  useEffect(() => {
+    let mounted = true;
+    import("@/integrations/supabase/client").then(({ supabase }) => {
+      supabase.auth.getUser().then(({ data }) => {
+        if (!mounted) return;
+        const e = data.user?.email ?? null;
+        setEmail(e);
+        setInitial(e ? e.slice(0, 1).toUpperCase() : "?");
+      });
+      const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+        const e = s?.user?.email ?? null;
+        setEmail(e);
+        setInitial(e ? e.slice(0, 1).toUpperCase() : "?");
+      });
+      return () => sub.subscription.unsubscribe();
+    });
+    return () => { mounted = false; };
+  }, []);
+  const signOut = async () => {
+    const { supabase } = await import("@/integrations/supabase/client");
+    await supabase.auth.signOut();
+    window.location.href = "/auth";
+  };
+  if (!email) {
+    return <Link to="/auth" className="rounded-full bg-foreground px-3 py-1.5 text-[12px] font-medium text-background"><L kk="Кіру" ru="Войти" en="Sign in" /></Link>;
+  }
+  return (
+    <div className="flex items-center gap-1">
+      <Link to="/profile" className="grid h-8 w-8 place-items-center rounded-full border border-border bg-secondary text-[11px] font-medium text-foreground">{initial}</Link>
+      <button onClick={signOut} className="rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] text-muted-foreground hover:text-foreground" title="Sign out">↪</button>
+    </div>
   );
 }
 
