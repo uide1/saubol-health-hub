@@ -38,6 +38,7 @@ const AI_CONTACT: Contact = {
   status: "AI дәрігер · 24/7",
   online: true,
 };
+const AI_GREETING: Msg = { id: "sys", who: "them", text: "Сәлеметсіз бе! Мен SauBol AI. Симптомдарыңызды сипаттаңыз.", time: "" };
 
 function fmtTime(iso: string) {
   const d = new Date(iso);
@@ -49,7 +50,9 @@ function VoiceMessenger() {
   const L1 = useL();
   const [contacts, setContacts] = useState<Contact[]>([AI_CONTACT]);
   const [activeId, setActiveId] = useState<string>("ai");
-  const [messages, setMessages] = useState<Msg[]>([{ id: "sys", who: "them", text: "Сәлеметсіз бе! Мен SauBol AI. Симптомдарыңызды сипаттаңыз.", time: fmtTime(new Date().toISOString()) }]);
+  const [messages, setMessages] = useState<Msg[]>([{ ...AI_GREETING, time: fmtTime(new Date().toISOString()) }]);
+  const cacheRef = useRef<Map<string, Msg[]>>(new Map());
+  const [unread, setUnread] = useState<Record<string, number>>({});
   const [input, setInput] = useState("");
   const [lang, setLang] = useState(1);
   const [dictating, setDictating] = useState(false);
@@ -57,6 +60,10 @@ function VoiceMessenger() {
   const [search, setSearch] = useState("");
   const feedRef = useRef<HTMLDivElement | null>(null);
   const recogRef = useRef<any>(null);
+  const activeIdRef = useRef(activeId);
+  useEffect(() => { activeIdRef.current = activeId; }, [activeId]);
+  // Cache current messages whenever they change so switching contacts preserves state.
+  useEffect(() => { cacheRef.current.set(activeId, messages); }, [activeId, messages]);
 
   const active = contacts.find((c) => c.id === activeId) ?? AI_CONTACT;
   const isAI = active.kind === "ai";
@@ -95,9 +102,17 @@ function VoiceMessenger() {
 
   useEffect(() => { loadContacts(); }, [loadContacts]);
 
-  // Load messages for the active contact
+  // Load messages for the active contact (or restore AI cache) — resets state on switch.
   useEffect(() => {
-    if (!user || activeId === "ai") return;
+    if (!user) return;
+    if (activeId === "ai") {
+      const cached = cacheRef.current.get("ai");
+      setMessages(cached ?? [{ ...AI_GREETING, time: fmtTime(new Date().toISOString()) }]);
+      return;
+    }
+    const cached = cacheRef.current.get(activeId);
+    if (cached) setMessages(cached);
+    else setMessages([]);
     let cancelled = false;
     (async () => {
       const { data, error } = await supabase.from("messages")
@@ -116,26 +131,49 @@ function VoiceMessenger() {
       // mark received as read
       await supabase.from("messages").update({ read: true })
         .eq("recipient_id", user.id).eq("sender_id", activeId).eq("read", false);
+      setUnread((u) => ({ ...u, [activeId]: 0 }));
     })();
     return () => { cancelled = true; };
   }, [activeId, user?.id]);
 
-  // Realtime subscription for messages
+  // Realtime subscription for messages — always active, dispatches to cache + unread badges.
   useEffect(() => {
     if (!user) return;
     const channel = supabase.channel(`msg:${user.id}`)
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `recipient_id=eq.${user.id}` }, (payload: any) => {
         const m = payload.new;
-        if (m.sender_id === activeId) {
-          setMessages((prev) => [...prev, { id: m.id, who: "them", text: m.content, time: fmtTime(m.created_at) }]);
+        const senderId: string = m.sender_id;
+        const msg: Msg = { id: m.id, who: "them", text: m.content, time: fmtTime(m.created_at) };
+        // Update cache for that sender's thread regardless of which chat is open.
+        const prev = cacheRef.current.get(senderId) ?? [];
+        if (!prev.some((x) => x.id === msg.id)) {
+          const next = [...prev, msg];
+          cacheRef.current.set(senderId, next);
+          if (activeIdRef.current === senderId) setMessages(next);
+        }
+        if (activeIdRef.current === senderId) {
           supabase.from("messages").update({ read: true }).eq("id", m.id).then(() => {});
         } else {
+          setUnread((u) => ({ ...u, [senderId]: (u[senderId] ?? 0) + 1 }));
           toast(L1({ kk: "Жаңа хабарлама", ru: "Новое сообщение", en: "New message" }), { description: m.content.slice(0, 60) });
         }
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id, activeId]);
+  }, [user?.id, L1]);
+
+  // Initial unread counts per contact
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase.from("messages")
+        .select("sender_id")
+        .eq("recipient_id", user.id).eq("read", false);
+      const counts: Record<string, number> = {};
+      (data ?? []).forEach((r: any) => { counts[r.sender_id] = (counts[r.sender_id] ?? 0) + 1; });
+      setUnread(counts);
+    })();
+  }, [user?.id]);
 
   useEffect(() => {
     feedRef.current?.scrollTo({ top: feedRef.current.scrollHeight, behavior: "smooth" });
@@ -164,7 +202,8 @@ function VoiceMessenger() {
       setThinking(true);
       try {
         const langCode = (["kk", "ru", "en"] as const)[lang];
-        const history = [...messages, mine].map((m) => ({ role: (m.who === "me" ? "user" : "assistant") as "user" | "assistant", content: m.text }));
+        const aiHistory = (cacheRef.current.get("ai") ?? messages);
+        const history = [...aiHistory, mine].map((m) => ({ role: (m.who === "me" ? "user" : "assistant") as "user" | "assistant", content: m.text }));
         const { text: reply } = await triageChat({ data: { messages: history, lang: langCode } });
         setMessages((s) => [...s, { id: `ai-${Date.now()}`, who: "them", text: reply, time: fmtTime(new Date().toISOString()) }]);
       } catch (e: any) {
@@ -183,6 +222,15 @@ function VoiceMessenger() {
         return;
       }
       setMessages((s) => s.map((m) => m.id === optimistic.id ? { ...m, id: data.id, time: fmtTime(data.created_at) } : m));
+      // Also drop a notification so the bell/toast fires on the recipient without refresh.
+      const senderName = (contacts.find((c) => c.id === user.id)?.name) || "";
+      await supabase.from("notifications").insert({
+        user_id: activeId,
+        kind: "new_message",
+        title: L1({ kk: "Жаңа хабарлама", ru: "Новое сообщение", en: "New message" }),
+        body: t.slice(0, 140),
+        meta: { from_user_id: user.id, message_id: data.id, sender_name: senderName },
+      });
     }
   };
 
