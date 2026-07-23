@@ -349,23 +349,31 @@ function TelegramLink({ profileId, chatId, linkCode, onChange }: { profileId: st
               en={<>Send this command to the bot on Telegram: <span className="font-mono text-foreground">/start {linkCode}</span></>}
             />
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button onClick={copy} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">
               <L kk="Кодты көшіру" ru="Скопировать код" en="Copy code" />
             </button>
             <button onClick={generate} disabled={busy} className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50">
               <L kk="Жаңа код" ru="Новый код" en="New code" />
             </button>
+            <a href="https://web.telegram.org/k/#@saubolcare_bot" target="_blank" rel="noreferrer" className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground">
+              <L kk="Ботты ашу" ru="Открыть бота" en="Open bot" />
+            </a>
           </div>
         </div>
       ) : (
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-4">
+        <div className="mt-2 flex flex-col gap-4">
           <p className="text-sm text-muted-foreground">
             <L kk="Telegram-боты арқылы дәрі-дәрмекті және құлау дабылын басқарыңыз." ru="Управляйте лекарствами и оповещениями о падении через Telegram-бот." en="Manage medications and fall alerts via Telegram bot." />
           </p>
-          <button onClick={generate} disabled={busy} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background disabled:opacity-50">
-            <L kk="Telegram байлау" ru="Привязать Telegram" en="Link Telegram" />
-          </button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={generate} disabled={busy} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background disabled:opacity-50">
+              <L kk="Telegram байлау" ru="Привязать Telegram" en="Link Telegram" />
+            </button>
+            <a href="https://web.telegram.org/k/#@saubolcare_bot" target="_blank" rel="noreferrer" className="rounded-full border border-border bg-surface px-4 py-2 text-xs text-muted-foreground hover:text-foreground">
+              <L kk="Ботты ашу" ru="Открыть бота" en="Open bot" />
+            </a>
+          </div>
         </div>
       )}
     </Bento>
