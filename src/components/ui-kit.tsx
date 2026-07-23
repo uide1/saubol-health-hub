@@ -65,11 +65,11 @@ export function Bar({ value, tone = "neutral" }: { value: number; tone?: "neutra
 
 export function PageHeader({ eyebrow, title, description, actions }: { eyebrow: ReactNode; title: ReactNode; description: ReactNode; actions?: ReactNode }) {
   return (
-    <div className="mb-6 flex flex-col gap-3 border-b border-border pb-6 md:flex-row md:items-end md:justify-between">
+    <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4 sm:mb-6 sm:pb-6 md:flex-row md:items-end md:justify-between">
       <div>
-        <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground">{eyebrow}</div>
-        <h1 className="mt-2 font-serif text-4xl font-normal leading-[1.05] tracking-tight text-foreground md:text-5xl">{title}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{description}</p>
+        <div className="text-[10px] font-medium uppercase tracking-[0.18em] text-muted-foreground sm:text-[11px]">{eyebrow}</div>
+        <h1 className="mt-1.5 font-serif text-2xl font-normal leading-[1.05] tracking-tight text-foreground sm:mt-2 sm:text-4xl md:text-5xl">{title}</h1>
+        <p className="mt-1.5 max-w-2xl text-[13px] text-muted-foreground sm:mt-2 sm:text-sm">{description}</p>
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
     </div>
