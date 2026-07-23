@@ -266,13 +266,47 @@ function PrescriptionRx() {
               {takenCount} <span className="text-muted-foreground">/ {slots.length} <L kk="қабылданды" ru="принято" en="taken" /></span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {canEdit ? (
-              <button onClick={addSlot} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background">+ <L kk="Дәрі қосу" ru="Добавить" en="Add drug" /></button>
+              <>
+                <input
+                  ref={cameraInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => handleScanFile(e.target.files?.[0])}
+                />
+                <input
+                  ref={galleryInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => handleScanFile(e.target.files?.[0])}
+                />
+                <button
+                  onClick={() => cameraInputRef.current?.click()}
+                  disabled={scanning}
+                  className="rounded-full border border-[color:var(--mint)]/40 bg-[color:var(--mint-soft)] px-4 py-2 text-xs font-medium text-foreground transition hover:border-[color:var(--mint)]/70 disabled:opacity-50"
+                  title={L1({ kk: "Камерадан суретке түсіру", ru: "Сфотографировать камерой", en: "Take a photo" })}
+                >
+                  📷 <L kk="Суретке түсіру" ru="Сфотографировать" en="Take photo" />
+                </button>
+                <button
+                  onClick={() => galleryInputRef.current?.click()}
+                  disabled={scanning}
+                  className="rounded-full border border-border bg-surface px-4 py-2 text-xs font-medium text-foreground transition hover:border-white/20 disabled:opacity-50"
+                  title={L1({ kk: "Құрылғыдан сурет таңдау", ru: "Выбрать файл", en: "Upload from device" })}
+                >
+                  🖼️ <L kk="Файлдан" ru="Из файла" en="From file" />
+                </button>
+                <button onClick={addSlot} disabled={scanning} className="rounded-full bg-foreground px-4 py-2 text-xs font-medium text-background disabled:opacity-50">+ <L kk="Қолмен" ru="Вручную" en="Manual" /></button>
+              </>
             ) : (
               <span className="text-[11px] text-muted-foreground"><L kk="Тек көру" ru="Только просмотр" en="View only" /></span>
             )}
           </div>
+
         </div>
 
         {/* 24-hour timeline */}
