@@ -6,8 +6,10 @@ import { useL, L } from "@/lib/i18n";
 import { useMyProfile, resolveAvatarUrl } from "@/lib/auth";
 import { ProfileFormModal } from "@/components/profile-form-modal";
 import { supabase } from "@/integrations/supabase/client";
+import { AreaChart, Area, ResponsiveContainer, Tooltip, XAxis } from "recharts";
 
 export const Route = createFileRoute("/_authenticated/profile")({
+
   head: () => ({
     meta: [
       { title: "Профиль — SauBol AI" },
