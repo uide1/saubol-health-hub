@@ -1,10 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Badge, PageHeader, SectionEyebrow } from "@/components/ui-kit";
 import { useL, L } from "@/lib/i18n";
 import { useMyProfile } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { scanPrescriptionPhoto } from "@/lib/meds-scan.functions";
+
 
 export const Route = createFileRoute("/_authenticated/prescription-rx")({
   head: () => ({
