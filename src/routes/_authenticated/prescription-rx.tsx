@@ -30,6 +30,11 @@ function PrescriptionRx() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [remindersOn, setRemindersOn] = useState(false);
   const remindedRef = useRef<Set<string>>(new Set());
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+  const scanFn = useServerFn(scanPrescriptionPhoto);
+
 
   // Load family (self + accepted children)
   useEffect(() => {
