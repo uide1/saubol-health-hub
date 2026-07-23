@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useL, L } from "@/lib/i18n";
 import { useMyProfile } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
+import { UserAvatar } from "@/components/user-avatar";
 
 
 
@@ -44,6 +45,7 @@ type FamilyChild = {
   emoji: string;
   medsTaken: number;
   medsTotal: number;
+  avatar_url: string | null;
 };
 
 function FamilyStrip() {
@@ -62,7 +64,7 @@ function FamilyStrip() {
       const ids = (links ?? []).map((l: any) => l.child_id);
       if (ids.length === 0) { setChildren([]); return; }
       const [{ data: profs }, { data: meds }] = await Promise.all([
-        supabase.from("profiles").select("id,first_name,full_name,username").in("id", ids),
+        supabase.from("profiles").select("id,first_name,full_name,username,avatar_url").in("id", ids),
         supabase.from("medication_schedules").select("user_id,taken").in("user_id", ids),
       ]);
       const byId = new Map<string, any>((profs ?? []).map((p: any) => [p.id, p]));
@@ -82,6 +84,7 @@ function FamilyStrip() {
           emoji: emojis[i % emojis.length],
           medsTaken: c.ok,
           medsTotal: c.t,
+          avatar_url: p?.avatar_url ?? null,
         };
       }));
     })();
@@ -115,8 +118,8 @@ function FamilyStrip() {
             return (
               <div key={p.id} className="p-4">
                 <div className="flex items-center gap-3">
-                  <div className="relative grid h-11 w-11 place-items-center rounded-full bg-secondary text-xl">
-                    {p.emoji}
+                  <div className="relative">
+                    <UserAvatar url={p.avatar_url} name={p.name} emoji={p.emoji} size={44} />
                     <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[color:var(--mint)] ring-2 ring-card" />
                   </div>
                   <div className="min-w-0 flex-1">

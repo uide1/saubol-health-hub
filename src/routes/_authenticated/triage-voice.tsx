@@ -6,6 +6,7 @@ import { useL, L } from "@/lib/i18n";
 import { triageChat } from "@/lib/triage-ai.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
+import { UserAvatar } from "@/components/user-avatar";
 
 export const Route = createFileRoute("/_authenticated/triage-voice")({
   head: () => ({
@@ -26,6 +27,7 @@ type Contact = {
   online: boolean;
   unread?: number;
   last?: string;
+  avatar_url?: string | null;
 };
 
 type Msg = { id: string; who: "me" | "them"; text: string; time: string };
@@ -96,6 +98,7 @@ function VoiceMessenger() {
       emoji: p.role === "child" ? "🧒" : "👤",
       status: p.username ? `@${p.username}` : "",
       online: true,
+      avatar_url: p.avatar_url,
     } as Contact))];
     setContacts(list);
   }, [user?.id]);
@@ -277,11 +280,11 @@ function VoiceMessenger() {
       />
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
-        <div className="relative overflow-hidden rounded-3xl border border-border bg-card">
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-card sm:rounded-3xl">
           <div className="border-b border-border p-3">
             <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder={L1({ kk: "Іздеу...", ru: "Поиск...", en: "Search..." })} className="w-full rounded-full border border-border bg-surface px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-white/20" />
           </div>
-          <div className="max-h-[640px] overflow-y-auto p-2">
+          <div className="max-h-[42vh] overflow-y-auto p-2 lg:max-h-[640px]">
             {([
               { key: "ai", title: L1({ kk: "AI дәрігер", ru: "AI-доктор", en: "AI Doctor" }), items: grouped.ai },
               { key: "family", title: L1({ kk: "Отбасы", ru: "Семья", en: "Family" }), items: grouped.family },
@@ -297,8 +300,12 @@ function VoiceMessenger() {
                     return (
                       <button key={c.id} onClick={() => setActiveId(c.id)}
                         className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition ${isActive ? "bg-[color:var(--mint-soft)] border border-[color:var(--mint)]/40" : "border border-transparent hover:bg-surface"}`}>
-                        <div className={`relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-secondary text-xl ring-2 ${ring}`}>
-                          {c.emoji}
+                        <div className={`relative shrink-0`}>
+                          {c.kind === "ai" ? (
+                            <div className={`grid h-11 w-11 place-items-center rounded-full bg-secondary text-xl ring-2 ${ring}`}>{c.emoji}</div>
+                          ) : (
+                            <UserAvatar url={c.avatar_url} name={c.name} emoji={c.emoji} size={44} ring={`ring-2 ${ring}`} />
+                          )}
                           <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-card ${c.online ? "bg-[color:var(--mint)]" : "bg-muted-foreground/50"}`} />
                         </div>
                         <div className="min-w-0 flex-1">
@@ -331,8 +338,12 @@ function VoiceMessenger() {
           {isAI && <div className="aurora opacity-30" />}
           <div className="relative flex items-center justify-between border-b border-border/60 px-5 py-3 backdrop-blur-md">
             <div className="flex items-center gap-3">
-              <div className={`relative grid h-10 w-10 place-items-center rounded-full bg-secondary text-xl ring-2 ${isAI ? "ring-[color:var(--mint)]/50" : "ring-white/10"}`}>
-                {active.emoji}
+              <div className="relative shrink-0">
+                {isAI ? (
+                  <div className={`grid h-10 w-10 place-items-center rounded-full bg-secondary text-xl ring-2 ring-[color:var(--mint)]/50`}>{active.emoji}</div>
+                ) : (
+                  <UserAvatar url={active.avatar_url} name={active.name} emoji={active.emoji} size={40} ring="ring-2 ring-white/10" />
+                )}
                 <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-card ${active.online ? "bg-[color:var(--mint)]" : "bg-muted-foreground/50"}`} />
               </div>
               <div>
@@ -343,14 +354,18 @@ function VoiceMessenger() {
             <div className="text-[10px] text-muted-foreground"><L kk="E2E шифрлеу" ru="E2E шифрование" en="E2E encrypted" /></div>
           </div>
 
-          <div ref={feedRef} className="relative max-h-[560px] space-y-4 overflow-y-auto px-5 py-6">
+          <div ref={feedRef} className="relative max-h-[55vh] space-y-4 overflow-y-auto px-3 py-4 sm:px-5 sm:py-6 lg:max-h-[560px]">
             {messages.map((m) => {
               const mine = m.who === "me";
               return (
                 <div key={m.id} className={`flex items-end gap-2 animate-fade-in ${mine ? "flex-row-reverse" : ""}`}>
-                  <div className={`grid h-8 w-8 shrink-0 place-items-center rounded-full text-[11px] ${mine ? "border border-border bg-surface text-foreground" : isAI ? "bg-[color:var(--mint)] text-background mint-glow" : "bg-secondary text-foreground"}`}>
-                    {mine ? "Я" : active.emoji}
-                  </div>
+                  {mine ? (
+                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full border border-border bg-surface text-[11px] text-foreground">Я</div>
+                  ) : isAI ? (
+                    <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[color:var(--mint)] text-[11px] text-background mint-glow">{active.emoji}</div>
+                  ) : (
+                    <UserAvatar url={active.avatar_url} name={active.name} emoji={active.emoji} size={32} />
+                  )}
                   <div className={`relative max-w-[68%] rounded-[22px] px-4 py-2.5 backdrop-blur-md ${mine ? "border border-[color:var(--mint)]/25 bg-[color:var(--mint-soft)] rounded-br-md" : "border border-white/8 bg-card/70 rounded-bl-md"}`}>
                     <div className={`mb-1 flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground ${mine ? "flex-row-reverse" : ""}`}>
                       <span>{mine ? L1({ kk: "Мен", ru: "Я", en: "Me" }) : active.name}</span>

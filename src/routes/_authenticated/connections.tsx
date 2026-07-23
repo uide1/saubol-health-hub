@@ -2,7 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { useMyProfile, resolveAvatarUrl } from "@/lib/auth";
+import { useMyProfile } from "@/lib/auth";
+import { UserAvatar } from "@/components/user-avatar";
 import { PageHeader } from "@/components/ui-kit";
 import { L, useL } from "@/lib/i18n";
 import { useServerFn } from "@tanstack/react-start";
@@ -35,7 +36,6 @@ function ConnectionsPage() {
   const [results, setResults] = useState<Row[]>([]);
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [busy, setBusy] = useState(false);
-  const [avatars, setAvatars] = useState<Record<string, string>>({});
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -64,11 +64,6 @@ function ConnectionsPage() {
       if (other) out.push({ kind: "family", role: iAmParent ? "child" : "parent", status: r.status, iRequested: iAmParent, other });
     });
     setLinks(out);
-    // resolve avatars
-    const entries = await Promise.all(
-      (profs ?? []).map(async (p: any) => [p.id, await resolveAvatarUrl(p.avatar_url)] as const),
-    );
-    setAvatars(Object.fromEntries(entries.filter(([, u]) => !!u)) as Record<string, string>);
   }, [user?.id]);
 
   useEffect(() => { load(); }, [load]);
@@ -234,7 +229,7 @@ function ConnectionsPage() {
           </div>
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
             {pending.map((l, i) => (
-              <PersonCard key={i} link={l} onAccept={l.iRequested ? undefined : accept} onRemove={remove} avatarUrl={avatars[l.other.id]} />
+              <PersonCard key={i} link={l} onAccept={l.iRequested ? undefined : accept} onRemove={remove} />
             ))}
           </div>
         </div>
@@ -247,7 +242,6 @@ function ConnectionsPage() {
           items={family.filter((l) => l.status === "accepted")}
           empty={L1({ kk: "Балаңызды/ата-анаңызды жоғарыдан қосыңыз", ru: "Добавьте ребёнка/родителя выше", en: "Add a child or parent above" })}
           onRemove={remove}
-          avatars={avatars}
         />
         <Section
           title={L1({ kk: "Достар", ru: "Друзья", en: "Friends" })}
@@ -255,15 +249,14 @@ function ConnectionsPage() {
           items={friends.filter((l) => l.status === "accepted")}
           empty={L1({ kk: "Достарыңызды жоғарыдан қосыңыз", ru: "Добавьте друзей выше", en: "Add friends above" })}
           onRemove={remove}
-          avatars={avatars}
         />
       </div>
     </div>
   );
 }
 
-function Section({ title, icon, items, empty, onRemove, avatars }: {
-  title: string; icon: string; items: LinkRow[]; empty: string; onRemove: (l: LinkRow) => void; avatars: Record<string, string>;
+function Section({ title, icon, items, empty, onRemove }: {
+  title: string; icon: string; items: LinkRow[]; empty: string; onRemove: (l: LinkRow) => void;
 }) {
   return (
     <div className="rounded-3xl border border-border bg-card p-5">
@@ -277,7 +270,7 @@ function Section({ title, icon, items, empty, onRemove, avatars }: {
       ) : (
         <div className="space-y-2">
           {items.map((l, i) => (
-            <PersonCard key={i} link={l} onRemove={onRemove} avatarUrl={avatars[l.other.id]} />
+            <PersonCard key={i} link={l} onRemove={onRemove} />
           ))}
         </div>
       )}
@@ -285,15 +278,15 @@ function Section({ title, icon, items, empty, onRemove, avatars }: {
   );
 }
 
-function PersonCard({ link, onAccept, onRemove, avatarUrl }: {
-  link: LinkRow; onAccept?: (l: LinkRow) => void; onRemove: (l: LinkRow) => void; avatarUrl?: string;
+function PersonCard({ link, onAccept, onRemove }: {
+  link: LinkRow; onAccept?: (l: LinkRow) => void; onRemove: (l: LinkRow) => void;
 }) {
   const roleLabel = link.kind === "family"
     ? (link.role === "child" ? "👶 Child" : "👤 Parent")
     : "🤝 Friend";
   return (
     <div className="group flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 transition hover:border-white/20">
-      <Avatar row={link.other} url={avatarUrl} size={40} />
+      <UserAvatar url={link.other.avatar_url} name={link.other.full_name ?? link.other.username} size={40} />
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-medium text-foreground">{link.other.full_name ?? link.other.username}</div>
         <div className="truncate text-[11px] text-muted-foreground">
@@ -311,11 +304,6 @@ function PersonCard({ link, onAccept, onRemove, avatarUrl }: {
   );
 }
 
-function Avatar({ row, url, size = 40 }: { row: Row; url?: string | null; size?: number }) {
-  const initials = (row.full_name ?? row.username ?? "?").slice(0, 2).toUpperCase();
-  return (
-    <div style={{ width: size, height: size }} className="grid shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[color:var(--mint)]/60 to-emerald-900 text-xs font-semibold text-background">
-      {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : initials}
-    </div>
-  );
+function Avatar({ row, size = 40 }: { row: Row; size?: number }) {
+  return <UserAvatar url={row.avatar_url} name={row.full_name ?? row.username} size={size} />;
 }
